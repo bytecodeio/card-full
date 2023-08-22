@@ -948,7 +948,7 @@ const PurchasesReview = ({
                <Col md={8}>
                  <Container fluid className="padding-0 innerTab embed-responsive embed-responsive-16by9">
                    <TabbedVisualizations
-                     dashboardId="rebecca_thompson_project::product_movement_report_tab"
+                     dashboardId="order_express::product_movement_report_tab"
                      dimensionToggleFields={dimensionToggleFields}
                    />
                  </Container>
