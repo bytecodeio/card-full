@@ -57,7 +57,7 @@ const InnerTableTabs = ({
 
               <div id="embedWrapper" className={showMenu3 ? "whole" : ""}>
                 {/* <EmbedActionBar slideIt3={slideIt3} showMenu3={showMenu3} active={active} handleClick={handleClick} faClass={faClass} queryId={t['query']} title={t.title}/> */}
-                <EmbedContainer vis={t} visList={visList} updateVisList={setVisList} handleVisUpdate={handleSingleVisUpdate} />
+                <EmbedContainer vis={t} visList={visList} updateVisList={setVisList} handleVisUpdate={handleSingleVisUpdate} type={"tabbed"} />
               </div>
             </Tab>
           ))}

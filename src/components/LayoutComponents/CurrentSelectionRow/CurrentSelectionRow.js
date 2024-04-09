@@ -17,13 +17,14 @@ export const CurrentSelectionRow = ({properties,filters,selectedFilters,setSelec
         setActive(!active);    
         setFaClass(!faClass);
       };
+
   useEffect(() => {
-    console.log("height",selectionRef)
+    console.log("height",selectionRef.current.clientHeight)
     setSelectionHeight(selectionRef.current.clientHeight)
     let _updated = document.querySelectorAll('.tab-pane.active .theSelected .theOptions');
     let _selected = document.querySelectorAll('.tab-pane.active.show .theSelected .dateChoice');
     setListLength(_updated.length + _selected.length);
-  })
+  },[selectionRef?.current?.clientHeight])
 
                   // //jquery will be removed and changed, leave for now
     
@@ -57,9 +58,9 @@ export const CurrentSelectionRow = ({properties,filters,selectedFilters,setSelec
               </Col>
             </Row>            
             {layoutProps['current selection']?
-            <Row className="fullW mt-1 position-relative">
+            <Row className="fullW mt-1 position-relative" ref={selectionRef}>
               <Col xs={12} md={11}>
-                <div ref={selectionRef}
+                <div 
                   className={
                     toggle
                       ? "d-flex justify-content-start align-items-center flex-wrap theSelected slide-up"

@@ -22,7 +22,7 @@ const QuickFilter = ({ quickFilters, selectedFilters, selection, setSelectedFilt
       delete quickFilters[type][name]
     }
     setSelectedFilters(quickFilters)
-    setIsFilterChanged(true)
+    //setIsFilterChanged(true)
   }
 
   const isActive = (key, v) => {

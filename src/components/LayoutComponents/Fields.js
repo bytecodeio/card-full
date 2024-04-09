@@ -1,3 +1,4 @@
+import { Checkbox, FormControlLabel } from "@mui/material";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
@@ -76,7 +77,7 @@ const Fields = ({
       </div>
       :''
     }
-    <div  className={expandMenu ? "wrapFilters fullScreen" : "wrapFilters"}>
+    {/* <div  className={expandMenu ? "wrapFilters fullScreen" : "wrapFilters"}>
       <i class="fal fa-times closeOptions" onClick={() => setExpandMenu(false)} ></i>
       {sortData(fieldOptions)?.map((fieldOption) => (
         <div className="one" key={fieldOption.name}>
@@ -96,10 +97,41 @@ const Fields = ({
           </Form.Group>
         </div>
       ))}
-    </div>
+    </div> */}
+    <FieldsComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} sortData={sortData} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection} tabList={tabList} currentInnerTab={currentInnerTab} />
+    <Modal show={expandMenu} onHide={() => setExpandMenu(false)}>
+      <Modal.Header className="modal-selection-header" closeButton>Fields</Modal.Header>
+      <Modal.Body>
+        <FieldsComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} sortData={sortData} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection} tabList={tabList} currentInnerTab={currentInnerTab} />
+      </Modal.Body>
+      <Modal.Footer></Modal.Footer>
+    </Modal>
   </>
     // set value to name
   );
 };
 
 export default Fields;
+
+const FieldsComponent = ({setExpandMenu, expandMenu, sortData, fieldOptions, handleFieldSelection, tabList, currentInnerTab}) => {
+    return (
+      <div  className={expandMenu?"wrapFilters expanded":"wrapFilters"}>
+        <i class="fal fa-times closeOptions" onClick={() => setExpandMenu(false)} ></i>
+        {sortData(fieldOptions)?.map((fieldOption) => (
+          <div className="one field-select" key={fieldOption.name}>
+              <FormControlLabel control={<Checkbox />}
+                className="check-selector"
+                label={fieldOption.label_short}
+                checked={tabList.length > 0?tabList[currentInnerTab]["selected_fields"].includes(
+                  fieldOption.name
+                ):false}
+                name="Fields"
+                // id={fieldOption.name}
+                value={fieldOption.fields}
+                onChange={() => handleFieldSelection(fieldOption.name)}
+              />
+          </div>
+        ))}
+      </div>
+    )
+}

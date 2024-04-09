@@ -62,6 +62,8 @@ export const ReportContainer = ({
     const [isFetchingDefaultDashboard, setIsFetchingDefaultDashboard] = useState(true);
 
     const [isLoading, setIsLoading] = useState({})
+
+    const [previousFilters, setPreviousFilters] = useState({})
   
     const params = useParams();
   
@@ -79,7 +81,7 @@ export const ReportContainer = ({
       savedFilters,
       removeSavedFilter,
       upsertSavedFilter,
-      showMenu, setShowMenu, propertiesLoading} = useContext(ApplicationContext)
+      showMenu, setShowMenu, propertiesLoading,application} = useContext(ApplicationContext)
 
       console.log("tab filters", tabFilters)
 
@@ -102,6 +104,11 @@ export const ReportContainer = ({
     }
     initialize()
     }, [currentNavTab,initialLoad]);   
+
+    useEffect(() => {
+      handleTabVisUpdate({...visList})
+      setIsFilterChanged(false)
+    },[isFilterChanged==true])
 
     
     //Getting the tiles of each dashboard
@@ -209,8 +216,8 @@ export const ReportContainer = ({
 
       const queryValidator = async (query) => {
         query['limit'] = 1;
-        let {id} = await sdk.ok(sdk.create_query(query));
-        return id
+        let res = await sdk.ok(sdk.create_query(query, 'id,slug'));
+        return res
         // if (result.length > 0) {
         //   return {status:false}
         // }
@@ -277,9 +284,24 @@ export const ReportContainer = ({
             _filteredFilters[key] = filterList[key]
           }
         }
+        
         console.log("filtered filters", JSON.parse(JSON.stringify(_filteredFilters)))
+        console.log("SAME, NO FILTERS", previousFilters)
+        console.log("SAME, NO FILTERS", selectedInnerTab)
+        let onlyFields = false;
+        if (JSON.stringify(previousFilters) == JSON.stringify(_filteredFilters)) {
+          onlyFields = true
+        }
         let _filters = {};
-        _visList = _visList.map((vis) => {vis.isLoading=true; return vis});
+        _visList = _visList.map((vis) => {
+          console.log(vis, "SAME, NO FILTERS")
+          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false) {
+            console.log("SAME, NO FILTERS",selectedInnerTab)
+            vis.isLoading=true;
+          }
+          
+          return vis
+        });
         setVisList(_visList)
         _filters = await formatFilters(JSON.parse(JSON.stringify(_filteredFilters)));
 
@@ -291,50 +313,42 @@ export const ReportContainer = ({
     
         let newVisList = [];
         for (let vis of _visList) {
-          const { vis_config, model, view, pivots } = vis['query_values'];
-          let index = _visList.indexOf(vis)          
+          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false) {
+            const { vis_config, model, view, pivots } = vis['query_values'];
+            let index = _visList.indexOf(vis)          
 
-          let _fields = [];
+            let _fields = [];
 
-          console.log("pivots", pivots)
-          
-          _fields = vis["selected_fields"];
+            console.log("pivots", pivots)
+            
+            _fields = vis["selected_fields"];
 
-          let _query = {
-            model: model,
-            view: view,
-            fields: _fields,
-            filters: vis["localSelectedFilters"]
-              ? { ..._filters, ...vis["localSelectedFilters"] }
-              : _filters,
-            vis_config,
-            pivots,
-            limit:5000
+            let _query = {
+              model: model,
+              view: view,
+              fields: _fields,
+              filters: vis["localSelectedFilters"]
+                ? { ..._filters, ...vis["localSelectedFilters"] }
+                : _filters,
+              vis_config,
+              pivots,
+              limit:5000
+            }
+            let _queryVal = {..._query}
+
+            let _urlParams = await createVisualizationUrl(_query)     
+            let {id, slug} = await queryValidator(_queryVal);
+            vis['query_id'] = id
+            vis['query'] = slug
+            vis['visUrl'] = _urlParams;
+            vis['isLoading'] = false;
+            //vis['error'] = _error;
+            _visList[index] = vis;
+            setVisList(_visList)
           }
-          let _queryVal = {..._query}
 
-          let _urlParams = await createVisualizationUrl(_query)
-          //let _error = await queryValidator(..._query);          
-          //let _error = await queryValidator(_queryVal);
-          //console.log("vis validate", _error)
-          //console.log("vis validate", _error)
-          // const { client_id } = await sdk.ok(
-          //   sdk.create_query(_query)
-          // );
-          //vis["query"] = client_id;           
-          let id = await queryValidator(_queryVal);
-          vis['query_id'] = id
-          vis['visUrl'] = _urlParams;
-          vis['isLoading'] = false;
-          //vis['error'] = _error;
-          _visList[index] = vis;
-          setVisList(_visList)
-
-
-          //setIsLoading(false)
-          //setVisList(prev => [...prev, vis]);
-          //newVisList.push(vis);
         }
+        setPreviousFilters({..._filteredFilters})
         //setVisList(newVisList);
         //
       };
@@ -354,9 +368,6 @@ export const ReportContainer = ({
         _filters = await formatFilters(JSON.parse(JSON.stringify(updatedFilters)));
         _filters = { ..._filters, ...currentVis["localSelectedFilters"] };
     
-        // const { vis_config, fields, model, view, pivots } = await sdk.ok(
-        //   sdk.query_for_slug(currentVis["query"])
-        // );
 
         const { vis_config, model, view, pivots } = currentVis['query_values'];
     
@@ -420,7 +431,7 @@ export const ReportContainer = ({
 
 
   
-    
+    console.log("description", application)
    
       // const AccountGroupsFieldOptions = useMemo(() => {
         
@@ -470,7 +481,7 @@ export const ReportContainer = ({
                     selectedTabFilters={selectedTabFilters}
                     setSelectedTabFilters={setSelectedTabFilters}
                     handleTabVisUpdate={handleTabVisUpdate}
-                    description={description}
+                    description={application.tooltip_description}
                     filters={filters}
                     tabFilters={tabFilters}
                     layoutProps={layoutProps}

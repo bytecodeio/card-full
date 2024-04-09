@@ -15,7 +15,6 @@ import { InitialPage } from "./InitialPage";
 
 export const App = hot(() => {
 
-
   const isLandingPage = () => {
     const extensionContext = useContext(ExtensionContext)
     

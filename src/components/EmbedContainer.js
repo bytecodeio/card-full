@@ -3,7 +3,7 @@ import { Form, Row, Col, Button, Container } from "react-bootstrap";
 import EmbedTable from "./EmbedTable";
 import {EmbedActionBar} from './EmbedActionBar'
 
-export const EmbedContainer = ({vis, visList, updateVisList, handleVisUpdate}) => {
+export const EmbedContainer = ({vis, visList, updateVisList, handleVisUpdate, type}) => {
     const [openPopover, setOpenPopover] = useState(false)
     const [showMenu3, setShowMenu3] = useState(false)
     const [active, setActive] = useState(false);
@@ -43,7 +43,7 @@ export const EmbedContainer = ({vis, visList, updateVisList, handleVisUpdate}) =
         <>
         <div id="embedWrapper" style={{position:'relative'}} className={showMenu3 ? "whole" : ""}>
             <div className="embed-action-section">                    
-                <EmbedActionBar slideIt3={slideIt3} showMenu3={showMenu3} active={active} handleClick={handleClick} faClass={faClass} queryId={vis['query']} title={vis.title}/>
+                <EmbedActionBar vizType={type} slideIt3={slideIt3} showMenu3={showMenu3} active={active} handleClick={handleClick} faClass={faClass} queryId={vis['query']} title={vis.title}/>
             </div>
             {vis['tileFilterOptions'].length > 0?
             <Row className="dimension-selector">

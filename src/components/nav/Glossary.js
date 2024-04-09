@@ -1021,7 +1021,7 @@ const handleLetterClick = (clickedLetter) => {
   // 
 
   const filteredItems = items.includes('All') ? dictionary : dictionary.filter((img) => items.includes(img.dataFilter));
-  const showItems = keyword === "" ? filteredItems : filteredItems.filter(item => item.definition.indexOf(keyword) !== -1);
+  const showItems = keyword === "" ? filteredItems : filteredItems.filter(item => item.term.toUpperCase().includes(keyword.toUpperCase()) || item.definition.toUpperCase().includes(keyword.toUpperCase()));
   return (
     <div>
 

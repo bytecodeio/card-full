@@ -11,17 +11,17 @@ import {
 function HowTo() {
   return (
     <div>
-      <h5 className="mt-3">Bookmarks</h5>
+      <h5 className="mt-3">Saved Filters</h5>
       <p>
-        Bookmarks enable the user to create Favorite reports and save for future
+        Saved filters enable the user to create Favorite reports and save for future
         reference. Saved reports will capture the fields and filters established
-        by the user. Bookmarks can include the report title and a user specified
+        by the user. Saved filters can include the report title and a user specified
         descriptor for easy reference.
       </p>
 
       <Accordion defaultActiveKey={0} className="mt-3 mb-3">
         <Accordion.Item eventKey="4" disabled>
-          <Accordion.Header>Bookmarks</Accordion.Header>
+          <Accordion.Header>Saved Filters</Accordion.Header>
           <Accordion.Body></Accordion.Body>
         </Accordion.Item>
       </Accordion>
@@ -43,23 +43,23 @@ function HowTo() {
         using the From & To fields.
       </p>
 
-      <div className="d-flex mt-3">
+      <div className="mt-3">
       <div className="one radio">
       <Form.Group  controlId="formBasicCheckbox15">
-        <Form.Check  type="radio" label="MTD" name="filters" />
+        <Form.Check  type="radio" label="Month to Date" name="filters" />
       </Form.Group>
     </div>
 
     <div className="one radio">
       <Form.Group controlId="formBasicCheckbox17">
-        <Form.Check type="radio" label="QTD" name="filters"/>
+        <Form.Check type="radio" label="Quarter to Date" name="filters"/>
       </Form.Group>
     </div>
 
 
    <div className="one radio">
      <Form.Group controlId="formBasicCheckbox19">
-       <Form.Check type="radio" label="YTD" name="filters"/>
+       <Form.Check type="radio" label="Year to Date" name="filters"/>
      </Form.Group>
    </div>
       </div>

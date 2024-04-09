@@ -26,6 +26,29 @@ export const TopProducts = ({filterOption,selectedFilters,setSelectedFilters}) =
 
     return (
         <>
+        <p>Select top percentage of products</p>
+        <div className='top-products-container'>
+
+            <div style={{'width':'80%'}}>
+                <input
+                    value={value}
+                    onChange={(changeEvent) => handleChange(changeEvent,25)}
+                    type="range"
+                    min="0"
+                    max="100"
+                    step={step}
+                    list="steplist"
+                    className="range-slider mt-2"
+                />
+
+                <datalist id="steplist" className="range">
+                    <option value={0} label="0">0</option>
+                    <option value={25} label="25">25</option>
+                    <option value={50} label="50">50</option>
+                    <option value={75} label="75">75</option>
+                    <option value={100} label="100">100</option>
+                </datalist>
+            </div>
             <input
                 value={value}
                 onChange={(changeEvent) => handleChange(changeEvent,1)}
@@ -39,24 +62,8 @@ export const TopProducts = ({filterOption,selectedFilters,setSelectedFilters}) =
                 className="value"
             />
 
-            <input
-                value={value}
-                onChange={(changeEvent) => handleChange(changeEvent,25)}
-                type="range"
-                min="0"
-                max="100"
-                step={step}
-                list="steplist"
-                className="range-slider mt-2"
-            />
+        </div>
 
-            <datalist id="steplist" className="range">
-                <option value={0} label="0">0</option>
-                <option value={25} label="25">25</option>
-                <option value={50} label="50">50</option>
-                <option value={75} label="75">75</option>
-                <option value={100} label="100">100</option>
-            </datalist>
         </>
     )
 }

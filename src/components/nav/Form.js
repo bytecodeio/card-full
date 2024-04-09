@@ -4,6 +4,7 @@ import { Button } from "react-bootstrap";
 
 import HowTo from "./HowTo";
 import Glossary from "./Glossary";
+import { Close } from "@styled-icons/material-outlined";
 
 function SideForm() {
   const [show, setShow] = useState();
@@ -65,18 +66,17 @@ function SideForm() {
           style={show == "glossary" ? { display: "block" } : { display: "none" }}
         >
           <div className="modal-header">
-            <div className="closeThisPlease" id="close1">
+            <div className="closeThisPlease right-side-drawer" id="close1">
               <h4 className="blackLarger text-center changeTitle">Glossary</h4>
 
-              <Button
-                role="button"
+              <a
                 className="close"
                 data-dismiss="modal"
                 id="closeThisPlease1"
                 onClick={() => setShow('')}
               >
-                &#10005;
-              </Button>
+                <Close />
+              </a>
             </div>
           </div>
 
@@ -92,17 +92,16 @@ function SideForm() {
           style={show !== 'glossary' ? { display: "block" } : { display: "none" }}
         >
           <div className="modal-header">
-            <div className="closeThisPlease" id="close1">
+            <div className="closeThisPlease right-side-drawer" id="close1">
               <h4 className="blackLarger text-center changeTitle">How To</h4>
 
-              <Button
-                role="button"
+              <a
                 className="close"
                 data-dismiss="modal"
                 onClick={() => setShow('')}
               >
-                &#10005;
-              </Button>
+                <Close />
+              </a>
             </div>
           </div>
           <div className="modal-body">

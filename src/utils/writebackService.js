@@ -122,20 +122,20 @@ export const removeSavedFilterService = async (id,sdk) => {
     return asyncFunction(id,sdk);
 }
 
-export const insertSavedFilterService = async (user,app,filters,title,global,sdk) => {
-    const asyncFunction = async (user,app,filters,title,global,sdk) => {
+export const insertSavedFilterService = async (id, user,app,filters,title,global,sdk) => {
+    const asyncFunction = async (id,user,app,filters,title,global,sdk) => {
         const slugResponse = await sdk
             .ok(
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `insert into ${scratch_schema}.cms_bookmarks values (GENERATE_UUID(),${user},${app},${global},'${filters}','${title}',false);`,
+                sql: `insert into ${scratch_schema}.cms_bookmarks values ('${id}',${user},${app},${global},'${filters}','${title}',false);`,
             })
             )
         const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));
         
         return response
     }
-    return asyncFunction(user,app,filters,title,global,sdk);
+    return asyncFunction(id,user,app,filters,title,global,sdk);
 }
 
 export const updateSavedFilterService = async (id,title,global,sdk) => {

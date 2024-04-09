@@ -9,6 +9,8 @@ import { ApplicationContext } from "../Main2";
 import { useLocation } from "react-router-dom/cjs/react-router-dom";
 import { LoadingComponent } from "./LoadingComponent";
 import { TabContext } from "./ReportContainer";
+import { NoRowsMessage } from "./LayoutComponents/EmbedMessages/NoRowsMessage";
+import { ErrorMessage } from "./LayoutComponents/EmbedMessages/ErrorMessage";
 
 waveform.register()
 
@@ -19,6 +21,7 @@ const Explore = styled.div`
   & > iframe {
     width: 100%;
     height: 100%;
+    margin-left:2px;
   }
 `;
 
@@ -114,7 +117,7 @@ const EmbedTable = ({ queryId, vis }) => {
 
       if (el && hostUrl && queryId) {
         el.innerHTML = "";
-        LookerEmbedSDK.init(hostUrl);
+        // LookerEmbedSDK.init(hostUrl);
         LookerEmbedSDK.createExploreWithUrl(
             `${hostUrl}/embed/query/${application.model}/${application.explore}?${vis.visUrl}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
           )
@@ -136,15 +139,16 @@ const EmbedTable = ({ queryId, vis }) => {
   return (
     <>
       {message.status == "no results"?
-        <div style={{position:'absolute', height:'100%', width:'100%', backgroundColor:'white'}}>No results returned</div>
+        <NoRowsMessage />
       :''}
       {message.status == "error"?
-        <div style={{position:'absolute', height:'100%', width:'100%', backgroundColor:'white'}}>Error</div>
+        <ErrorMessage />
       :''}
       {isLoadingViz?
         <LoadingComponent />
         :
       ''}
+      <div class="hide-left-border"></div>
       {queryId ? <Explore ref={embedCtrRef}/>: <Spinner />}
     </>
   );

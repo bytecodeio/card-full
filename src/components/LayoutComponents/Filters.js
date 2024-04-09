@@ -45,7 +45,7 @@ const Filters = ({
       newFilters[type][filterName] = newValue;
       return newFilters;
     });
-    setIsFilterChanged(true);
+    //setIsFilterChanged(true);
   }
 
   const handleMenuExpand = () => {
@@ -66,27 +66,38 @@ const Filters = ({
 
   return (
     <>
-
-
     {showActionBtns?
       <div className="position-relative d-flex justify-content-end">
           <>
-
-
             <span className="allOptions clear mt-3 filter-expand"  onClick={() => handleMenuExpand()}>Expand</span>
           </>
       </div>
       :''
     }
+      <FiltersComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} filters={filters} formatValues={formatValues} selectedFilters={selectedFilters} handleFilterSelection={handleFilterSelection}/>
+      <Modal show={expandMenu} onHide={() => setExpandMenu(false)}>
+        <Modal.Header className="modal-selection-header" closeButton>Filters</Modal.Header>
+        <Modal.Body>
+          <FiltersComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} filters={filters} formatValues={formatValues} selectedFilters={selectedFilters} handleFilterSelection={handleFilterSelection}/>
+        </Modal.Body>
+        <Modal.Footer></Modal.Footer>
+      </Modal>
+    </>
 
+  );
+};
 
-      <div  className={expandMenu ? "wrapFilters fullScreen" : "wrapFilters"}>
-        <i class="fal fa-times closeOptions" onClick={() => setExpandMenu(false)} ></i>
+export default Filters;
+
+const FiltersComponent = ({setExpandMenu, expandMenu,filters,formatValues,selectedFilters,handleFilterSelection}) => {
+  return (
+    <div  className={expandMenu? "wrapFilters expanded": "wrapFilters"}>
+      <i class="fal fa-times closeOptions" onClick={() => setExpandMenu(false)} ></i>
         {filters.options.map((filterOption) => (
           formatValues(filterOption.field.name,filterOption.values)?.length > 0?
-          <div className="one" key={filterOption.name}>
+          <div className="one filter-selector" key={filterOption.name}>
             <p variant="h6">{filterOption.field.label_short}</p>
-             
+            
                 <Autocomplete name={filterOption.name} className="filter-input"
                   id="disable-clearable"
                   PopperComponent={"bottom-start"}                  
@@ -94,24 +105,13 @@ const Filters = ({
                   onChange={(el,v) => handleFilterSelection(filterOption.field.name,el,v)}
                   renderInput={(params) => <TextField {...params} placeholder="Please select" />}
                   value={selectedFilters[type][filterOption['field']['name']] ?? []}
-                  //name={filterOption.field.name}
-                  // options={filterOption.values?.map(v => Object.values(v)).filter(v => {
-                  //   if (!v.includes(null) || !v.includes("")) {
-                  //     return v[0]
-                  //   }
-                  // })}
                   options={formatValues(filterOption.field.name,filterOption.values)}
-                />
-              
+                />           
 
           </div>
         :''
         )
-        )}
-      </div>
-    </>
-
-  );
-};
-
-export default Filters;
+      )}
+  </div>
+  )
+}

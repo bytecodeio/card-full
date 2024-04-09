@@ -9,7 +9,7 @@ export const DashboardVisualizations = ({visList,setSelectedFields,setSelectedIn
         <>
         <Container className='grid dashboard-grid-layout' style={{minHeight:'1500px', maxWidth:'95%'}}>
             
-            <div className="mt-3 mb-3 dashboard-grid-left" style={{paddingTop:'10px'}}>
+            <div className="mb-3 dashboard-grid-left" style={{paddingTop:'10px'}}>
               <div className="embed-responsive embed-responsive-16by9">
                 {visList.find(({ visId }) => visId === "vis5")?
                   <div className="vis-container">

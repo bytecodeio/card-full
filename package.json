@@ -30,6 +30,7 @@
     "@looker/sdk-rtl": "^21.4.0",
     "@looker/visualizations": "^1.0.0",
     "@mui/material": "^5.11.0",
+    "@mui/x-date-pickers": "^6.19.7",
     "@styled-icons/bootstrap": "^10.47.0",
     "@styled-icons/material": "10.34.0",
     "@styled-icons/material-outlined": "10.34.0",
@@ -50,7 +51,8 @@
     "react-is": "^16.13.1",
     "react-redux": "^8.0.2",
     "react-router-dom": "^5.3.4",
-    "styled-components": "^5.3.6"
+    "styled-components": "^5.3.6",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
