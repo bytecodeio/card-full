@@ -94,9 +94,9 @@ export const TopRow = ({
         <Container fluid className="padding-0">
             <Row className="fullW mb-1">
               {layoutProps['description']?
-                <Col md={12} lg={4}>
-                    <p className="mt-0 mb-2 mediumFont">
-                        {description?.description}
+                <Col md={12} lg={5}>
+                    <p className="mt-0 mb-2 mediumFont app-description">
+                        {description}
                     </p>
                 </Col>:''}
                 {layoutProps['date filter']?
@@ -105,11 +105,12 @@ export const TopRow = ({
                   </Col>
                 :''}    
 
-                <Col md={12} lg={4} className="position-relative">
+                {layoutProps['date range'] && selectedFilters['date range']?
+                  <Col md={12} lg={3} className="position-relative">
                   {tabFilters?.find(({type}) => type ==="comparison filter compare") && tabFilters?.find(({type}) => type ==="comparison filter review")?
                     <ComparisonDate selectedFilters={selectedFilters} selectedTabFilters={selectedTabFilters} setSelectedTabFilters={setSelectedTabFilters} tabFilters={tabFilters} filters={filters} handleTabVisUpdate={handleTabVisUpdate}/>
                   :
-                  <>
+                  <>                
                     <DateRangeSelector  dateRange={dateRange} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}/>
                         <div className="endAbsolute">
                         <Button
@@ -118,8 +119,9 @@ export const TopRow = ({
                         </Button>
                     </div>
                   </>
-                  }                    
+                  }                
                 </Col>
+                :''}
             </Row>
         </Container>
     )

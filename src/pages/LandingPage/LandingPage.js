@@ -22,15 +22,40 @@ export const LandingPage = ( {description} ) => {
 
     //Initial App list loading
     const getApps = async() => {
-        let _apps = await getLandingPageApplications(sdk)
-        _apps = await orderApps(_apps)
-        setApps(_apps)
-        setAllApps(_apps)
+        let _context = await getContextData()
+        console.log("context",_context)
+        let _apps = syncContextData()
+        if (_context?.length > 0) {
+            _apps = await orderApps(_context)
+            setApps(_context)
+            setAllApps(_context)
+        }
     }
 
     useEffect(() => {
         getApps();
     },[])
+
+    const syncContextData = async () => {
+        let _apps = [];
+        try {
+            _apps = await getLandingPageApplications(sdk);
+            console.log("query",_apps)
+            if (_apps.length > 0) {
+                updateContextData(_apps)
+            }
+        } catch (ex){            
+            console.error(ex)
+        }
+    }
+
+    const getContextData = async () => {
+        return await extensionContext.extensionSDK.getContextData()
+    }
+
+    const updateContextData = (context) => {
+        extensionContext.extensionSDK.saveContextData(context)
+    }
 
     //Ordering the apps between either the rank or alphabetical
     const orderApps = async (apps, order=selectedOrder) => {
@@ -96,7 +121,7 @@ export const LandingPage = ( {description} ) => {
           <Row>
 
         <div className='landing-page-action'>
-          <Col md={1}>
+          <Col className='col-md-1 col-3'>
           <div className="d-flex justify-content-start align-items-baseline">
           <p className="small mr-1">view</p>
 
@@ -124,7 +149,7 @@ export const LandingPage = ( {description} ) => {
             </ButtonGroup>
             </div>
               </Col>
-            <Col md={10}>
+            <Col className='col-10'>
             <InputGroup className='landing-page-search'>
                 <Form.Control id='search' placeholder='Search' onChange={handleSearchTerm} onKeyDown={(e) => e.keyCode == "13"? handleSearchButton():''}>
                 </Form.Control>

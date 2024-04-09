@@ -9,6 +9,7 @@ import AccountFilter from '../AccountFilter';
 import AccountGroup from '../AccountGroup';
 import ShortReasons from '../ShortReasons';
 import { TopProducts } from '../TopProducts';
+import { LoadingAccordion } from './LoadingAccordion';
 
 
 
@@ -33,12 +34,13 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
     
         let filters = JSON.parse(JSON.stringify(selectedFilters));
         for (let name in filters) {
-          if (name !== "date range") filters[name] = {};
+          if (!(name == "date range" || name == "date filter")) filters[name] = {};
         }
         setSelectedFilters(filters);
         setUpdatedFilters(filters);
     
         setIsFilterChanged(true);
+        //handleTabVisUpdate()
       }
 
     const renderTooltip = (props) => (
@@ -143,6 +145,12 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                         <FieldButtonGroup fieldGroups={fieldGroups} visList={visList} setVisList={setVisList} handleTabVisUpdate={handleTabVisUpdate} />
                                         : ''}
                                     {/* Account Group */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "account group")
+                                            ?.options.values
+                                    ) && layoutProps['account group'] &&
+                                        <LoadingAccordion title={"Account Group"} />
+                                    }
                                     {Array.isArray(
                                         filters.find(({ type }) => type === "account group")
                                             ?.options.values
@@ -170,6 +178,12 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
 
 
                                     {/* Account Filter */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "account filter")
+                                            ?.options.values
+                                    ) && layoutProps['account filter'] &&
+                                        <LoadingAccordion title={"Account Filter"} />
+                                    }
                                     {Array.isArray(
                                         filters.find(({ type }) => type === "account filter")
                                             ?.options.values
@@ -229,7 +243,13 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                     )}
 
                                     {/* Filters */}
+
+                                    
+                                    {filters.find(({ type }) => type === "filter")?.options?.length == 0 && layoutProps['filters'] &&
+                                        <LoadingAccordion title={"Filters"} /> 
+                                    }
                                     {layoutProps['filters'] ?
+
                                         filters.find(({ type }) => type === "filter")?.options?.length > 0 ?
                                             <Col xs={12} md={12}>
                                                 <Accordion.Item eventKey="5">
@@ -311,6 +331,7 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                             <Accordion.Body>
                                                 <SavedFilters
                                                     savedFilters={savedFilters}
+                                                    selectedFilters={selectedFilters}
                                                     setSelectedFilters={setSelectedFilters}
                                                     handleVisUpdate={handleTabVisUpdate}
                                                     removeSavedFilter={removeSavedFilter}

@@ -1,4 +1,4 @@
-import { Input, InputAdornment, OutlinedInput } from "@mui/material";
+import { Checkbox, FormControlLabel, Input, InputAdornment, OutlinedInput, Tooltip } from "@mui/material";
 import { indexOf } from "lodash";
 import React, { useEffect, useState } from "react";
 import { Button, Form, InputGroup, Modal } from "react-bootstrap";
@@ -29,45 +29,30 @@ const AccountFilter = ({
 
 
   const handleFieldSelection = (value) => {
+    console.log(value)
     let _field = field;
     let filters = {...selectedFilters}
     if (filters[type]?.hasOwnProperty(_field)) {
+      console.log("has own Prop")
       if (filters[type][_field].includes(value)) {
+        console.log("includes")
         let index = filters[type][_field].indexOf(value)
         filters[type][_field].splice(index,1)
       } else {
         filters[type][_field].push(value)
       }
     } else {
+      console.log("Create new field")
       filters[type] = {...filters[type],...{[_field]:[]}}
       filters[type][_field].push(value)
     }
     if (filters[type][_field].length === 0){
+      console.log("No Length")
       delete filters[type][_field]
     }
+    console.log("account filters", filters)
     setSelectedFilters(filters)
   }
-  // function handleFieldSelection(value) {
-  //   let key = "users.account_name." + value.replace(" ", "_");
-
-  //   let _selectedOptions = [...selectedOptions];
-  //   if (_selectedOptions.find((v) => v === value)) {
-  //     let index = _selectedOptions.indexOf(value);
-  //     _selectedOptions.splice(index, 1);
-  //   } else {
-  //     _selectedOptions.push(value);
-  //   }
-  //   let filters = { ...selectedFilters };
-  //   filters[account_key][key] = value;
-  //   if (_selectedOptions.length === 0) {
-  //     filters[account_key] = {};
-  //     setSelectedFilters(filters);
-  //     setSelectedOptions([]);
-  //   } else {
-  //     setSelectedOptions(_selectedOptions);
-  //     setSelectedFilters(filters);
-  //   }
-  // }
 
   const handleFieldsAll = () => {
     let filters = { ...selectedFilters };
@@ -140,7 +125,7 @@ const AccountFilter = ({
       ) : (
         ""
       )}
-      <div
+      {/* <div
         className={expandMenu ? "wrapFilters fullScreen" : "wrapFilters pt-2"}
       >
         <i
@@ -181,9 +166,66 @@ const AccountFilter = ({
               }
             })
           : ""}
-      </div>
+      </div> */}
+      <AccountFilterComponent isActive={isActive} expandMenu={expandMenu} setExpandMenu={setExpandMenu} search={search} handleSearch={handleSearch} handleSearchClear={handleSearchClear} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection}/>
+      <Modal show={expandMenu} onHide={() => setExpandMenu(false)}>
+        <Modal.Header className="modal-selection-header" closeButton>Account Filter</Modal.Header>
+        <Modal.Body>
+          <AccountFilterComponent isActive={isActive} expandMenu={expandMenu} setExpandMenu={setExpandMenu} search={search} handleSearch={handleSearch} handleSearchClear={handleSearchClear} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection}/>
+        </Modal.Body>
+        <Modal.Footer></Modal.Footer>
+      </Modal>
     </>
   );
 };
 
 export default AccountFilter;
+
+export const AccountFilterComponent = ({isActive,setExpandMenu,expandMenu, search, handleSearch, handleSearchClear, fieldOptions, handleFieldSelection}) => {
+  return (        
+  <>
+    <div className="filter-input-container">
+          <OutlinedInput className="filter-input" style={{width:'100%', marginBottom:'10px'}} value={search} onChange={handleSearch} placeholder="Search Accounts"
+            endAdornment={
+              search != ""?
+              <InputAdornment position="end">
+                <a onClick={handleSearchClear}>
+                  <i className="fal fa-times"></i>
+                </a>              
+              </InputAdornment>
+              :''
+            }/> 
+        </div>
+      <div
+        className={expandMenu?"wrapFilters expanded":"wrapFilters"}
+      >
+        <i
+          class="fal fa-times closeOptions"
+          onClick={() => setExpandMenu(false)}
+        ></i>
+
+
+               
+        {Array.isArray(fieldOptions["options"]["values"])
+          ? fieldOptions["options"]["values"]?.map((fieldOption) => {
+              let [key, value] = Object.entries(fieldOption)[0];
+              if ((value?.toUpperCase().includes(search?.toUpperCase()) || search.trim() == "") && (value != "" && value != null)){
+                return(               
+                <div className="one" key={value}>
+                    <FormControlLabel control={<Checkbox />}
+                      className="check-selector"
+                      label={value}
+                      checked={isActive(key, value)}
+                      name="accountFilters"
+                      // id={fieldOption}
+                      value={value}
+                      onChange={() => handleFieldSelection(value)}
+                    />
+                </div>)  
+              }
+            })
+          : ""}
+      </div>
+    </>
+  )
+}

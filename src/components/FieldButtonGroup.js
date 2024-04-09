@@ -38,10 +38,19 @@ export const FieldButtonGroup = ({fieldGroups, visList, setVisList, handleTabVis
         }
         handleTabVisUpdate(_visList)
     }
+
+    const sortData = (data) => {
+        console.log(data)
+        return data.sort((a,b) => {
+           var x = a.order;
+           var y = b.order;
+               return x < y ? -1 : x > y ? 1 : 0;
+           });
+       }
     return(
         <>
-            <ButtonGroup>            
-            {fieldGroups?.map(group => {
+            <ButtonGroup className='field-button-group-content'>            
+            {sortData(fieldGroups)?.map(group => {
                 return(
                     <Button className='field-group-button' onClick={(el) => handleButtonClick(el,group)} value={group.label} active={selectedFieldGroup.key == group.label}>{group.label}</Button>
                 )

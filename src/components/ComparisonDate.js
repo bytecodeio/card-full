@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Row, Col, Form, Button, Modal } from 'react-bootstrap'
 import moment from 'moment'
 import { forEach } from 'lodash'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 
 export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilters, selectedFilters, filters, handleTabVisUpdate}) => {
     const [reviewField, setReviewField] = useState({})
@@ -44,7 +46,14 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
 
     const showLabel = (selectedTabFilters) => {
         if (selectedTabFilters) {
-            let values = Object.values(selectedTabFilters).map(t => {return t})
+            let values = Object.values(selectedTabFilters).map((t,i) => {
+                if (i==0) {
+                    t = `Review Period ${t.replaceAll("-","/")}`
+                } else {
+                    t = `Compare Period ${t.replaceAll("-","/")}`
+                }
+                return t
+            })
             
             return values.join(" - ")
         }
@@ -169,7 +178,7 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
         //setSelectedFilters(filters);
       };
     
-    return (
+      return (
         <>
         <Row>
         <h6>Review Date</h6>
@@ -179,21 +188,33 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
 
           <div className="columnStart mr2">
             <label>Start Date</label>
-            <Form.Control
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DatePicker 
+                  value={moment(splitSelectedDateRange('review')[0])}
+                  onChange={(e) => onDateSelection(e, "start",'review')}
+                />
+              </LocalizationProvider>   
+            {/* <Form.Control
             type="date"
             value={splitSelectedDateRange('review')[0]}
             onChange={(e) => onDateSelection(e, "start", 'review')}
 
-            />
+            /> */}
 
           </div>
           <div className="columnStart">
             <label>End Date</label>
-            <Form.Control
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DatePicker 
+                  value={moment(splitSelectedDateRange('review')[1])}
+                  onChange={(e) => onDateSelection(e, "end", 'review')}
+                />
+              </LocalizationProvider>   
+            {/* <Form.Control
             type="date"
             value={splitSelectedDateRange('review')[1]}
             onChange={(e) => onDateSelection(e, "end", 'review')}
-            />
+            /> */}
 
           </div>
 
@@ -216,21 +237,33 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
 
         <div className="columnStart mr2">
         <label>Start Date</label>
-        <Form.Control
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DatePicker 
+                value={moment(splitSelectedDateRange('compare')[0])}
+                onChange={(e) => onDateSelection(e, "start", 'compare')}
+            />
+        </LocalizationProvider>   
+        {/* <Form.Control
         type="date"
         value={splitSelectedDateRange('compare')[0]}
         onChange={(e) => onDateSelection(e, "start",'compare')}
 
-        />
+        /> */}
 
         </div>
         <div className="columnStart">
         <label>End Date</label>
-        <Form.Control
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DatePicker 
+                value={moment(splitSelectedDateRange('compare')[1])}
+                onChange={(e) => onDateSelection(e, "end", 'compare')}
+            />
+        </LocalizationProvider>   
+        {/* <Form.Control
         type="date"
         value={splitSelectedDateRange('compare')[1]}
         onChange={(e) => onDateSelection(e, "end",'compare')}
-        />
+        /> */}
 
         </div>
 

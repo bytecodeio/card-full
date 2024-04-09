@@ -16,8 +16,10 @@ import {
   removeSavedFilterService,
   insertSavedFilterService,
   updateSavedFilterService,
+  getApplication, getApplicationTags, getApplicationTabs, getTabVisualizations, getTabTags, getTabAttributes, getApplications
 } from "./utils/writebackService.js";
 import { LayoutSelector } from "./LayoutSelector.js";
+import { LookerEmbedSDK } from "@looker/embed-sdk";
 
 //Create context for child components to use states
 export const ApplicationContext = React.createContext({})
@@ -27,6 +29,9 @@ export const ApplicationContext = React.createContext({})
 export const Main2 = () => {
   const extensionContext = useContext(ExtensionContext);
   const sdk = extensionContext.core40SDK;
+
+  const hostUrl = extensionContext.extensionSDK.lookerHostData.hostUrl;
+  LookerEmbedSDK.init(hostUrl);
 
   const [currentNavTab, setCurrentNavTab] = useState("dashboard");
 
@@ -54,6 +59,7 @@ export const Main2 = () => {
   const [isDefaultFilters, setIsDefaultFilters] = useState();
 
   const [propertiesLoading, setPropertiesLoading] = useState(false);
+  const [navigationList, setNavigationList] = useState([])
 
   const params = useParams();
 
@@ -182,6 +188,7 @@ export const Main2 = () => {
             let _fields = fieldsByTag[_tag];
             let _options = "";
             let _label = f.att1;
+            let _order = f.att2;
             if (_fields?.length > 0) {
               _fieldGroups.push({
                 tab: _tab,
@@ -189,7 +196,8 @@ export const Main2 = () => {
                 fields: _fields,
                 group: _group,
                 options: _options,
-                label: _label
+                label: _label,
+                order: _order
               });
             }
           }
@@ -218,9 +226,17 @@ export const Main2 = () => {
       let _filters = [];
       let _defaultSelected = {}
       let sortedTags = sortPriority(applicationTags)
-      let _defTags = sortedTags.find(({type}) => type === "default_filter");
+      let _defTags = sortedTags.filter(({type}) => type === "default_filter" || type === "default date filter");
+      //_defTags = [].concat(_defTags.map(d => {return d}))
+      console.log("tag",_defTags)
       
-      let _defaultFilterFields = fieldsByTag[_defTags?.tag_name]
+      //let _defaultFilterFields = fieldsByTag[_defTags?.tag_name]
+      let _defaultFilterFields = [];
+      _defTags.map(tag => {
+        let fields = fieldsByTag[tag?.tag_name]
+        fields?.map(f => _defaultFilterFields.push(f))
+      })
+      console.log("tag", _defaultFilterFields)
       for await (let f of sortedTags.filter(({ tag_group }) => tag_group == "filters")) {
         let _type = f.type;
         let _tag = f.tag_name;
@@ -233,8 +249,9 @@ export const Main2 = () => {
           }          
           console.log("date range", _options)
         }
-        let _defFilterType = _defaultFilterFields?.filter((df) =>
-          _fields?.includes(df)
+        let _defFilterType = _defaultFilterFields?.filter((df) => {
+          return _fields?.includes(df)
+        }
         );
         if (_defFilterType?.length > 0) {
           _defaultSelected[_type] = {};
@@ -258,8 +275,34 @@ export const Main2 = () => {
             option_type: f.option_type,
           });
         }
-
       }
+      let _nonStatedFilterFields = []
+      _defaultFilterFields?.map(df => {
+          let ret = Object.keys(_defaultSelected).some(key => {
+            return _defaultSelected[key].hasOwnProperty([df['name']])
+          })
+          console.log("default filter", ret)
+          if (!ret) {
+            _nonStatedFilterFields.push(df)           
+            if (df['default_filter_value'] != null) {
+                if (!_defaultSelected.hasOwnProperty('default')) {
+                  _defaultSelected['default'] = {}
+                }
+                _defaultSelected['default'][df['name'] = df['default_filter_value']]
+            }
+          }
+      })
+      
+      console.log("current default filters", _defaultSelected)
+      if (_nonStatedFilterFields.length > 0) {
+        _filters.push({
+          type:'default',
+          fields:_nonStatedFilterFields,
+          options:null,
+          option_type:null
+        })
+      }
+      console.log("default filters", _nonStatedFilterFields)
       console.log("filters",_filters)
       setFilters(_filters);
 
@@ -336,9 +379,13 @@ export const Main2 = () => {
     const initialize = async () => {
       let userInfo = await getUser();
       setUser(userInfo);
+      updateContext()
       let contextData = getContextData();
       if (contextData) {
-        let { application, application_tags, tabs, tab_tags } = contextData;
+        let { application, application_tags, tabs, tab_tags, navList } = contextData;
+        if (navList) {
+          setNavigationList(navList)
+        }
         setApplicationInfo(application);
         let fieldsByTag = await fetchLookMlFields(
           application.model,
@@ -361,11 +408,15 @@ export const Main2 = () => {
     return await sdk.ok(sdk.me());
   };
 
+  const updateContext = () => {
+    handleDataRefresh()
+  }
+
   //Once the filter state get created, this gets run to get the values of each field to be placed in the dropdowns
   const getOptionValues = async (filters, application) => {
     let _filters = [];
     let filterArr = [...filters];
-    for await (let f of filterArr) {
+    for (let f of filterArr) {
       let _options = [];
       if (f.option_type === "fields") {
         _options = f.fields;
@@ -395,9 +446,10 @@ export const Main2 = () => {
         }
       }
       f["options"] = _options;
-      _filters.push(f);
+      setFilters(prev => [...prev,f])
+      //_filters.push(f);
     }
-    setFilters(_filters);
+    //setFilters(_filters);
   };
 
   //Adding a default to the date range
@@ -431,7 +483,7 @@ export const Main2 = () => {
               filters: filters,
               limit: 500,
             },
-          })
+          }, {timeout:300})
         )
         .catch((ex) => {
           console.log(ex)
@@ -523,6 +575,7 @@ export const Main2 = () => {
       return true
     } else if (type == "insert") {
       await insertSavedFilterService(
+        obj.id,
         user.id,
         applicationInfo.id,
         JSON.stringify(updatedFilters),
@@ -533,6 +586,55 @@ export const Main2 = () => {
       return true
     }
   };
+
+  const updateContextData = (data) => {
+    extensionContext.extensionSDK.saveContextData(data)
+  }
+
+  const handleDataRefresh = async () => {
+    let extensionId = extensionContext.extensionSDK.lookerHostData.extensionId.split("::")[1];
+    let contextData = {}
+    try {
+      let app = await getApplication(extensionId, sdk)
+      if (app.length > 0) {
+        contextData['application'] = app[0];
+        let _appTags = await getApplicationTags(app[0].id, sdk);
+        contextData['application_tags'] = _appTags
+        let _tabs = await getApplicationTabs(app[0].id, sdk);
+        let _tabTagsList = []
+        for await (let t of _tabs) {
+          let visConfig = await getTabVisualizations(t.id, sdk);
+          t['config'] = visConfig;
+          let _tabTags = await getTabTags(t.id, sdk);
+          t['properties'] = _tabTags.filter(({tag_group}) => tag_group === "property")
+          let _tabAttributes = await getTabAttributes(t.id, sdk);
+          t['attributes'] = _tabAttributes;
+          _tabTagsList = _tabTagsList.concat(_tabTags)
+        }
+        contextData['tab_tags'] = _tabTagsList
+        contextData['tabs'] = _tabs;
+      }
+
+      let applications = await getApplications(sdk)
+      //setNavList(applications)
+      if (applications.length > 0) {
+        let appList = []
+        for await (let apps of applications) {
+          let tabs = await getApplicationTabs(apps['id'], sdk)
+          apps['tabs'] = tabs
+          appList.push(apps)
+        }
+        
+        //setNavList(appList);
+      }
+      contextData['navList'] = applications
+      console.log("context", contextData)
+      updateContextData(contextData)
+    } catch (ex) {
+      console.log("Context failed to update: "+ ex)
+    }
+
+  }
 
   return (
     <>
@@ -559,7 +661,7 @@ export const Main2 = () => {
             upsertSavedFilter:upsertSavedFilter,
             propertiesLoading:propertiesLoading
             }}>
-          <TopNav />
+          <TopNav navList={navigationList}/>
           <div className={showMenu ? "largePadding" : "slideOver largePadding"}>
             <div id="nav2">
               <Tab.Container mountOnEnter

@@ -5,7 +5,7 @@ import { ExtensionContext } from '@looker/extension-sdk-react';
 import { useEffect } from 'react';
 import { LoadingComponent } from './LoadingComponent';
 
-export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setActive, handleClick, faClass, toggle, setToggle, setFaClass, queryId, title}) => {
+export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setActive, handleClick, faClass, toggle, setToggle, setFaClass, queryId, title, vizType}) => {
     const extensionContext = useContext(ExtensionContext);
     const sdk = extensionContext.core40SDK;
 
@@ -45,8 +45,23 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
     const handleDownload = async () => {
         setIsLoading(true)
         let _type = {...type}
-        const {id} = await sdk.ok(sdk.query_for_slug(queryId));
-        const res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:5000}));
+        let res;
+        if (_type.value == 'jpg' || _type.value == 'png') {
+            let renderLoaded = false;
+            const {id} = await sdk.ok(sdk.create_query_render_task(queryId,_type.value,1600,800));
+            do {
+                console.log('checking')
+                let {status} = await sdk.ok(sdk.render_task(id));
+                if (status === "success") {
+                    console.log('success')
+                    res = await sdk.ok(sdk.render_task_results(id))
+                    renderLoaded = true;
+                }
+            } while (renderLoaded==false)
+        } else {
+            const {id} = await sdk.ok(sdk.query_for_slug(queryId));
+            res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:5000}));
+        }
         downloadFile(res,_type)
         setIsLoading(false)
     }
@@ -68,16 +83,22 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
         document.body.removeChild(el)
     }
 
+    useEffect(() => {
+        setOpenPrint(false)
+        setOpenDownload(false)
+    },[active])
+
 
     return (
         <>
         <div className={showMenu3?"embed-icon-container expand":"embed-icon-container"} >
-            <i class="fal fa-download embed-icon"  onClick={handleDownloadPopover} ref={downloadTarget}></i>
-            <i class="fal fa-print embed-icon" onClick={handlePrintPopover} ref={printTarget}></i>
-            <p className="small embed-icon" onClick={() => {slideIt3();handleClick()}}>
-
-
-             <i className={faClass ? 'fal fa-expand-alt' : 'far fa-compress-arrows-alt'}></i> { active ? "Collapse" : "Expand"}</p>
+            <p className='embed-action-title'>{vizType=="single"?title:''}</p>
+            <div className='embed-icons-right'>
+                <i class="fal fa-download embed-icon"  onClick={handleDownloadPopover} ref={downloadTarget}></i>
+                <i class="fal fa-print embed-icon" onClick={handlePrintPopover} ref={printTarget}></i>
+                <p className="small embed-icon" onClick={() => {slideIt3();handleClick()}}>
+                <i className={faClass ? 'fal fa-expand-alt' : 'far fa-compress-arrows-alt'}></i> { active ? "Collapse" : "Expand"}</p>
+            </div>
         </div>
         <Overlay target={downloadTarget.current} show={openDownload} placement="bottom">
             <Popover>

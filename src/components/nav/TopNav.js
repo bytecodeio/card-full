@@ -6,31 +6,31 @@ import { ExtensionContext } from "@looker/extension-sdk-react";
 import { groupBy } from "../../utils/globalFunctions";
 import { useState } from "react";
 
-function TopNav(props) {
+function TopNav({navList}) {
   const extensionContext = useContext(ExtensionContext);
   const sdk = extensionContext.core40SDK;
   const [show5, setShow5] = React.useState();
 
-  const [navList, setNavList] = useState([])
+  //const [navList, setNavList] = useState([])
 
   const wrapperRef = React.useRef(null);
 
   React.useEffect(() => {
-    const initialize = async () => {
-      let applications = await getApplications(sdk)
-      setNavList(applications)
-      if (applications.length > 0) {
-        let appList = []
-        for await (let apps of applications) {
-          let tabs = await getApplicationTabs(apps['id'], sdk)
-          apps['tabs'] = tabs
-          appList.push(apps)
-        }
+    // const initialize = async () => {
+    //   let applications = await getApplications(sdk)
+    //   setNavList(applications)
+    //   if (applications.length > 0) {
+    //     let appList = []
+    //     for await (let apps of applications) {
+    //       let tabs = await getApplicationTabs(apps['id'], sdk)
+    //       apps['tabs'] = tabs
+    //       appList.push(apps)
+    //     }
         
-        setNavList(appList);
-      }
-    }    
-    initialize()
+    //     setNavList(appList);
+    //   }
+    // }    
+    // initialize()
     document.addEventListener("click", handleClickOutside, false);
     return () => {
       document.removeEventListener("click", handleClickOutside, false);
@@ -46,8 +46,9 @@ function TopNav(props) {
 
   const handleClick = (app, tab) => {
     let host = extensionContext.extensionSDK.lookerHostData;
+    let project = extensionContext.extensionSDK.lookerHostData.extensionId
     let type = host.hostType == "spartan"? "spartan":"extensions"
-    let url = `${host.hostUrl}/${type}/order_express::${app['route']}/${tab['route']}`
+    let url = `${host.hostUrl}/${type}/${project.split("::")[0]}::${app['route']}/${tab['route']}`
     
     extensionContext.extensionSDK.openBrowserWindow(url)
   }

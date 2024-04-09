@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Row, Col, Form, Button, Modal } from 'react-bootstrap'
 import moment from 'moment'
 import { forEach } from 'lodash'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 
 export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilters, selectedFilters, filters, handleTabVisUpdate}) => {
     const [reviewField, setReviewField] = useState({})
@@ -45,7 +47,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
     const showLabel = (selectedTabFilters) => {
         if (selectedTabFilters) {
             let values = Object.values(selectedTabFilters).map(t => {return t})
-            
+            console.log("comparison", values)
             return values.join(" - ")
         }
         return ''
@@ -58,6 +60,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
                 <p>Date comparison: </p>
                 <div className='theOptions red' style={{color:'white'}}>
                     {showLabel(selectedTabFilters)}
+                    TEST
                 </div>
             </div>
             :''
@@ -155,13 +158,13 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
         let _field = fieldType === 'review'?reviewField:compareField
         if (type == "start") {
           let splitDate = splitSelectedDateRange(fieldType);
-          splitDate[0] = e.target.value;
+          splitDate[0] = e.format('YYYY-MM-DD');
           filters[_field['fields']['name']] = splitDate.join(" to ")
           setSelectedTabFilters(filters);
         }
         if (type == "end") {
           let splitDate = splitSelectedDateRange(fieldType);
-          splitDate[1] = e.target.value;
+          splitDate[1] = e.format('YYYY-MM-DD');
           filters[_field['fields']['name']] = splitDate.join(" to ")
           setSelectedTabFilters(filters);
         }
@@ -179,21 +182,33 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
 
           <div className="columnStart mr2">
             <label>Start Date</label>
-            <Form.Control
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DatePicker 
+                  value={moment(splitSelectedDateRange()[0])}
+                  onChange={(e) => onDateSelection(e, "start",'review')}
+                />
+              </LocalizationProvider>   
+            {/* <Form.Control
             type="date"
             value={splitSelectedDateRange('review')[0]}
             onChange={(e) => onDateSelection(e, "start", 'review')}
 
-            />
+            /> */}
 
           </div>
           <div className="columnStart">
             <label>End Date</label>
-            <Form.Control
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DatePicker 
+                  value={moment(splitSelectedDateRange()[1])}
+                  onChange={(e) => onDateSelection(e, "end", 'review')}
+                />
+              </LocalizationProvider>   
+            {/* <Form.Control
             type="date"
             value={splitSelectedDateRange('review')[1]}
             onChange={(e) => onDateSelection(e, "end", 'review')}
-            />
+            /> */}
 
           </div>
 
@@ -216,21 +231,33 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
 
         <div className="columnStart mr2">
         <label>Start Date</label>
-        <Form.Control
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DatePicker 
+                value={moment(splitSelectedDateRange()[0])}
+                onChange={(e) => onDateSelection(e, "start", 'compare')}
+            />
+        </LocalizationProvider>   
+        {/* <Form.Control
         type="date"
         value={splitSelectedDateRange('compare')[0]}
         onChange={(e) => onDateSelection(e, "start",'compare')}
 
-        />
+        /> */}
 
         </div>
         <div className="columnStart">
         <label>End Date</label>
-        <Form.Control
+        <LocalizationProvider dateAdapter={AdapterMoment}>
+            <DatePicker 
+                value={moment(splitSelectedDateRange()[1])}
+                onChange={(e) => onDateSelection(e, "end", 'compare')}
+            />
+        </LocalizationProvider>   
+        {/* <Form.Control
         type="date"
         value={splitSelectedDateRange('compare')[1]}
         onChange={(e) => onDateSelection(e, "end",'compare')}
-        />
+        /> */}
 
         </div>
 

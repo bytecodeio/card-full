@@ -28,6 +28,7 @@ export const EmbedSection = ({vis,
                     visList={visList} 
                     updateVisList={setVisList} 
                     handleVisUpdate={handleSingleVisUpdate}
+                    type={'single'}
                 />
             </div>
 
