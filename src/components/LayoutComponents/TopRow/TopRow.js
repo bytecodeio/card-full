@@ -100,13 +100,13 @@ export const TopRow = ({
                     </p>
                 </Col>:''}
                 {layoutProps['date filter']?
-                  <Col md={12} lg={4}>                        
+                  <Col md={6} lg={4}>                        
                       <DateFilterSelector dateFilter={dateFilter} selectedFilters={selectedFilters} dateRange={dateRange} updateDateRange={updateDateRange} type={date_filter_type} setSelectedFilters={setSelectedFilters}/>
                   </Col>
                 :''}    
 
                 {layoutProps['date range'] && selectedFilters['date range']?
-                  <Col md={12} lg={3} className="position-relative">
+                  <Col md={6} lg={3} className="position-relative">
                   {tabFilters?.find(({type}) => type ==="comparison filter compare") && tabFilters?.find(({type}) => type ==="comparison filter review")?
                     <ComparisonDate selectedFilters={selectedFilters} selectedTabFilters={selectedTabFilters} setSelectedTabFilters={setSelectedTabFilters} tabFilters={tabFilters} filters={filters} handleTabVisUpdate={handleTabVisUpdate}/>
                   :

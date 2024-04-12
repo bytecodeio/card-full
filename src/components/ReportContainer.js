@@ -217,6 +217,9 @@ export const ReportContainer = ({
       const queryValidator = async (query) => {
         query['limit'] = 1;
         let res = await sdk.ok(sdk.create_query(query, 'id,slug'));
+        query['limit'] = 5000;
+        let {slug} = await sdk.ok(sdk.create_query(query,'slug'))
+        res['slug'] = slug
         return res
         // if (result.length > 0) {
         //   return {status:false}
@@ -292,14 +295,14 @@ export const ReportContainer = ({
         if (JSON.stringify(previousFilters) == JSON.stringify(_filteredFilters)) {
           onlyFields = true
         }
+        console.log("Selected tab filters", selectedTabFilters)
         let _filters = {};
         _visList = _visList.map((vis) => {
           console.log(vis, "SAME, NO FILTERS")
-          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false) {
+          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
             console.log("SAME, NO FILTERS",selectedInnerTab)
             vis.isLoading=true;
-          }
-          
+          }          
           return vis
         });
         setVisList(_visList)
@@ -313,7 +316,7 @@ export const ReportContainer = ({
     
         let newVisList = [];
         for (let vis of _visList) {
-          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false) {
+          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
             const { vis_config, model, view, pivots } = vis['query_values'];
             let index = _visList.indexOf(vis)          
 

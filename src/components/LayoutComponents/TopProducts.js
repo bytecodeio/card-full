@@ -15,6 +15,17 @@ export const TopProducts = ({filterOption,selectedFilters,setSelectedFilters}) =
         }
     },[filterOption])
 
+    useEffect(() => {
+        console.log("All Filters",selectedFilters)
+        if (selectedFilters[type]) {
+            if (Object.keys(selectedFilters[type]).length === 0){
+                setValue(0)
+                setStep(0)
+            }
+        }
+
+    },[selectedFilters])
+
     const handleChange = (event, step) => {
         setStep(step);
         setValue(event.target.value)

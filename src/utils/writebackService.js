@@ -160,9 +160,11 @@ export const getApplications = async (sdk) => {
             .ok(
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `select * from ${scratch_schema}.cms_application a
-                    WHERE a.show_in_nav = true
-                    ORDER BY a.name;`,
+                sql: `select * from ${scratch_schema}.cms_application 
+                    WHERE show_in_nav = true
+                    UNION ALL
+                    SELECT * FROM ${scratch_schema}.cms_application where show_in_nav=false and is_qbr = true
+                    ORDER BY name;`,
             })
             )
         const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));
