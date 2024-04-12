@@ -1032,7 +1032,6 @@ const handleLetterClick = (clickedLetter) => {
           {Letters.map((letter, i) => (
           <div
             key={i}
-            className="letter"
             id={letter.id}
             data-filter={letter.dataFilter}
             onClick={()=>handleLetterClick(letter.dataFilter)}

@@ -112,7 +112,7 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
                     })}
                     <Overlay target={target.current} show={openEdit} placement="right">
                         <div>
-                            <UpdateSavedFilterPanel openEdit={openEdit} setOpenEdit={setOpenEdit} upsertSavedFilter={upsertSavedFilter} selectedFilter={selectedFilter} setIsLoading={setIsLoading}/>
+                            <UpdateSavedFilterPanel openEdit={openEdit} setOpenEdit={setOpenEdit} upsertSavedFilter={upsertSavedFilter} selectedFilter={selectedFilter} setIsLoading={setIsLoading} savedFiltersObj={savedFiltersObj} setSavedFiltersObj={setSavedFiltersObj}/>
                         </div>
                     </Overlay>
                     </>
@@ -224,7 +224,7 @@ const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setO
     )
 })
 
-const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertSavedFilter,selectedFilter,setIsLoading}) => {
+const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertSavedFilter,selectedFilter,setIsLoading,savedFiltersObj,setSavedFiltersObj}) => {
     const [title, setTitle] = useState("");
     const [checkbox, setCheckbox] = useState(false)
     const [id, setId] = useState("")
@@ -255,12 +255,18 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
     }
 
     const handleSaveClick = async () => {
+        let _savedFilters = [...savedFiltersObj];
+        let index = _savedFilters.indexOf(selectedFilter);
+        _savedFilters[index].title = title;
+        _savedFilters[index].global = checkbox.toString();
+        console.log(_savedFilters[index]);
+        setSavedFiltersObj(_savedFilters)
         setIsLoading(true)
         setTitle("")
         setCheckbox(false);
         setId("")
         setOpenEdit(false)
-        await upsertSavedFilter('update', {'id':id, 'title':title, 'global':checkbox})
+        upsertSavedFilter('update', {'id':id, 'title':title, 'global':checkbox})
         setIsLoading(false)
     }
 

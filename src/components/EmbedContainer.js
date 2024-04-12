@@ -32,11 +32,9 @@ export const EmbedContainer = ({vis, visList, updateVisList, handleVisUpdate, ty
       const handleClick = () => {
           setToggle(!toggle);
     
-        setTimeout(() => {
           setActive(!active);
     
           setFaClass(!faClass);
-        }, 600);
     };
 
     return(

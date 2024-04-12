@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import { Row, Col, Form, Button, Modal } from 'react-bootstrap'
+import { Row, Col, Form, Button} from 'react-bootstrap'
+import { Modal } from '@mui/material'
 import moment from 'moment'
 import { forEach } from 'lodash'
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { DatePicker, DesktopDatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 
 export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilters, selectedFilters, filters, handleTabVisUpdate}) => {
@@ -77,8 +78,17 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
         <>
         <div className='comparison-date-button'>
            <Button className='btn-clear' onClick={handleOpenModal}>Select date ranges to compare</Button> 
-        </div>        
-        <Modal size="sm" centered show={open} onHide={handleOpenModal}>
+        </div>  
+        <Modal open={open} onClose={handleOpenModal} >
+            <div className='date-picker-modal'>
+                    <h5>Select comparison date range</h5>
+                    <ComparisonModal tabFilters={tabFilters} selectedTabFilters={selectedTabFilters} setSelectedTabFilters={setSelectedTabFilters} selectedFilters={selectedFilters} filters={filters} compareField={compareField} reviewField={reviewField} updateDates={updateDates} />
+                    <div className='modal-footer'>                        
+                        <Button onClick={handleOpenModal}>Submit</Button>
+                    </div>
+            </div>
+        </Modal>      
+        {/* <Modal size="sm" centered show={open} onHide={handleOpenModal}>
             <Modal.Header closeButton>
                 Select comparison date range
             </Modal.Header>
@@ -88,7 +98,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
             <Modal.Footer>
                 <Button>Submit</Button>
             </Modal.Footer>
-        </Modal>
+        </Modal> */}
         <CompareSelectedDates selectedTabFilters={selectedTabFilters}/>
         <div>
             <Button
@@ -164,13 +174,13 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
         let _field = fieldType === 'review'?reviewField:compareField
         if (type == "start") {
           let splitDate = splitSelectedDateRange(fieldType);
-          splitDate[0] = e.target.value;
+          splitDate[0] = moment(e).format('YYYY/MM/DD');
           filters[_field['fields']['name']] = splitDate.join(" to ")
           setSelectedTabFilters(filters);
         }
         if (type == "end") {
           let splitDate = splitSelectedDateRange(fieldType);
-          splitDate[1] = e.target.value;
+          splitDate[1] = moment(e).format('YYYY/MM/DD');
           filters[_field['fields']['name']] = splitDate.join(" to ")
           setSelectedTabFilters(filters);
         }
@@ -182,16 +192,17 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
         <>
         <Row>
         <h6>Review Date</h6>
-        <Col md={12} lg={4} className="position-relative">
+        <Col md={12} lg={6} className="position-relative">
 
         <div className="d-flex mt-1 ml2">
 
-          <div className="columnStart mr2">
+          <div className="columnStart mr2" style={{position:'relative'}}>
             <label>Start Date</label>
             <LocalizationProvider dateAdapter={AdapterMoment}>
-                <DatePicker 
+                <DesktopDatePicker
                   value={moment(splitSelectedDateRange('review')[0])}
                   onChange={(e) => onDateSelection(e, "start",'review')}
+                  getPopupContainer={trigger => trigger.parentElement}
                 />
               </LocalizationProvider>   
             {/* <Form.Control
@@ -231,7 +242,7 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
     </Row> 
     <Row>
     <h6>Comparison Date</h6>
-    <Col md={12} lg={4} className="position-relative">
+    <Col md={12} lg={6} className="position-relative">
 
     <div className="d-flex mt-1 ml2">
 

@@ -62,7 +62,7 @@ export const DateRangeSelector = ({
 
   return (
         <Col>
-          <div className="d-flex mt-1 ml2">
+          <div className="d-flex mt-1 ml2 date-selector-container">
             <div className="columnStart mr2">
               <label>Start Date</label>
               <LocalizationProvider dateAdapter={AdapterMoment}>

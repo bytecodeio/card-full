@@ -18,10 +18,11 @@ const Explore = styled.div`
   width: 100%;
   min-height: unset;
   margin-top: -30px;
+  position: relative;
   & > iframe {
     width: 100%;
     height: 100%;
-    margin-left:2px;
+    margin-left:0px;
   }
 `;
 
@@ -117,6 +118,9 @@ const EmbedTable = ({ queryId, vis }) => {
 
       if (el && hostUrl && queryId) {
         el.innerHTML = "";
+        let _hideBorderEl = document.createElement('div');
+        _hideBorderEl.className="hide-left-border";
+        el.appendChild(_hideBorderEl)
         // LookerEmbedSDK.init(hostUrl);
         LookerEmbedSDK.createExploreWithUrl(
             `${hostUrl}/embed/query/${application.model}/${application.explore}?${vis.visUrl}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
@@ -148,7 +152,7 @@ const EmbedTable = ({ queryId, vis }) => {
         <LoadingComponent />
         :
       ''}
-      <div class="hide-left-border"></div>
+      {/* <div class="hide-left-border"></div> */}
       {queryId ? <Explore ref={embedCtrRef}/>: <Spinner />}
     </>
   );

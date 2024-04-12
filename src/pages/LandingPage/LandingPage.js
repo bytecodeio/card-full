@@ -10,9 +10,6 @@ export const LandingPage = ( {description} ) => {
     const sdk = extensionContext.core40SDK;
     const { hostUrl, extensionId } = extensionContext.extensionSDK.lookerHostData;
 
-    console.log(extensionContext.extensionSDK.lookerHostData)
-
-
     const [apps, setApps] = useState([])
     const [allApps, setAllApps] = useState([])
     const [selectedButton, setSelectedButton] = useState("grid")
@@ -69,12 +66,12 @@ export const LandingPage = ( {description} ) => {
 
     //Click event to add a view to the app in the database and open a new tab in the browser to the url below
     const handleClick = async (app) => {
-        let url = `${hostUrl}/embed/extensions/${project}::${app.route}`
-        
-        extensionContext.extensionSDK.openBrowserWindow(url)
+        let url = `/embed/extensions/${project}::${app.route}`
+        console.log("url",url)
+        extensionContext.extensionSDK.openBrowserWindow(url, '_blank')
 
-        await updatePageViews(sdk,app.id)
-        getApps()
+        //await updatePageViews(sdk,app.id)
+        //getApps()
     }
 
     const handleButtonGroupClick = (v) => {

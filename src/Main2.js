@@ -430,8 +430,12 @@ export const Main2 = () => {
       if (f.option_type === "single_dimension_value") {
         if (f.fields?.length > 0) {
           console.log(f.fields[0])
-          let value = await getValues(f.fields[0], {}, application);
-          _options = { field: f.fields[0], values: value };
+          console.log('single dimension', f)
+          //Removed for Account Groups
+          if (f.type !== "account group") {              
+            let value = await getValues(f.fields[0], {}, application);
+            _options = { field: f.fields[0], values: value };
+          }
         }
       }
       if (f.option_type === "date range") {
@@ -624,7 +628,6 @@ export const Main2 = () => {
           apps['tabs'] = tabs
           appList.push(apps)
         }
-        
         //setNavList(appList);
       }
       contextData['navList'] = applications
