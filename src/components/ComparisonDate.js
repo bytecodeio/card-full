@@ -49,14 +49,13 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
         if (selectedTabFilters) {
             let values = Object.values(selectedTabFilters).map((t,i) => {
                 if (i==0) {
-                    t = `Review Period ${t.replaceAll("-","/")}`
+                    t = <div className='theOptions red' style={{'color':'white'}}>Review Period {t.replaceAll("-","/")}</div>
                 } else {
-                    t = `Compare Period ${t.replaceAll("-","/")}`
+                    t = <div className='theOptions red' style={{'color':'white'}}>Compare Period {t.replaceAll("-","/")}</div>
                 }
                 return t
-            })
-            
-            return values.join(" - ")
+            })            
+            return values
         }
         return ''
     }
@@ -66,9 +65,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
             Object.keys(selectedTabFilters).length>0?
             <div className='comparison-date-button'>
                 <p>Date comparison: </p>
-                <div className='theOptions red' style={{color:'white'}}>
                     {showLabel(selectedTabFilters)}
-                </div>
             </div>
             :''
         )
