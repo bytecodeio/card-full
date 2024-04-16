@@ -185,7 +185,7 @@ export const AccountFilterComponent = ({isActive,setExpandMenu,expandMenu, searc
   return (        
   <>
     <div className="filter-input-container">
-          <OutlinedInput className="filter-input" style={{width:'100%', marginBottom:'10px'}} value={search} onChange={handleSearch} placeholder="Search Accounts"
+          <OutlinedInput className="filter-input" style={{width:'100%'}} value={search} onChange={handleSearch} placeholder="Search Accounts"
             endAdornment={
               search != ""?
               <InputAdornment position="end">
