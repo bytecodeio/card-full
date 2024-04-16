@@ -122,7 +122,7 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
                 <Modal.Body>Are you sure you want to delete this saved filter?</Modal.Body>
                 <Modal.Footer>
                     <Button onClick={() => handleSavedFilterRemoval()}>Delete</Button>
-                    <Button onClick={() => setShowModal(false)}>Cancel</Button>
+                    <Button className="btn-clear" onClick={() => setShowModal(false)}>Cancel <i class="fas fa-ban stop"></i></Button>
                 </Modal.Footer>
             </Modal>
             {/* <Snackbar open={openMessage} onClose={() => setOpenMessage(false)} autoHideDuration={6000} anchorOrigin={{vertical:'top', horizontal:'right'}}>

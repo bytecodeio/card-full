@@ -535,7 +535,7 @@ const Template2 = ({
                       }}
                     >
                       {/*onClick={() => setShow3(false)}>*/}
-                      &#10005;
+                      <i class="fal fa-times"></i>
                     </Button>
                   </div>
                 </div>

@@ -31,9 +31,10 @@ function HowTo() {
       </p>
 
       <input
+        disabled
         placeholder="Search Report"
         type="search"
-        className="form-control mt-2 "
+        className="form-control mt-2"
       />
 
       <h5 className="mt-3">Date Ranges</h5>
@@ -46,20 +47,20 @@ function HowTo() {
       <div className="mt-3">
       <div className="one radio">
       <Form.Group  controlId="formBasicCheckbox15">
-        <Form.Check  type="radio" label="Month to Date" name="filters" />
+        <Form.Check  type="radio" label="Month to Date" name="filters" disabled/>
       </Form.Group>
     </div>
 
     <div className="one radio">
       <Form.Group controlId="formBasicCheckbox17">
-        <Form.Check type="radio" label="Quarter to Date" name="filters"/>
+        <Form.Check type="radio" label="Quarter to Date" name="filters" disabled/>
       </Form.Group>
     </div>
 
 
    <div className="one radio">
      <Form.Group controlId="formBasicCheckbox19">
-       <Form.Check type="radio" label="Year to Date" name="filters"/>
+       <Form.Check type="radio" label="Year to Date" name="filters" disabled/>
      </Form.Group>
    </div>
       </div>
@@ -73,7 +74,7 @@ function HowTo() {
 
       <Row className="mt-2">
         <Col md={6}>
-          <Form.Select aria-label="Default select example">
+          <Form.Select aria-label="Default select example" disabled>
             <option>Example</option>
             <option value="1">One</option>
             <option value="2">Two</option>
@@ -82,7 +83,7 @@ function HowTo() {
         </Col>
         <Col md={6}>
           <div className="one">
-            <Form.Group controlId="formBasicCheckbox">
+            <Form.Group controlId="formBasicCheckbox" disabled>
               <Form.Check type="checkbox" label="Taxes & Fees" />
             </Form.Group>
           </div>
@@ -116,7 +117,7 @@ function HowTo() {
         To clear all selections, select the "Clear All" button.
       </p>
 
-      <Button className="btn mt-3">Clear All</Button>
+      <Button className="btn mt-3" disabled>Clear All</Button>
     </div>
   );
 }

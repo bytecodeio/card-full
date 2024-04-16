@@ -546,7 +546,7 @@ const Template1 = ({
                       <Button role="button" className="close" data-dismiss="modal" id="closeThisPlease1"
                       onClick={() => {setShowMenu(true);}}>
                       {/*onClick={() => setShow3(false)}>*/}
-                      &#10005;
+                      <i class="fal fa-times"></i>
                     </Button>
                   </div>
                 </div>

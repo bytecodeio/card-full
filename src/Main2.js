@@ -641,6 +641,7 @@ export const Main2 = () => {
 
   return (
     <>
+    <div className="mainHeight">
       <NavbarMain user={user} />
       <Container fluid className="mt-50 padding-0">
         <ApplicationContext.Provider
@@ -701,7 +702,9 @@ export const Main2 = () => {
       </Container>
       <ToTopButton />
       <SideForm />
-      <Footer />
+    </div>
+
+    <Footer />
     </>
   );
 };
