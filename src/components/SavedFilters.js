@@ -228,6 +228,7 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
     const [title, setTitle] = useState("");
     const [checkbox, setCheckbox] = useState(false)
     const [id, setId] = useState("")
+    const [openMessage, setOpenMessage] = useState(false)
 
     useEffect(() => {
          console.log("saved", selectedFilter)
@@ -236,6 +237,7 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
          let _checkbox = global == "true"?true:false;
          setCheckbox(_checkbox)
          setId(id)
+         setOpenMessage(false)
     },[openEdit])
 
     const handleUpdateTitle = (e) => {
@@ -262,12 +264,9 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
         console.log(_savedFilters[index]);
         setSavedFiltersObj(_savedFilters)
         setIsLoading(true)
-        setTitle("")
-        setCheckbox(false);
-        setId("")
-        setOpenEdit(false)
         upsertSavedFilter('update', {'id':id, 'title':title, 'global':checkbox})
         setIsLoading(false)
+        setOpenMessage(true)
     }
 
     return (
@@ -320,6 +319,12 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
                         <Button className="btn-clear" onClick={handleCancelClick}>Cancel</Button>
                     </div>
                 </div>
+                {openMessage?
+                <Alert onClose={() => setOpenMessage(false)}
+                    severity="success"
+                    variant="filled"
+                    >Saved filter has been updated</Alert>
+                :''}
 
             </Popover.Body>
         </Popover>
