@@ -66,9 +66,12 @@ export const LandingPage = ( {description} ) => {
 
     //Click event to add a view to the app in the database and open a new tab in the browser to the url below
     const handleClick = async (app) => {
-        let url = `/embed/extensions/${project}::${app.route}`
-        console.log("url",url)
-        extensionContext.extensionSDK.openBrowserWindow(url, '_blank')
+    let host = extensionContext.extensionSDK.lookerHostData;
+    let project = extensionContext.extensionSDK.lookerHostData.extensionId
+    let type = host.hostType == "spartan"? "spartan":"extensions"
+    let url = `${host.hostUrl}/${type}/${project.split("::")[0]}::${app['route']}`
+    
+    extensionContext.extensionSDK.openBrowserWindow(url)
 
         //await updatePageViews(sdk,app.id)
         //getApps()
@@ -168,10 +171,10 @@ export const LandingPage = ( {description} ) => {
               overlay=<Tooltip id="squares"><p style={{fontSize:"12px"}}>{a.tooltip_description}</p></Tooltip>
               className="tooltipHover"
             >
-                <a className='landing-page-content' href={`#`} onClick={() => handleClick(a)}>
+                <a className='landing-page-content' onClick={() => handleClick(a)}>
                     <div className='landing-page-item'>
                         {a.thumbnail_base64 != null?
-                        <img className='looker-thumbnail' src={a.thumbnail_base64} onError={(e) => {e.target.onError=null; e.target.src="/"}} />
+                        <img className='looker-thumbnail' src={a.thumbnail_base64} onError={(e) => {e.target.onError=null}} />
                         :<div className='looker-thumbnail not-available'>Preview Not Available</div>
                         }
                         <div className='landing-page-item-detail'>
@@ -182,7 +185,7 @@ export const LandingPage = ( {description} ) => {
                 </a>
               </OverlayTrigger>
                 :
-                <a key={a.name} href={`#`} className={`landing-page-row ${apps.indexOf(a) % 2? 'even':'odd'}`} onClick={() => handleClick(a)}>
+                <a key={a.name} className={`landing-page-row ${apps.indexOf(a) % 2? 'even':'odd'}`} onClick={() => handleClick(a)}>
                     <div>
                         <h6>{a.name}</h6>
                     </div>

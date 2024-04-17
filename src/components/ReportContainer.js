@@ -149,7 +149,8 @@ export const ReportContainer = ({
               };
     
               let vis = {};
-              let { client_id, vis_config, fields, model, view, pivots } = t["result_maker"]["query"];
+              let { client_id, vis_config, fields, model, view, pivots, total } = t["result_maker"]["query"];
+              console.log("vis config", t)
               console.log("client id", client_id)
               vis = {
                 visId: visConfig["vis_name"],
@@ -163,7 +164,7 @@ export const ReportContainer = ({
                 dashboard_id: id,
                 error:false,
                 query_values : {
-                  vis_config, fields, model, view, pivots
+                  vis_config, fields, model, view, pivots,total
                 },
                 isLoading:false,
                 visUrl:"",
@@ -251,6 +252,9 @@ export const ReportContainer = ({
         if (payload['pivots']?.length > 0) {
           urlString += `&pivots=${payload['pivots'].toString()}`
         }
+        if (payload['total']) {
+          urlString += `&total=${payload['total'].toString()}`
+        }
 
         if (payload['vis_config']) {
           urlString += `&vis=${encodeURIComponent(JSON.stringify(payload['vis_config']))}`
@@ -317,7 +321,7 @@ export const ReportContainer = ({
         let newVisList = [];
         for (let vis of _visList) {
           if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
-            const { vis_config, model, view, pivots } = vis['query_values'];
+            const { vis_config, model, view, pivots,total } = vis['query_values'];
             let index = _visList.indexOf(vis)          
 
             let _fields = [];
@@ -335,6 +339,7 @@ export const ReportContainer = ({
                 : _filters,
               vis_config,
               pivots,
+              total,
               limit:5000
             }
             let _queryVal = {..._query}
