@@ -4430,6 +4430,7 @@ border-color: var(--black) !important;
 
 .dark-mode input#disable-clearable {
   color: black;
+  border: 1px solid white !important;
 }
 
 .MuiFormControlLabel-root .MuiFormControlLabel-label {
@@ -6414,13 +6415,13 @@ color: white;
 }
 .dark-mode .inner.nav-tabs .nav-link {
 box-shadow: 0px 24px 38px 3px rgba(0, 0, 0, 0.14),
-0px 9px 46px 8px rgba(0, 0, 0, 0.12), 0px 11px 15px -7px rgba(0, 0, 0, 0.2);
+0px 9px 46px 8px rgba(0, 0, 0, 0.12), 0px 11px 15px -7px rgba(0, 0, 0, 0.3) !important;
 }
 
 .dark-mode .btn-primary,
 .dark-mode .accordion-header {
 box-shadow: 0px 24px 38px 3px rgba(0, 0, 0, 0.14),
-0px 9px 46px 8px rgba(0, 0, 0, 0.12), 0px 11px 15px -7px rgba(0, 0, 0, 0.2);
+0px 9px 46px 8px rgba(0, 0, 0, 0.12), 0px 11px 15px -7px rgba(0, 0, 0, 0.2) !important;
 
 
 }
@@ -6509,7 +6510,7 @@ right:0
 }
 
 .dark-mode .dimension-selector .form-select {
-  background: transparent !important;
+  background: black !important;
   color: white;
   }
 

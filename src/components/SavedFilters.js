@@ -119,7 +119,7 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
                     }
             <Modal className="clearAllModal" show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton></Modal.Header>
-                <Modal.Body>Are you sure you want to delete this saved filter?</Modal.Body>
+                <Modal.Body><p>Are you sure you want to delete this saved filter?</p></Modal.Body>
                 <Modal.Footer>
                     <Button onClick={() => handleSavedFilterRemoval()}>Delete</Button>
                     <Button className="btn-clear" onClick={() => setShowModal(false)}>Cancel <i class="fas fa-ban stop"></i></Button>
@@ -176,7 +176,7 @@ const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setO
 
     return (
         <Popover className="saved-filter-popover">
-            <Popover.Header className="saved-filter-popover-header"><p>Add Saved Filter</p> <a onClick={handleCancelClick}><Close /></a></Popover.Header>
+            <Popover.Header className="saved-filter-popover-header"><p>Add Saved Filter</p> <a onClick={handleCancelClick}><i class="fal fa-times"></i></a></Popover.Header>
             <Popover.Body>
                 <div className="saved-filter-body">
                     <Form.Label htmlFor="saved-filter-title">Title</Form.Label>
