@@ -83,7 +83,9 @@ export const ReportContainer = ({
       upsertSavedFilter,
       showMenu, setShowMenu, propertiesLoading,application} = useContext(ApplicationContext)
 
-      console.log("tab filters", tabFilters)
+      useEffect(() => {
+        console.log("Total filters",filters)
+      },[filters])
 
     //Runs everytime the tab is clicked on
     useEffect(() => {

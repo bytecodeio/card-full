@@ -10,6 +10,7 @@ export const OneTabVisualization = ({visList,setSelectedFields,setSelectedInnerT
               <Col md={12} className="embed-responsive embed-responsive-16by9 vis-grid">
                 {visList.filter(({ visId }) => visId === "tabbedVis1").length >
                 0 ? (
+                  <div className='vis-container'>
                     <EmbedSection
                         vis={visList.filter(({ visId }) => visId === "tabbedVis1")}
                         visList={visList}
@@ -19,6 +20,8 @@ export const OneTabVisualization = ({visList,setSelectedFields,setSelectedInnerT
                         setSelectedInnerTab={setSelectedInnerTab}
                         handleSingleVisUpdate={handleSingleVisUpdate}
                     />
+                  </div>
+
                 //   <InnerTableTabs
                 //     tabs={visList.filter(({ visId }) => visId === "tabbedVis1")}
                 //     setSelectedFields={setSelectedFields}

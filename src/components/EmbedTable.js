@@ -21,7 +21,7 @@ const Explore = styled.div`
   position: relative;
   & > iframe {
     width: 100%;
-    height: 100%;
+    height: 95%;
     margin-left:0px;
   }
 `;

@@ -245,12 +245,12 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                     {/* Filters */}
 
                                     
-                                    {filters.find(({ type }) => type === "filter")?.options?.length == 0 && layoutProps['filters'] &&
+                                    {filters.find(({ type }) => type === "filter" || type === "quick filter")?.options?.length == 0 && layoutProps['filters'] &&
                                         <LoadingAccordion title={"Filters"} /> 
                                     }
                                     {layoutProps['filters'] ?
 
-                                        filters.find(({ type }) => type === "filter")?.options?.length > 0 ?
+                                        filters.find(({ type }) => type === "filter" || type === "quick filter")?.options?.length > 0 ?
                                             <Col xs={12} md={12}>
                                                 <Accordion.Item eventKey="5">
                                                     <Accordion.Header>Filters</Accordion.Header>
@@ -325,6 +325,7 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
 
 
                                     {/* Bookmarks */}
+                                    {layoutProps['saved filters'] &&
                                     <Col xs={12} md={12}>
                                         <Accordion.Item eventKey="8">
                                             <Accordion.Header>Saved Filters</Accordion.Header>
@@ -339,6 +340,7 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Col>
+                                    }
                                 </Row>
                             </Col>
                         </Row>

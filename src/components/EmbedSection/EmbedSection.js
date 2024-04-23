@@ -22,7 +22,7 @@ export const EmbedSection = ({vis,
                 handleSingleVisUpdate={handleSingleVisUpdate}
             />
             :
-            <div style={{paddingTop:'30px', boxShadow:'0px 11px 11px 1px rgba(0, 0, 0, 0.1)'}}>
+            <div style={{paddingTop:'7px', boxShadow:'0px 11px 11px 1px rgba(0, 0, 0, 0.1)'}}>
                 <EmbedContainer 
                     vis={vis[0]} 
                     visList={visList} 
