@@ -12,6 +12,7 @@ const LayoutProperties =     {
             'account filter':true,
             'fields':true,
             'current selection':true,
+            'saved filters':true,
             'layout':'OneTabVisualization'
         },
         'Template3':{
@@ -23,6 +24,7 @@ const LayoutProperties =     {
             'account filter':true,
             'fields':true,
             'current selection':true,
+            'saved filters':true,
             'layout':'OneTabVisualizationWithVizAbove'
         },
         'Template4':{
@@ -34,6 +36,7 @@ const LayoutProperties =     {
             'account filter':true,
             'fields':false,
             'current selection':true,
+            'saved filters':true,
             'layout':'DashboardVisualizations'
         },
         'Template5':{
@@ -45,8 +48,33 @@ const LayoutProperties =     {
             'account filter':false,
             'fields':false,
             'current selection':false,
+            'saved filters':true,
             'layout':'FullLookMLDashboard'
-        }
+        },
+        'Template6':{
+            'date range':false,
+            'date filter':false,
+            'description':false,
+            'filters':false,
+            'account group':false,
+            'account filter':true,
+            'fields':false,
+            'current selection':true,
+            'saved filters':false,
+            'layout':'OneTabVisualization'
+        },
+        'Template7':{
+            'date range':false,
+            'date filter':false,
+            'description':false,
+            'filters':false,
+            'account group':false,
+            'account filter':true,
+            'fields':false,
+            'current selection':true,
+            'saved filters':false,
+            'layout':'DashboardVisualizations'
+        },
     }
 
 //LayoutSelector uses the templates and the context data to dynamically create the specific layout for the tab

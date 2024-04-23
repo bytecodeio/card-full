@@ -423,7 +423,9 @@ export const Main2 = () => {
       }
       if (f.option_type === "values") {
         for await (let field of f.fields) {
+          console.log("total filters values field", field);
           let values = await getValues(field, {}, application);
+          console.log("Total filters values", values)
           _options.push({ field: field, values: values });
         }
       }

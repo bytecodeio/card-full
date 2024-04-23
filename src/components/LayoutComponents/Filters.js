@@ -93,7 +93,7 @@ const FiltersComponent = ({setExpandMenu, expandMenu,filters,formatValues,select
   return (
     <div  className={expandMenu? "wrapFilters expanded": "wrapFilters"}>
       <i class="fal fa-times closeOptions" onClick={() => setExpandMenu(false)} ></i>
-        {filters.options.map((filterOption) => (
+        {filters?.options?.map((filterOption) => (
           formatValues(filterOption.field.name,filterOption.values)?.length > 0?
           <div className="one filter-selector" key={filterOption.name}>
             <p variant="h6">{filterOption.field.label_short}</p>

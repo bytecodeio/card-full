@@ -7691,6 +7691,10 @@ max-height: unset
   -webkit-filter: brightness(0.75);
 }
 
+.dark-mode .see-all-toggle {
+  color: white;
+}
+
 .landing-page-item {
   flex-grow: 1;
   width: 250px;

@@ -10,15 +10,18 @@ export const OneTabVisualizationWithVizAbove = ({visList,setSelectedFields,setSe
               <Col md={12} lg={9} className="embed-responsive embed-responsive-16by9">
                 {visList.filter(({ visId }) => visId === "vis1").length >
                 0 ? (
-                    <EmbedSection
-                        vis={visList.filter(({ visId }) => visId === "vis1")}
-                        visList={visList}
-                        setVisList={setVisList}
-                        setSelectedFields={setSelectedFields}
-                        selectedInnerTab={selectedInnerTab}
-                        setSelectedInnerTab={setSelectedInnerTab}
-                        handleSingleVisUpdate={handleSingleVisUpdate}
-                    />
+                  <div className='vis-container'>
+                        <EmbedSection
+                          vis={visList.filter(({ visId }) => visId === "vis1")}
+                          visList={visList}
+                          setVisList={setVisList}
+                          setSelectedFields={setSelectedFields}
+                          selectedInnerTab={selectedInnerTab}
+                          setSelectedInnerTab={setSelectedInnerTab}
+                          handleSingleVisUpdate={handleSingleVisUpdate}
+                      />
+                  </div>
+
                 ) : (
                   ""
                 )}
@@ -28,6 +31,7 @@ export const OneTabVisualizationWithVizAbove = ({visList,setSelectedFields,setSe
               <Col md={12} className="embed-responsive embed-responsive-16by9 vis-grid">
                 {visList.filter(({ visId }) => visId === "vis2").length >
                 0 ? (
+                  <div className='vis-container'>
                     <EmbedSection
                         vis={visList.filter(({ visId }) => visId === "vis2")}
                         visList={visList}
@@ -37,6 +41,7 @@ export const OneTabVisualizationWithVizAbove = ({visList,setSelectedFields,setSe
                         setSelectedInnerTab={setSelectedInnerTab}
                         handleSingleVisUpdate={handleSingleVisUpdate}
                     />
+                  </div>
                 ) : (
                   ""
                 )}
