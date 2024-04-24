@@ -6097,7 +6097,7 @@ min-height: 330px; */
 .grid.dashboard-grid-layout-221.container {
   display: inline-grid;
   grid-template-columns: 50% 50%;
-  gap: 30px;
+  gap: 30px; 
 }
 
 .embed-bottom {
