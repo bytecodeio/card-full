@@ -72,7 +72,7 @@ const LayoutProperties =     {
             'account filter':true,
             'fields':false,
             'current selection':true,
-            'saved filters':false,
+            'saved filters':true,
             'layout':'DashboardVisualizations221'
         },
     }
