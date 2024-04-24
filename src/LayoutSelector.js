@@ -52,9 +52,9 @@ const LayoutProperties =     {
             'layout':'FullLookMLDashboard'
         },
         'Template6':{
-            'date range':false,
-            'date filter':false,
-            'description':false,
+            'date range':true,
+            'date filter':true,
+            'description':true,
             'filters':false,
             'account group':false,
             'account filter':true,
@@ -64,16 +64,16 @@ const LayoutProperties =     {
             'layout':'OneTabVisualization'
         },
         'Template7':{
-            'date range':false,
-            'date filter':false,
-            'description':false,
+            'date range':true,
+            'date filter':true,
+            'description':true,
             'filters':false,
             'account group':false,
             'account filter':true,
             'fields':false,
             'current selection':true,
             'saved filters':false,
-            'layout':'DashboardVisualizations'
+            'layout':'DashboardVisualizations221'
         },
     }
 

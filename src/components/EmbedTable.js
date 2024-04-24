@@ -44,6 +44,7 @@ const EmbedTable = ({ queryId, vis }) => {
 
   const [isLoadingViz, setIsLoadingViz] = useState(false)
   const [message, setMessage] = useState({status:'ok'})
+  const [visualization, setVisualization] = useState({})
 
   // useEffect(() => {
   //   console.log("isLoading",isLoading)
@@ -115,7 +116,9 @@ const EmbedTable = ({ queryId, vis }) => {
   const embedCtrRef = useCallback(
     (el) => {
       const hostUrl = extensionSDK.lookerHostData.hostUrl;
-
+      if (Object.keys(vis).length > 0) {
+        console.log("visualization",visualization)
+      }
       if (el && hostUrl && queryId) {
         el.innerHTML = "";
         let _hideBorderEl = document.createElement('div');
@@ -131,7 +134,8 @@ const EmbedTable = ({ queryId, vis }) => {
           //.on('explore:ready', (e) => handleRunComplete(e)) 
           //.on('explore:state:changed', (e) => handleRunComplete(e))              
           .build()
-          .connect()        
+          .connect()
+          .then(viz => setVisualization(viz))        
           .catch((error) => {
             console.error("Connection error", error);
           });
