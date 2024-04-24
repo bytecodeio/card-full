@@ -6094,6 +6094,17 @@ min-height: 330px; */
   gap: 30px;
 }
 
+.grid.dashboard-grid-layout-221.container {
+  display: inline-grid;
+  grid-template-columns: 50% 50%;
+  gap: 30px; 
+}
+
+.embed-bottom {
+  grid-column: span 2;
+  margin-top: -200px;
+}
+
 .dimension-selector {
   position: relative;
   z-index: 1;

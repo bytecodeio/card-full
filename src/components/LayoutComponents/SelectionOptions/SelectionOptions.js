@@ -10,6 +10,7 @@ import AccountGroup from '../AccountGroup';
 import ShortReasons from '../ShortReasons';
 import { TopProducts } from '../TopProducts';
 import { LoadingAccordion } from './LoadingAccordion';
+import SingleDimensionFilter from '../SingleDimensionFilter';
 
 
 
@@ -208,6 +209,106 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                                         // fieldOptions={keyword !== "" ? filters.filter(option => option.indexOf(keyword) !== -1) : filters.find(({ type }) => type === "account group")}
                                                         fieldOptions={filters.find(
                                                             ({ type }) => type === "account filter"
+                                                        )}
+                                                        selectedFilters={selectedFilters}
+                                                        setSelectedFilters={setSelectedFilters} />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        </Col>
+                                    ) : (
+                                        ""
+                                    )}
+
+
+                                    {/* Contracts Filter */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "contract filter")
+                                            ?.options.values
+                                    ) && filters.find(({ type }) => type === "contract filter")
+                                    ?.fields.length > 0 &&
+                                        <LoadingAccordion title={"Contracts"} />
+                                    }
+                                    {Array.isArray(
+                                        filters.find(({ type }) => type === "contract filter")
+                                            ?.options.values
+                                    ) ? (
+                                        <Col xs={12} md={12}>
+                                            <Accordion.Item eventKey="9">
+                                                <Accordion.Header>
+                                                    Contracts
+                                                </Accordion.Header>
+                                                <Accordion.Body>
+                                                    <SingleDimensionFilter
+                                                        type={"contract"}
+                                                        label={"Contracts"}
+                                                        fieldOptions={filters.find(
+                                                            ({ type }) => type === "contract filter"
+                                                        )}
+                                                        selectedFilters={selectedFilters}
+                                                        setSelectedFilters={setSelectedFilters} />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        </Col>
+                                    ) : (
+                                        ""
+                                    )}
+
+                                    {/* Department Name Filter */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "department name filter")
+                                            ?.options.values
+                                    ) && filters.find(({ type }) => type === "department name filter")
+                                    ?.fields.length > 0 &&
+                                        <LoadingAccordion title={"Department Name"} />
+                                    }
+                                    {Array.isArray(
+                                        filters.find(({ type }) => type === "department name filter")
+                                            ?.options.values
+                                    ) ? (
+                                        <Col xs={12} md={12}>
+                                            <Accordion.Item eventKey="10">
+                                                <Accordion.Header>
+                                                    Department Name
+                                                </Accordion.Header>
+                                                <Accordion.Body>
+                                                    <SingleDimensionFilter
+                                                        type={"department_name"}
+                                                        label={"Department Name"}
+                                                        fieldOptions={filters.find(
+                                                            ({ type }) => type === "department name filter"
+                                                        )}
+                                                        selectedFilters={selectedFilters}
+                                                        setSelectedFilters={setSelectedFilters} />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        </Col>
+                                    ) : (
+                                        ""
+                                    )}
+
+                                    {/* Department Number Filter */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "department number filter")
+                                            ?.options.values
+                                    ) && filters.find(({ type }) => type === "department number filter")
+                                    ?.fields.length > 0 &&
+                                        <LoadingAccordion title={"Accounting Code"} />
+                                    }
+                                    {Array.isArray(
+                                        filters.find(({ type }) => type === "department number filter")
+                                            ?.options.values
+                                    ) ? (
+                                        <Col xs={12} md={12}>
+                                            <Accordion.Item eventKey="11">
+                                                <Accordion.Header>
+                                                    Accounting Code
+                                                </Accordion.Header>
+                                                <Accordion.Body>
+                                                    <SingleDimensionFilter
+                                                        type={"accounting_code"}
+                                                        label={"Accounting Code"}
+                                                        fieldOptions={filters.find(
+                                                            ({ type }) => type === "department number filter"
                                                         )}
                                                         selectedFilters={selectedFilters}
                                                         setSelectedFilters={setSelectedFilters} />

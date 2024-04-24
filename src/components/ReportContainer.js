@@ -22,6 +22,7 @@ import { DashboardVisualizations } from "./VisualizationLayouts/DashboardVisuali
 import { FullLookMLDashboard } from "./VisualizationLayouts/FullLookMLDashboard";
 import { LoadingComponent } from "./LoadingComponent";
 import { OneTabVisualizationWithVizAbove } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove";
+import { DashboardVisualizations221 } from "./VisualizationLayouts/DashboardVisualizations221";
 
 export const TabContext = React.createContext({})
 
@@ -529,6 +530,16 @@ export const ReportContainer = ({
 
               {layoutProps.layout === "DashboardVisualizations"?
                 <DashboardVisualizations 
+                    setSelectedFields={setSelectedFields}
+                    selectedInnerTab={selectedInnerTab}
+                    setSelectedInnerTab={setSelectedInnerTab}
+                    setVisList={setVisList}
+                    visList={visList}
+                    handleSingleVisUpdate={handleSingleVisUpdate}/>
+                :''}
+
+              {layoutProps.layout === "DashboardVisualizations221"?
+                <DashboardVisualizations221
                     setSelectedFields={setSelectedFields}
                     selectedInnerTab={selectedInnerTab}
                     setSelectedInnerTab={setSelectedInnerTab}
