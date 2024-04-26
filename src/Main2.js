@@ -49,6 +49,7 @@ export const Main2 = () => {
   const [fieldGroups, setFieldGroups] = useState([])
 
   const [initialLoad, setInitialLoad] = useState(true);
+  const [isFilterLoading, setIsFilterLoading] = useState(true);
   //here
   const [selectedFilters, setSelectedFilters] = useState({});
   const [updatedFilters, setUpdatedFilters] = useState({});
@@ -70,6 +71,23 @@ export const Main2 = () => {
   const handleChangeKeyword = (e) => {
     setKeyword(e.target.value);
   };
+
+  
+  const priorityOrder = ['date range', 'date filter', 'default_filter', 'quick filter', 'account filter', 'account group', 'contract filter', 'filters'];
+
+  const sortPriority = (tags) => {
+    return tags.sort((a,b) => {
+      let index1 = priorityOrder.indexOf(a['type']);
+      let index2 = priorityOrder.indexOf(b['type']);
+      return index1 == -1?1:index2== -1? -1 :index1 - index2;
+    })
+  }
+
+  
+  useEffect(() => {
+    //getOptionValues(filters,applicationInfo)
+    getOptionValues
+  },[initialLoad === false])
 
   // Group each field with their respective tags
   useEffect(() => {
@@ -99,11 +117,6 @@ export const Main2 = () => {
     const initializeTabs = async (tabs, tabTags, fieldsByTag, application) => {
       if (tabs) {
         if (tabs.length > 0) {
-          setTabs(tabs);
-          if (!params.path) {
-            history.push(tabs[0].route);
-          }
-
           let _fields = tabTags.filter(({tag_group}) => tag_group === "fields").map(f => {            
             let _tab = f.title;
             let _tag = f.tag_name;
@@ -206,15 +219,6 @@ export const Main2 = () => {
       }
     };
 
-    const priorityOrder = ['date range', 'date filter', 'default_filter'];
-
-    const sortPriority = (tags) => {
-      return tags.sort((a,b) => {
-        let index1 = priorityOrder.indexOf(a['type']);
-        let index2 = priorityOrder.indexOf(b['type']);
-        return index1 == -1?1:index2== -1? -1 :index1 - index2;
-      })
-    }
 
     //Creating the filter state and adding to the default filters when the app loads
     const createFilters = async (
@@ -225,6 +229,7 @@ export const Main2 = () => {
     ) => {
       let _filters = [];
       let _defaultSelected = {}
+      setInitialLoad(false)
       let sortedTags = sortPriority(applicationTags)
       let _defTags = sortedTags.filter(({type}) => type === "default_filter" || type === "default date filter");
       //_defTags = [].concat(_defTags.map(d => {return d}))
@@ -310,10 +315,12 @@ export const Main2 = () => {
 
       setSelectedFilters(_defaultSelected);
 
-      setInitialLoad(false)
 
+      //setTimeout(() => getOptionValues(_filters, application), 1000)
       getOptionValues(_filters, application);
     };
+
+
 
     //Creating the parameter to be able to switch between Looker based parameters for a visualization
     const createParameters = async (applicationTags, fieldsByTag) => {
@@ -386,14 +393,23 @@ export const Main2 = () => {
         if (navList) {
           setNavigationList(navList)
         }
+        if (tabs) {
+          if (tabs.length > 0) {
+            setTabs(tabs);
+            if (!params.path) {
+              history.push(tabs[0].route);
+            }
+          }
+        }
         setApplicationInfo(application);
         let fieldsByTag = await fetchLookMlFields(
           application.model,
           application.explore
-        );
+        );        
+        setIsFetchingLookmlFields(false);
         initializeTabs(tabs, tab_tags, fieldsByTag, application);
         initializeAppTags(application_tags, fieldsByTag, application, userInfo);
-        setIsFetchingLookmlFields(false);
+
       }
     };
 
@@ -412,22 +428,80 @@ export const Main2 = () => {
     handleDataRefresh()
   }
 
+  const waiting = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+  //Generic function to get values for specific fields
+  const getFilterValues = async (field, filters, application = null) => {
+    let _application = application;
+    if (_application == null) {
+      _application = applicationInfo;
+    }
+    try {
+      let {id} = await sdk
+        .ok(
+          sdk.create_query( {
+              model: _application.model,
+              view:field['suggest_explore'],
+              fields: [field['suggest_dimension']],
+              filters: filters,
+              limit: 500,
+            }
+          )
+        )
+        .catch((ex) => {
+          console.log(ex)
+          return [];
+        });
+      if (id) {
+        let query_task = await sdk.ok(sdk.create_query_task({body:{result_format:'json', query_id:id}}))
+        let loading = false;
+        let options = []
+        console.log("query task",query_task)
+        for (let i = 0 ;loading === false; i++) {
+            let res = await sdk.ok(sdk.query_task(query_task.id));
+            if (res.status === "complete") {                
+              options = await sdk.ok(sdk.query_task_results(query_task.id));
+              loading = true;
+              break;
+            }
+            await waiting(15000);
+        } 
+        //while (loading === false)
+        console.log("query task", options)
+        return options
+      }
+    } catch {
+      return [];
+    }
+  };
+
   //Once the filter state get created, this gets run to get the values of each field to be placed in the dropdowns
-  const getOptionValues = async (filters, application) => {
-    let _filters = [];
-    let filterArr = [...filters];
-    for (let f of filterArr) {
+  const getOptionValues = async (_filters, application) => {
+    console.log("Option Values", _filters)
+    //let _filters = [];
+    let filterArr = [..._filters];
+    for (let f of sortPriority(filterArr)) {
       let _options = [];
       if (f.option_type === "fields") {
         _options = f.fields;
       }
       if (f.option_type === "values") {
-        for await (let field of f.fields) {
+        //updateFilterOptions(f)
+        // _options = await Promise.all(f.fields.map(async (field) => {
+        //   console.log("total filters values field", field);
+        //   let values = await getFilterValues(field,{},application);
+        //   console.log("Total filters values", values)
+        //   return {field:field, values:values}
+        // }))
+        setIsFilterLoading(true)
+        for await(let field of f.fields) {
+          
           console.log("total filters values field", field);
           let values = await getValues(field, {}, application);
           console.log("Total filters values", values)
           _options.push({ field: field, values: values });
         }
+        setIsFilterLoading(false)
       }
       if (f.option_type === "single_dimension_value") {
         if (f.fields?.length > 0) {
@@ -451,8 +525,12 @@ export const Main2 = () => {
           _options.push({ field: field, values: values });
         }
       }
-      f["options"] = _options;
-      setFilters(prev => [...prev,f])
+
+      //if (f.option_type != "values") {
+        f["options"] = _options;
+        setFilters(prev => [...prev,f])
+      //}
+
       //_filters.push(f);
     }
     //setFilters(_filters);
@@ -489,6 +567,7 @@ export const Main2 = () => {
               filters: filters,
               limit: 500,
             },
+            cache:true
           }, {timeout:300})
         )
         .catch((ex) => {
@@ -665,7 +744,8 @@ export const Main2 = () => {
             savedFilters:savedFilters,
             removeSavedFilter:removeSavedFilter,
             upsertSavedFilter:upsertSavedFilter,
-            propertiesLoading:propertiesLoading
+            propertiesLoading:propertiesLoading,
+            isFilterLoading
             }}>
           <TopNav navList={navigationList}/>
           <div className={showMenu ? "largePadding" : "slideOver largePadding"}>

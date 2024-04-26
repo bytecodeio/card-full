@@ -206,7 +206,7 @@ const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setO
                     </div>
 
 
-                    <Form.Text className="mt-2 mb-2">*Note: Adding a saved filter will be saving the current filter</Form.Text>
+                    <Form.Text className="mt-2 mb-2">*Note: Adding a saved filter will save the current account selections, field selections and filter selections</Form.Text>
 
                     <div className="saved-filter-action-bar">
                         <Button disabled={title.trim() == ""?"disabled":''} onClick={handleSaveClick}>Save</Button>
