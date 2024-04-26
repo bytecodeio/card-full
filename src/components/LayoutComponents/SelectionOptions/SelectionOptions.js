@@ -270,7 +270,7 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                             ?.options.values
                                     ) ? (
                                         <Col xs={12} md={12}>
-                                        <Accordion.Item eventKey="9">
+                                        <Accordion.Item eventKey="10">
                                         <Accordion.Header>
                                             Category
                                         </Accordion.Header>
@@ -305,7 +305,7 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                             ?.options.values
                                     ) ? (
                                         <Col xs={12} md={12}>
-                                        <Accordion.Item eventKey="9">
+                                        <Accordion.Item eventKey="11">
                                         <Accordion.Header>
                                                     Stores
                                         </Accordion.Header>
@@ -339,7 +339,7 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                             ?.options.values
                                     ) ? (
                                         <Col xs={12} md={12}>
-                                            <Accordion.Item eventKey="10">
+                                            <Accordion.Item eventKey="12">
                                                 <Accordion.Header>
                                                     Department Name
                                                 </Accordion.Header>
@@ -372,7 +372,7 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                             ?.options.values
                                     ) ? (
                                         <Col xs={12} md={12}>
-                                            <Accordion.Item eventKey="11">
+                                            <Accordion.Item eventKey="13">
                                                 <Accordion.Header>
                                                     Accounting Code
                                                 </Accordion.Header>
