@@ -11,11 +11,12 @@ import ShortReasons from '../ShortReasons';
 import { TopProducts } from '../TopProducts';
 import { LoadingAccordion } from './LoadingAccordion';
 import SingleDimensionFilter from '../SingleDimensionFilter';
+import { LoadingComponent } from '../../LoadingComponent';
 
 
 
 //SelectionOptions is the side panel that includes filters and field selections
-export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilterChanged,visList,setVisList, selectedFilters, setSelectedFilters, fieldGroups, savedFilters,removeSavedFilter,upsertSavedFilter,attributes,selectedInnerTab,updateButtonClicked,setUpdateButtonClicked, layoutProps, showMenu, setShowMenu, setUpdatedFilters,tabFilters}) => {
+export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVisUpdate,setIsFilterChanged,visList,setVisList, selectedFilters, setSelectedFilters, fieldGroups, savedFilters,removeSavedFilter,upsertSavedFilter,attributes,selectedInnerTab,updateButtonClicked,setUpdateButtonClicked, layoutProps, showMenu, setShowMenu, setUpdatedFilters,tabFilters}) => {
     const [show, setShow] = useState(false)
     const handleClose = () => setShow(false);
     const wrapperRef = useRef(null);
@@ -372,8 +373,13 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                                         ) : (
                                                             ""
                                                         )}
-
-                                                        <Filters
+                                                        {isFilterLoading?
+                                                        <div style={{'position':'relative', 'marginTop':'50px'}}>
+                                                            <LoadingComponent />
+                                                        </div>
+                                                            
+                                                            :
+                                                           <Filters
                                                             //isLoading={isFetchingFilterSuggestions}
                                                             filters={filters.find(
                                                                 ({ type }) => type === "filter"
@@ -382,7 +388,9 @@ export const SelectionOptions = ({filters, fields, handleTabVisUpdate,setIsFilte
                                                             selectedFilters={selectedFilters}
                                                             updateBtn={updateButtonClicked}
                                                             setUpdateBtn={setUpdateButtonClicked}
-                                                            setIsFilterChanged={setIsFilterChanged} />
+                                                            setIsFilterChanged={setIsFilterChanged} /> 
+                                                        }
+                                                        
                                                     </Accordion.Body>
                                                 </Accordion.Item>
                                             </Col>

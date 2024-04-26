@@ -82,7 +82,7 @@ export const ReportContainer = ({
       savedFilters,
       removeSavedFilter,
       upsertSavedFilter,
-      showMenu, setShowMenu, propertiesLoading,application} = useContext(ApplicationContext)
+      showMenu, setShowMenu, propertiesLoading,application,isFilterLoading} = useContext(ApplicationContext)
 
       useEffect(() => {
         console.log("Total filters",filters)
@@ -94,7 +94,7 @@ export const ReportContainer = ({
         if (params.path == tabKey) {
         if (!isMounted && !initialLoad) {
             try {
-            await fetchDefaultFieldsAndFilters();
+            fetchDefaultFieldsAndFilters();
             setIsMounted(true);
             } catch (e) {
             console.error("Error fetching default dashboard", e);
@@ -120,11 +120,13 @@ export const ReportContainer = ({
         let _visList = []
         let index = 0
         let _defaultSelectedInnerTabs = {}
-        for await (let visConfig of config) {
+        await Promise.all(config?.map(async (visConfig) => {        
+        //for await (let visConfig of config) {
+          console.log("vis config", visConfig)
           const { id, dashboard_elements, dashboard_filters } = await sdk.ok(
             sdk.dashboard(visConfig['lookml_id'], 'dashboard_elements, dashboard_filters, id')
           ).catch(ret => {return {dashboard_elements:[], dashboard_filters:{}}})
-          
+          console.log("vis config", dashboard_elements)
           if (dashboard_elements.length > 0) {
             //if (dashboard_elements.length > 1){
               //console.log("test", _defaultSelectedInnerTabs)
@@ -174,10 +176,10 @@ export const ReportContainer = ({
                 query_id:''
               };
               _visList.push(vis);
-    
             }
           } else setInitialLoad(false);
-        }
+          return true
+        }))
         
         setSelectedInnerTab(_defaultSelectedInnerTabs)
         setVisList(_visList);
@@ -188,7 +190,7 @@ export const ReportContainer = ({
       }
     
       const loadDefaults = async (_visList) => {        
-        handleTabVisUpdate(_visList);
+        handleTabVisUpdate(_visList); 
       };
         
       // Page loading state
@@ -360,6 +362,7 @@ export const ReportContainer = ({
 
         }
         setPreviousFilters({..._filteredFilters})
+              
         //setVisList(newVisList);
         //
       };
@@ -477,6 +480,7 @@ export const ReportContainer = ({
                 layoutProps={layoutProps}
                 showMenu={showMenu} setShowMenu={setShowMenu}
                 setUpdatedFilters={setUpdatedFilters}
+                isFilterLoading={isFilterLoading}
             />
             <Row className="fullW">
               <Col md={12} lg={12}>

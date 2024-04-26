@@ -95,7 +95,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
             <p className='embed-action-title'>{vizType=="single"?title:''}</p>
             <div className='embed-icons-right'>
                 <i class="fal fa-download embed-icon"  onClick={handleDownloadPopover} ref={downloadTarget}></i>
-                <i class="fal fa-print embed-icon" onClick={handlePrintPopover} ref={printTarget}></i>
+                {/* <i class="fal fa-print embed-icon" onClick={handlePrintPopover} ref={printTarget}></i> */}
                 <p className="small embed-icon" onClick={() => {slideIt3();handleClick()}}>
                 <i className={faClass ? 'fal fa-expand-alt' : 'far fa-compress-arrows-alt'}></i> { active ? "Collapse" : "Expand"}</p>
             </div>

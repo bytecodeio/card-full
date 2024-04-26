@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState, useEffect } from "react";
-import { LookerEmbedSDK } from "@looker/embed-sdk";
+import { LookerEmbedExplore, LookerEmbedSDK } from "@looker/embed-sdk";
 import { ExtensionContext } from "@looker/extension-sdk-react";
 import styled from "styled-components";
 import { Spinner } from "react-bootstrap";
@@ -35,6 +35,7 @@ const Wrapper = styled.div`
 `;
 
 const EmbedTable = ({ queryId, vis }) => {
+
   const { application } = useContext(ApplicationContext)
   const { extensionSDK, core40SDK:sdk } = useContext(ExtensionContext);
   
@@ -44,7 +45,6 @@ const EmbedTable = ({ queryId, vis }) => {
 
   const [isLoadingViz, setIsLoadingViz] = useState(false)
   const [message, setMessage] = useState({status:'ok'})
-  const [visualization, setVisualization] = useState({})
 
   // useEffect(() => {
   //   console.log("isLoading",isLoading)
@@ -64,7 +64,7 @@ const EmbedTable = ({ queryId, vis }) => {
       setMessage(_message)
       console.log("query id embed",vis.query_id)
       if (vis.query_id !== "" && vis.query_id !== undefined) {
-        let results = await sdk.run_query({query_id:vis['query_id'], result_format:'json'})
+        let results = await sdk.run_query({query_id:vis['query_id'], result_format:'json', cache:true})
         if (results.value.length == 0) {
           setMessage({status:'no results'})
           return;
@@ -87,38 +87,9 @@ const EmbedTable = ({ queryId, vis }) => {
     setIsLoadingViz(false)
   }
 
-  // const embedCtrRef = useCallback(
-  //   (el) => {
-  //     const hostUrl = extensionSDK.lookerHostData.hostUrl;
-
-  //     if (el && hostUrl && queryId) {
-  //       el.innerHTML = "";
-  //       LookerEmbedSDK.init(hostUrl);
-  //       LookerEmbedSDK.createExploreWithUrl(
-  //           `${hostUrl}/embed/query/${application.model}/${application.explore}?qid=${queryId}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
-  //         )
-  //         .appendTo(el) 
-  //         //.on('explore:run:start', (e) => handleRunComplete(e)) 
-  //         .on('explore:run:complete', (e) => handleRunComplete(e)) 
-  //         //.on('explore:ready', (e) => handleRunComplete(e)) 
-  //         //.on('explore:state:changed', (e) => handleRunComplete(e))              
-  //         .build()
-  //         .connect()        
-  //         .catch((error) => {
-  //           console.error("Connection error", error);
-  //         });
-  //     }
-  //   },
-  //   [queryId]
-  // );
-
-
   const embedCtrRef = useCallback(
     (el) => {
       const hostUrl = extensionSDK.lookerHostData.hostUrl;
-      if (Object.keys(vis).length > 0) {
-        console.log("visualization",visualization)
-      }
       if (el && hostUrl && queryId) {
         el.innerHTML = "";
         let _hideBorderEl = document.createElement('div');
@@ -134,8 +105,7 @@ const EmbedTable = ({ queryId, vis }) => {
           //.on('explore:ready', (e) => handleRunComplete(e)) 
           //.on('explore:state:changed', (e) => handleRunComplete(e))              
           .build()
-          .connect()
-          .then(viz => setVisualization(viz))        
+          .connect() 
           .catch((error) => {
             console.error("Connection error", error);
           });
