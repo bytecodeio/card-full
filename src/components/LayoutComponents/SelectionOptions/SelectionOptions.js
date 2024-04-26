@@ -254,6 +254,78 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                         ""
                                     )}
 
+
+
+
+                                    {/* Category Filter */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "category filter")
+                                            ?.options.values
+                                    ) && filters.find(({ type }) => type === "category filter")
+                                    ?.fields.length > 0 &&
+                                        <LoadingAccordion title={"Category"} />
+                                    }
+                                    {Array.isArray(
+                                        filters.find(({ type }) => type === "category filter")
+                                            ?.options.values
+                                    ) ? (
+                                        <Col xs={12} md={12}>
+                                        <Accordion.Item eventKey="9">
+                                        <Accordion.Header>
+                                            Category
+                                        </Accordion.Header>
+                                            <Accordion.Body>
+                                                 <SingleDimensionFilter
+                                                        type={"category"}
+                                                        label={"Category"}
+                                                        fieldOptions={filters.find(
+                                                            ({ type }) => type === "category filter"
+                                                        )}
+                                                        selectedFilters={selectedFilters}
+                                                        setSelectedFilters={setSelectedFilters} />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                        </Col>
+                                    ) : (
+                                        ""
+                                    )}
+ 
+ 
+ 
+                                    {/* Stores Filter */}
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "stores filter")
+                                            ?.options.values
+                                    ) && filters.find(({ type }) => type === "stores filter")
+                                    ?.fields.length > 0 &&
+                                        <LoadingAccordion title={"Stores"} />
+                                    }
+                                    {Array.isArray(
+                                        filters.find(({ type }) => type === "stores filter")
+                                            ?.options.values
+                                    ) ? (
+                                        <Col xs={12} md={12}>
+                                        <Accordion.Item eventKey="9">
+                                        <Accordion.Header>
+                                                    Stores
+                                        </Accordion.Header>
+                                        <Accordion.Body>
+                                                <SingleDimensionFilter
+                                                        type={"stores"}
+                                                        label={"Stores"}
+                                                        fieldOptions={filters.find(
+                                                            ({ type }) => type === "stores filter"
+                                                        )}
+                                                        selectedFilters={selectedFilters}
+                                                        setSelectedFilters={setSelectedFilters} />
+                                            </Accordion.Body>
+                                            </Accordion.Item>
+                                            </Col>
+                                    ) : (
+                                        ""
+                                    )}
+
+
                                     {/* Department Name Filter */}
                                     {!Array.isArray(
                                         filters.find(({ type }) => type === "department name filter")
