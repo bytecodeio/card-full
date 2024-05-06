@@ -22,6 +22,7 @@ import { DashboardVisualizations } from "./VisualizationLayouts/DashboardVisuali
 import { FullLookMLDashboard } from "./VisualizationLayouts/FullLookMLDashboard";
 import { LoadingComponent } from "./LoadingComponent";
 import { OneTabVisualizationWithVizAbove } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove";
+import { OneTabVisualizationWithVizAbove2 } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove2";
 import { DashboardVisualizations221 } from "./VisualizationLayouts/DashboardVisualizations221";
 
 export const TabContext = React.createContext({})
@@ -49,15 +50,15 @@ export const ReportContainer = ({
     const [currentInnerTab, setCurrentInnerTab] = useState(0);
     const [visList, setVisList] = useState([]);
     const [isMounted, setIsMounted] = useState(false);
-   
+
     const [faClass, setFaClass] = useState(true);
     // const [toggle, setToggle] = useState(true);
     // const [active, setActive] = useState(false);
-    
+
     const [selectedTabFilters,setSelectedTabFilters] = useState({})
 
     const [selectedInnerTab, setSelectedInnerTab] = useState({})
-    
+
     const [isFilterChanged,setIsFilterChanged] = useState(false)
     // Fetch default selected fields and filters + query for embedded visualization from Looker dashboard on load
     const [isFetchingDefaultDashboard, setIsFetchingDefaultDashboard] = useState(true);
@@ -65,9 +66,9 @@ export const ReportContainer = ({
     const [isLoading, setIsLoading] = useState({})
 
     const [previousFilters, setPreviousFilters] = useState({})
-  
+
     const params = useParams();
-  
+
     const {filters,
       parameters,
       updateAppProperties,
@@ -106,21 +107,21 @@ export const ReportContainer = ({
         }
     }
     initialize()
-    }, [currentNavTab,initialLoad]);   
+    }, [currentNavTab,initialLoad]);
 
     useEffect(() => {
       handleTabVisUpdate({...visList})
       setIsFilterChanged(false)
     },[isFilterChanged==true])
 
-    
+
     //Getting the tiles of each dashboard
       const fetchDefaultFieldsAndFilters = async () => {
-        
+
         let _visList = []
         let index = 0
         let _defaultSelectedInnerTabs = {}
-        await Promise.all(config?.map(async (visConfig) => {        
+        await Promise.all(config?.map(async (visConfig) => {
         //for await (let visConfig of config) {
           console.log("vis config", visConfig)
           const { id, dashboard_elements, dashboard_filters } = await sdk.ok(
@@ -131,15 +132,15 @@ export const ReportContainer = ({
             //if (dashboard_elements.length > 1){
               //console.log("test", _defaultSelectedInnerTabs)
               _defaultSelectedInnerTabs[id] = 0;
-            //} 
+            //}
             for await (let t of dashboard_elements) {
               let tileFilters = t["result_maker"]["query"]["filters"];
               let _tileFilterOptions = [];
               let _selectedFilters = {};
               if (tileFilters) {
                for await(let key of Object.keys(tileFilters)) {
-                    //let list = parameters.filter(({fields}) => fields['name'] === key)  
-                    //console.log("parameters", parameters) 
+                    //let list = parameters.filter(({fields}) => fields['name'] === key)
+                    //console.log("parameters", parameters)
                    for await(let p of parameters){
                     //console.log("parameters", key + ' ' + p.fields['name']);
                     if (key === p.fields["name"]) {
@@ -152,7 +153,7 @@ export const ReportContainer = ({
                   };
                 }
               };
-    
+
               let vis = {};
               let { client_id, vis_config, fields, model, view, pivots, total } = t["result_maker"]["query"];
               console.log("vis config", t)
@@ -180,19 +181,19 @@ export const ReportContainer = ({
           } else setInitialLoad(false);
           return true
         }))
-        
+
         setSelectedInnerTab(_defaultSelectedInnerTabs)
         setVisList(_visList);
-    
+
         setSelectedFields(fields);
         setIsFetchingDefaultDashboard(false);
         loadDefaults(_visList);
       }
-    
-      const loadDefaults = async (_visList) => {        
-        handleTabVisUpdate(_visList); 
+
+      const loadDefaults = async (_visList) => {
+        handleTabVisUpdate(_visList);
       };
-        
+
       // Page loading state
       const [isPageLoading, setIsPageLoading] = useState(true);
       useEffect(() => {
@@ -200,7 +201,7 @@ export const ReportContainer = ({
           setIsPageLoading(false);
         }
       }, [isFetchingDefaultDashboard, isFetchingLookmlFields]);
-        
+
       //Formatting the filters for a Looker Query
       const formatFilters = (filters,type) => {
         let filter = {};
@@ -211,9 +212,9 @@ export const ReportContainer = ({
               for (const [key, value] of Object.entries(filters[key])) {
                 obj[key] = value.toString();
               }
-                filters[key] = obj     
-                filter = {...filter, ...filters[key]}             
-              
+                filters[key] = obj
+                filter = {...filter, ...filters[key]}
+
             }
           }
         });
@@ -266,7 +267,7 @@ export const ReportContainer = ({
         }
         return urlString
       }
-    
+
       // Handle run button click for visualizations on the page
       const handleTabVisUpdate = async (
         _visList = [],
@@ -277,7 +278,7 @@ export const ReportContainer = ({
           _visList = [...visList];
         }
         let _updatedFilters = {...updatedFilters};
-        
+
         let _filteredFilters = {}
         for await(let key of Object.keys(filterList)){
           if (type=="date") {
@@ -296,7 +297,7 @@ export const ReportContainer = ({
             _filteredFilters[key] = filterList[key]
           }
         }
-        
+
         console.log("filtered filters", JSON.parse(JSON.stringify(_filteredFilters)))
         console.log("SAME, NO FILTERS", previousFilters)
         console.log("SAME, NO FILTERS", selectedInnerTab)
@@ -311,7 +312,7 @@ export const ReportContainer = ({
           if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
             console.log("SAME, NO FILTERS",selectedInnerTab)
             vis.isLoading=true;
-          }          
+          }
           return vis
         });
         setVisList(_visList)
@@ -321,18 +322,18 @@ export const ReportContainer = ({
         setUpdatedFilters(JSON.parse(JSON.stringify(_filteredFilters)))
         // setUpdatedFilters(JSON.parse(JSON.stringify(filterList)));
         updateAppProperties(_filters);
-        _filters = {..._filters, ...selectedTabFilters}          
-    
+        _filters = {..._filters, ...selectedTabFilters}
+
         let newVisList = [];
         for (let vis of _visList) {
           if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
             const { vis_config, model, view, pivots,total } = vis['query_values'];
-            let index = _visList.indexOf(vis)          
+            let index = _visList.indexOf(vis)
 
             let _fields = [];
 
             console.log("pivots", pivots)
-            
+
             _fields = vis["selected_fields"];
 
             let _query = {
@@ -349,7 +350,7 @@ export const ReportContainer = ({
             }
             let _queryVal = {..._query}
 
-            let _urlParams = await createVisualizationUrl(_query)     
+            let _urlParams = await createVisualizationUrl(_query)
             let {id, slug} = await queryValidator(_queryVal);
             vis['query_id'] = id
             vis['query'] = slug
@@ -362,7 +363,7 @@ export const ReportContainer = ({
 
         }
         setPreviousFilters({..._filteredFilters})
-              
+
         //setVisList(newVisList);
         //
       };
@@ -370,7 +371,7 @@ export const ReportContainer = ({
       useEffect(() => {
         console.log("Is Loading", isLoading)
       },[isLoading])
-    
+
       //Handles update for a single viz with something like a parameter
       const handleSingleVisUpdate = async (_index) => {
         let _visList = [...visList];
@@ -381,10 +382,10 @@ export const ReportContainer = ({
         let _filters = {};
         _filters = await formatFilters(JSON.parse(JSON.stringify(updatedFilters)));
         _filters = { ..._filters, ...currentVis["localSelectedFilters"] };
-    
+
 
         const { vis_config, model, view, pivots } = currentVis['query_values'];
-    
+
         let _fields = [];
         _fields = currentVis["selected_fields"];
 
@@ -397,7 +398,7 @@ export const ReportContainer = ({
               pivots:pivots,
               limit:5000
             }
-    
+
         // const { client_id } = await sdk.ok(
         //   sdk.create_query({
         //     model: model,
@@ -416,39 +417,39 @@ export const ReportContainer = ({
         currentVis["isLoading"] = false;
         setVisList([..._visList]);
       };
-    
+
       // async function doClearAll() {
       //   setIsDefaultProduct(false);
       //   setUpdateButtonClicked(true);
-    
+
       //   let filters = JSON.parse(JSON.stringify(selectedFilters));
       //   for (let name in filters) {
       //     if (name !== "date range") filters[name] = {};
       //   }
       //   setSelectedFilters(filters);
       //   setUpdatedFilters(filters);
-    
+
       //   // setIsFilterChanged(true);
       // }
-    
+
       useEffect((e) => {
         document.addEventListener("click", handleClickOutside, false);
         return () => {
           document.removeEventListener("click", handleClickOutside, false);
         };
       }, []);
-    
+
       const handleClickOutside = (event) => {
         if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
         }
       };
 
 
-  
+
     console.log("description", application)
-   
+
       // const AccountGroupsFieldOptions = useMemo(() => {
-        
+
       //   let cfilter = _.cloneDeep(filters);
       //   let obj = cfilter?.find(({ type }) => type === "account group");
       //   if (Array.isArray(obj?.options?.values)) {
@@ -470,10 +471,10 @@ export const ReportContainer = ({
           <>
             <SelectionOptions filters={filters} tabFilters={tabFilters}
                 fields={fields} handleTabVisUpdate={handleTabVisUpdate}
-                visList={visList}setVisList={setVisList} 
-                selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters} 
-                fieldGroups={fieldGroups} savedFilters={savedFilters} 
-                removeSavedFilter={removeSavedFilter} upsertSavedFilter={upsertSavedFilter} 
+                visList={visList}setVisList={setVisList}
+                selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}
+                fieldGroups={fieldGroups} savedFilters={savedFilters}
+                removeSavedFilter={removeSavedFilter} upsertSavedFilter={upsertSavedFilter}
                 attributes={attributes} selectedInnerTab={selectedInnerTab}
                 updateButtonClicked={updateButtonClicked} setUpdateButtonClicked={setUpdateButtonClicked}
                 setIsFilterChanged={setIsFilterChanged}
@@ -513,7 +514,7 @@ export const ReportContainer = ({
 
             <TabContext.Provider value={{isLoading, setIsLoading}}>
               {layoutProps.layout === "OneTabVisualization"?
-                <OneTabVisualization 
+                <OneTabVisualization
                     setSelectedFields={setSelectedFields}
                     selectedInnerTab={selectedInnerTab}
                     setSelectedInnerTab={setSelectedInnerTab}
@@ -523,7 +524,7 @@ export const ReportContainer = ({
                 :''}
 
               {layoutProps.layout === "OneTabVisualizationWithVizAbove"?
-                <OneTabVisualizationWithVizAbove 
+                <OneTabVisualizationWithVizAbove
                     setSelectedFields={setSelectedFields}
                     selectedInnerTab={selectedInnerTab}
                     setSelectedInnerTab={setSelectedInnerTab}
@@ -532,8 +533,19 @@ export const ReportContainer = ({
                     handleSingleVisUpdate={handleSingleVisUpdate}/>
                 :''}
 
+
+                {layoutProps.layout === "OneTabVisualizationWithVizAbove2"?
+                  <OneTabVisualizationWithVizAbove2
+                      setSelectedFields={setSelectedFields}
+                      selectedInnerTab={selectedInnerTab}
+                      setSelectedInnerTab={setSelectedInnerTab}
+                      setVisList={setVisList}
+                      visList={visList}
+                      handleSingleVisUpdate={handleSingleVisUpdate}/>
+                  :''}
+
               {layoutProps.layout === "DashboardVisualizations"?
-                <DashboardVisualizations 
+                <DashboardVisualizations
                     setSelectedFields={setSelectedFields}
                     selectedInnerTab={selectedInnerTab}
                     setSelectedInnerTab={setSelectedInnerTab}
@@ -552,13 +564,13 @@ export const ReportContainer = ({
                     handleSingleVisUpdate={handleSingleVisUpdate}/>
                 :''}
               {layoutProps.layout === "FullLookMLDashboard"?
-                <FullLookMLDashboard 
+                <FullLookMLDashboard
                     config={config}
                   />
                 :''}
             </TabContext.Provider>
 
-            
+
           </>
         )}
       </Container>
