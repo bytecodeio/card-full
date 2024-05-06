@@ -75,6 +75,18 @@ const LayoutProperties =     {
             'saved filters':true,
             'layout':'DashboardVisualizations221'
         },
+        'Template8':{
+            'date range':true,
+            'date filter':true,
+            'description':true,
+            'filters':false,
+            'account group':false,
+            'account filter':true,
+            'fields':false,
+            'current selection':true,
+            'saved filters':true,
+            'layout':'OneTabVisualizationWithVizAbove2'
+        },
     }
 
 //LayoutSelector uses the templates and the context data to dynamically create the specific layout for the tab
