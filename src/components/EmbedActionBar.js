@@ -4,6 +4,7 @@ import { Overlay, Popover, Form, PopoverHeader, PopoverContent, Button } from 'r
 import { ExtensionContext } from '@looker/extension-sdk-react';
 import { useEffect } from 'react';
 import { LoadingComponent } from './LoadingComponent';
+import { Alert } from '@mui/material';
 
 export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setActive, handleClick, faClass, toggle, setToggle, setFaClass, queryId, title, vizType}) => {
     const extensionContext = useContext(ExtensionContext);
@@ -29,6 +30,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
     const [openPrint, setOpenPrint] = useState(false)
     const [type, setType] = useState({})
     const [isLoading, setIsLoading] = useState(false)
+    const [isError, setIsError] = useState(false)
 
     const handleDownloadPopover = () => {
         setType({})
@@ -43,6 +45,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
     }
 
     const handleDownload = async () => {
+        setIsError(false);
         setIsLoading(true)
         let _type = {...type}
         let res;
@@ -50,11 +53,15 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
             let renderLoaded = false;
             const {id} = await sdk.ok(sdk.create_query_render_task(queryId,_type.value,1600,800));
             do {
-                console.log('checking')
+                console.log('checking', id)
                 let {status} = await sdk.ok(sdk.render_task(id));
                 if (status === "success") {
                     console.log('success')
                     res = await sdk.ok(sdk.render_task_results(id))
+                    renderLoaded = true;
+                }
+                if (status === "failed") {
+                    setIsError(true);
                     renderLoaded = true;
                 }
             } while (renderLoaded==false)
@@ -121,6 +128,9 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
                         </div>
                         <Button onClick={handleDownload}>Download</Button>
                     </Form.Group>
+                    {isError &&
+                        <Alert severity='error'>Error downloading file</Alert>
+                    }                    
                 </Popover.Body>
             </Popover>
         </Overlay>

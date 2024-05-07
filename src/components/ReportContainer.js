@@ -155,7 +155,7 @@ export const ReportContainer = ({
               };
 
               let vis = {};
-              let { client_id, vis_config, fields, model, view, pivots, total } = t["result_maker"]["query"];
+              let { client_id, slug, vis_config, fields, model, view, pivots, total } = t["result_maker"]["query"];
               console.log("vis config", t)
               console.log("client id", client_id)
               vis = {
@@ -174,7 +174,8 @@ export const ReportContainer = ({
                 },
                 isLoading:false,
                 visUrl:"",
-                query_id:''
+                query_id:'',
+                previous_vis:client_id
               };
               _visList.push(vis);
             }
@@ -225,8 +226,8 @@ export const ReportContainer = ({
         query['limit'] = 1;
         let res = await sdk.ok(sdk.create_query(query, 'id,slug'));
         query['limit'] = 5000;
-        let {slug} = await sdk.ok(sdk.create_query(query,'slug'))
-        res['slug'] = slug
+        let {client_id} = await sdk.ok(sdk.create_query(query,'client_id'))
+        res['client_id'] = client_id
         return res
         // if (result.length > 0) {
         //   return {status:false}
@@ -350,10 +351,11 @@ export const ReportContainer = ({
             }
             let _queryVal = {..._query}
 
-            let _urlParams = await createVisualizationUrl(_query)
-            let {id, slug} = await queryValidator(_queryVal);
+            let _urlParams = await createVisualizationUrl(_query)     
+            let {id, client_id} = await queryValidator(_queryVal);
+            vis['previous_vis'] = vis['query'];
             vis['query_id'] = id
-            vis['query'] = slug
+            vis['query'] = client_id
             vis['visUrl'] = _urlParams;
             vis['isLoading'] = false;
             //vis['error'] = _error;
@@ -363,7 +365,6 @@ export const ReportContainer = ({
 
         }
         setPreviousFilters({..._filteredFilters})
-
         //setVisList(newVisList);
         //
       };
@@ -569,6 +570,7 @@ export const ReportContainer = ({
                   />
                 :''}
             </TabContext.Provider>
+            
 
 
           </>

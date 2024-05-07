@@ -65,6 +65,7 @@ const EmbedTable = ({ queryId, vis }) => {
       console.log("query id embed",vis.query_id)
       if (vis.query_id !== "" && vis.query_id !== undefined) {
         let results = await sdk.run_query({query_id:vis['query_id'], result_format:'json', cache:true})
+        console.log("vis results",results)
         if (results.value.length == 0) {
           setMessage({status:'no results'})
           return;
@@ -87,6 +88,8 @@ const EmbedTable = ({ queryId, vis }) => {
     setIsLoadingViz(false)
   }
 
+
+
   const embedCtrRef = useCallback(
     (el) => {
       const hostUrl = extensionSDK.lookerHostData.hostUrl;
@@ -95,10 +98,16 @@ const EmbedTable = ({ queryId, vis }) => {
         let _hideBorderEl = document.createElement('div');
         _hideBorderEl.className="hide-left-border";
         el.appendChild(_hideBorderEl)
+        let urlCount = vis.visUrl?.length;
+        console.log("url count", urlCount)
         // LookerEmbedSDK.init(hostUrl);
-        LookerEmbedSDK.createExploreWithUrl(
-            `${hostUrl}/embed/query/${application.model}/${application.explore}?${vis.visUrl}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
-          )
+        let exploreUrl = ""
+        if (urlCount > 5000) {
+          exploreUrl = `${hostUrl}/embed/query/${application.model}/${application.explore}?qid=${vis.query}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
+        } else {
+          exploreUrl = `${hostUrl}/embed/query/${application.model}/${application.explore}?${vis.visUrl}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
+        }
+        LookerEmbedSDK.createExploreWithUrl(exploreUrl)
           .appendTo(el) 
           //.on('explore:run:start', (e) => handleRunComplete(e)) 
           .on('explore:run:complete', (e) => handleRunComplete(e)) 

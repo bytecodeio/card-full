@@ -12,6 +12,7 @@ import { TopProducts } from '../TopProducts';
 import { LoadingAccordion } from './LoadingAccordion';
 import SingleDimensionFilter from '../SingleDimensionFilter';
 import { LoadingComponent } from '../../LoadingComponent';
+import { ContractExpiration } from '../ContractExpiration';
 
 
 
@@ -392,6 +393,24 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                         ""
                                     )}
 
+                                    {/* Contract Expiration Filter */}
+                                    {filters.find(({ type }) => type === "contract expiration filter")
+                                            ?
+                                    (
+                                        <Col xs={12} md={12}>
+                                            <Accordion.Item eventKey="14">
+                                                <Accordion.Header>
+                                                    Contract Expiration
+                                                </Accordion.Header>
+                                                <Accordion.Body>
+                                                    <ContractExpiration filterOption={filters.find(({type}) => type === "contract expiration filter")} selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}/>
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        </Col>
+                                    ) : (
+                                        ""
+                                    )}
+
                                     {/* Fields */}
                                     {fields?.length > 0 && layoutProps['fields'] && visList.length > 0 ? (
                                         <Col xs={12} md={12}>
@@ -416,9 +435,7 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                         ""
                                     )}
 
-                                    {/* Filters */}
-
-                                    
+                                    {/* Filters */}                                    
                                     {filters.find(({ type }) => type === "filter" || type === "quick filter")?.options?.length == 0 && layoutProps['filters'] &&
                                         <LoadingAccordion title={"Filters"} /> 
                                     }
@@ -468,6 +485,42 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                             </Col>
                                             : ''
                                         : ''}
+
+
+
+{/* 
+                                    {!Array.isArray(
+                                        filters.find(({ type }) => type === "short reason filter")
+                                            ?.options.values
+                                    ) && filters.find(({ type }) => type === "short reason filter")
+                                    ?.fields.length > 0 &&
+                                        <LoadingAccordion title={"Short Reason"} />
+                                    }
+                                    {Array.isArray(
+                                        filters.find(({ type }) => type === "short reason filter")
+                                            ?.options.values
+                                    ) ? (
+                                        <Col xs={12} md={12}>
+                                            <Accordion.Item eventKey="4">
+                                                <Accordion.Header>
+                                                    Short Reason
+                                                </Accordion.Header>
+                                                <Accordion.Body>
+                                                    <SingleDimensionFilter
+                                                        type={"short_reason"}
+                                                        label={"Short Reason"}
+                                                        fieldOptions={filters.find(
+                                                            ({ type }) => type === "short reason filter"
+                                                        )}
+                                                        selectedFilters={selectedFilters}
+                                                        setSelectedFilters={setSelectedFilters} />
+                                                </Accordion.Body>
+                                            </Accordion.Item>
+                                        </Col>
+                                    ) : (
+                                        ""
+                                    )} */}
+
                                     {/* Short Reasons */}
                                     {tabFilters?.filter(({type}) => type=="short reason filter").length > 0 &&  visList.length > 0 ? (
                                     <Col xs={12} md={12}>

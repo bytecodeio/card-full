@@ -1,4 +1,4 @@
-import { Input, InputAdornment, OutlinedInput } from "@mui/material";
+import { Input, InputAdornment, OutlinedInput, FormControlLabel, Checkbox } from "@mui/material";
 import { indexOf } from "lodash";
 import React, { useEffect, useState } from "react";
 import { Button, Form, InputGroup, Modal } from "react-bootstrap";
@@ -81,7 +81,16 @@ const ShortReasons = ({
               if (value?.toUpperCase().includes(search?.toUpperCase()) || search.trim() == ""){
                 return(               
                 <div className="one" key={value}>
-                  <Form.Group>
+                    <FormControlLabel control={<Checkbox />}
+                      className="check-selector"
+                      label={value}
+                      checked={isActive(key, value)}
+                      name="shortReason"
+                      // id={fieldOption}
+                      value={value}
+                      onChange={() => handleFieldSelection(value)}
+                    />
+                  {/* <Form.Group>
                     <Form.Check
                       type="checkbox"
                       className=""
@@ -92,7 +101,7 @@ const ShortReasons = ({
                       value={value}
                       onClick={() => handleFieldSelection(value)}
                     />
-                  </Form.Group>
+                  </Form.Group> */}
                 </div>)  
               }
             })

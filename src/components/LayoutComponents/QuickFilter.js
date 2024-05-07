@@ -12,6 +12,7 @@ const QuickFilter = ({ quickFilters, selectedFilters, selection, setSelectedFilt
         let index = quickFilters[type][name].indexOf(e.target.id)
         quickFilters[type][name].splice(index,1)
       } else {
+        console.log(quickFilters[type])
         quickFilters[type][name].push(e.target.id)
       }
     } else {

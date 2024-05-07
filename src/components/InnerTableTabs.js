@@ -1,8 +1,12 @@
 import React, {Fragment, useState, useEffect } from "react";
-import { Container, Tab, Tabs } from "react-bootstrap";
+import { Container,
+  Tab,
+  Tabs
+ } from "react-bootstrap";
 import EmbedTable from "./EmbedTable";
 import { EmbedContainer } from "./EmbedContainer";
 import { EmbedActionBar } from "./EmbedActionBar";
+//import { Tabs, Tab } from "@mui/material";
 
 const InnerTableTabs = ({
   tabs,
@@ -21,6 +25,7 @@ const InnerTableTabs = ({
   const [faClass, setFaClass] = useState(true);
   const [toggle, setToggle] = useState(true);
   const handleTabChange = (event) => {
+    console.log(event)
     console.log(selectedInnerTab)
     let _tab = tabs[event]
     selectedInnerTab[_tab.dashboard_id] = event
@@ -56,7 +61,6 @@ const InnerTableTabs = ({
             <Tab eventKey={i} title={t.title} key={t.title}>
 
               <div id="embedWrapper" className={showMenu3 ? "whole" : ""}>
-                {/* <EmbedActionBar slideIt3={slideIt3} showMenu3={showMenu3} active={active} handleClick={handleClick} faClass={faClass} queryId={t['query']} title={t.title}/> */}
                 <EmbedContainer vis={t} visList={visList} updateVisList={setVisList} handleVisUpdate={handleSingleVisUpdate} type={"tabbed"} />
               </div>
             </Tab>
