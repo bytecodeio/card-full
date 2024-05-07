@@ -6088,6 +6088,14 @@ min-height: 330px; */
   z-index: 1;
 }
 
+.date-selection-options-container > div {
+  margin-top: 20px;
+}
+
+.date-selection-options-container {
+  padding-bottom: 10px;
+}
+
 .grid.dashboard-grid-layout.container {
   display: inline-grid;
   grid-template-columns: 70% 30%;

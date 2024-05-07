@@ -119,6 +119,7 @@ export const CurrentSelection2 = ({
                   removable: true,
                   selection_type: selectionType,
                 };
+                console.log("filter selection", obj)
                 current.push(obj);
               }
             }
@@ -188,7 +189,7 @@ export const CurrentSelection2 = ({
           <div
             key={Math.random() * 6}
             className={
-              !currentSelection.some((c) => c.label == selection.label)
+              !currentSelection.some((c) => c.label == selection.label && c.type == selection.type)
                 ? "theOptions"
                 : "theOptions red"
             }
@@ -216,7 +217,7 @@ export const CurrentSelection2 = ({
       })}
       {currentSelection
         ?.filter((s) => {
-          return !updatedSelection.some((u) => s.label == u.label);
+          return !updatedSelection.some((u) => s.label == u.label && u.type == s.type);
         })
         .map((selection) => {
           

@@ -20,6 +20,7 @@ import {
 } from "./utils/writebackService.js";
 import { LayoutSelector } from "./LayoutSelector.js";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
+import context from "react-bootstrap/esm/AccordionContext.js";
 
 //Create context for child components to use states
 export const ApplicationContext = React.createContext({})
@@ -73,7 +74,7 @@ export const Main2 = () => {
   };
 
   
-  const priorityOrder = ['date range', 'date filter', 'default_filter', 'quick filter', 'account filter', 'account group', 'contract filter', 'filters'];
+  const priorityOrder = ['date range', 'date filter','default_date_filter', 'default_filter', 'quick filter', 'account filter', 'account group', 'contract filter', 'filters'];
 
   const sortPriority = (tags) => {
     return tags.sort((a,b) => {
@@ -254,16 +255,26 @@ export const Main2 = () => {
           }          
           console.log("date range", _options)
         }
-        let _defFilterType = _defaultFilterFields?.filter((df) => {
+        let _defFilterType = await _defaultFilterFields?.filter((df) => {
           return _fields?.includes(df)
         }
         );
+        console.log("default filter type",_defFilterType)
         if (_defFilterType?.length > 0) {
           _defaultSelected[_type] = {};
-          _defFilterType.map((f) => {
+          await _defFilterType.map((f) => {
             if (f["default_filter_value"] != null) {
-              _defaultSelected[_type][f["name"]] = f["default_filter_value"];
-            }
+              console.log("default fields",f);
+              if (_type === "default date filter") {
+                _defaultSelected['date filter'][f["name"]] = [f["default_filter_value"]];
+              } else {
+                _defaultSelected[_type][f["name"]] = [f["default_filter_value"]];
+              }              
+              console.log("default filters", _defaultSelected)
+            } 
+            // else if (f['type'] == 'yesno') {
+            //   //_defaultSelected[_type][f['name']] = 'yes'
+            // }
           });
         } else if (_type == "date range") {
           if (_fields?.length > 0) {
@@ -272,6 +283,8 @@ export const Main2 = () => {
         } else {
           _defaultSelected[_type] = {};
         }
+        console.log("default filters", _tag)
+        console.log("default filters", fieldsByTag[_tag])
         if (fieldsByTag[_tag]) {
           _filters.push({
             type: _type,
@@ -299,6 +312,7 @@ export const Main2 = () => {
       })
       
       console.log("current default filters", _defaultSelected)
+      console.log("current default filters", _nonStatedFilterFields)
       if (_nonStatedFilterFields.length > 0) {
         _filters.push({
           type:'default',
@@ -312,7 +326,7 @@ export const Main2 = () => {
       setFilters(_filters);
 
       getSavedFilters(application, user, _filters);
-
+      console.log("defaultSelected", _defaultSelected)
       setSelectedFilters(_defaultSelected);
 
 
@@ -381,15 +395,45 @@ export const Main2 = () => {
       return groupFieldsByTags(lookmlFields);
     };
 
+    let intervalId
+
+    const startTimer = (_user) => {
+      if (!intervalId) {
+        let _intervalId = setInterval(() => killQuery(_user), 60000)
+        intervalId = _intervalId
+      } 
+    }
+  
+    const killQuery = async (_user) => {
+      console.log("KILL", _user)
+      let _runningQueries = await sdk.ok(sdk.all_running_queries());
+      let _currentQueries = _runningQueries.filter(query => {
+        let created = moment(query.created_at)   
+        let now = moment();
+        let duration = moment.duration(now.diff(created));
+        let minutes = duration.asMinutes();
+       return _user.id == query.user.id && (query.source=="api4" || query.source=="private_embed") && minutes >= 3;
+      })
+
+      console.log("kill",_currentQueries)
+      if (_currentQueries?.length > 0) {
+        _currentQueries?.map(query => {
+          sdk.ok(sdk.kill_query(query.query_task_id));
+        })
+      }
+    }
+
     //Initial process to load the context data to get the application information that was in the database
     //Also, starts the creation of the tabs and create the application tags
     const initialize = async () => {
+      //let fieldsByTag
       let userInfo = await getUser();
       setUser(userInfo);
+      startTimer(userInfo)
       updateContext()
       let contextData = getContextData();
       if (contextData) {
-        let { application, application_tags, tabs, tab_tags, navList } = contextData;
+        let { application, application_tags, tabs, tab_tags, navList, fieldsByTag } = contextData;
         if (navList) {
           setNavigationList(navList)
         }
@@ -402,16 +446,35 @@ export const Main2 = () => {
           }
         }
         setApplicationInfo(application);
-        let fieldsByTag = await fetchLookMlFields(
-          application.model,
-          application.explore
-        );        
+        console.log("fields by Tag", fieldsByTag);
+        let updatedFields = false
+        if (!fieldsByTag) {
+          let _fieldsByTag = await fetchLookMlFields(
+            application.model,
+            application.explore
+          );
+          updatedFields = true
+          contextData['fieldsByTag'] = _fieldsByTag
+          updateContextData(contextData)
+          fieldsByTag = _fieldsByTag
+        }
+     
         setIsFetchingLookmlFields(false);
         initializeTabs(tabs, tab_tags, fieldsByTag, application);
         initializeAppTags(application_tags, fieldsByTag, application, userInfo);
 
+        if (!updatedFields) {
+          let _fieldsByTag = await fetchLookMlFields(
+            application.model,
+            application.explore
+          );
+          contextData['fieldsByTag'] = _fieldsByTag
+          updateContextData(contextData)
+        }
+
       }
-    };
+      }
+    ;
 
     try {
       initialize();
@@ -456,19 +519,24 @@ export const Main2 = () => {
         let query_task = await sdk.ok(sdk.create_query_task({body:{result_format:'json', query_id:id}}))
         let loading = false;
         let options = []
-        console.log("query task",query_task)
-        for (let i = 0 ;loading === false; i++) {
+        try {
+          for (let i = 0 ;loading === false; i++) {
             let res = await sdk.ok(sdk.query_task(query_task.id));
+            console.log("task status", res)
             if (res.status === "complete") {                
               options = await sdk.ok(sdk.query_task_results(query_task.id));
               loading = true;
               break;
             }
-            await waiting(15000);
-        } 
-        //while (loading === false)
-        console.log("query task", options)
-        return options
+            if (res.status === "error") {
+              loading= true;
+            }
+            await waiting(5000);
+          } 
+          return options
+        } catch {
+          return []
+        }
       }
     } catch {
       return [];
@@ -497,7 +565,7 @@ export const Main2 = () => {
         for await(let field of f.fields) {
           
           console.log("total filters values field", field);
-          let values = await getValues(field, {}, application);
+          let values = await getFilterValues(field, {}, application);
           console.log("Total filters values", values)
           _options.push({ field: field, values: values });
         }
@@ -509,7 +577,7 @@ export const Main2 = () => {
           console.log('single dimension', f)
           //Removed for Account Groups
           if (f.type !== "account group") {              
-            let value = await getValues(f.fields[0], {}, application);
+            let value = await getFilterValues(f.fields[0], {}, application);
             _options = { field: f.fields[0], values: value };
           }
         }
@@ -567,6 +635,7 @@ export const Main2 = () => {
               filters: filters,
               limit: 500,
             },
+            apply_formatting:true,
             cache:true
           }, {timeout:300})
         )
@@ -581,12 +650,13 @@ export const Main2 = () => {
 
   //Function that updates the properties that are shown in the tabs
   const updateAppProperties = async (filters) => {
-    console.log("prop filters", filters)
+    console.log("property check filters", filters)
     setPropertiesLoading(true)
     let newProps = [];
     for await (let prop of properties) {
-      let _value = await getValues(prop["fields"], filters);
+      let _value = await getFilterValues(prop["fields"], filters);
       prop.value = _value[0];
+      console.log("property check", prop)
       newProps.push(prop);
     }
     console.log("prop filters", newProps)
@@ -678,6 +748,7 @@ export const Main2 = () => {
 
   const handleDataRefresh = async () => {
     let extensionId = extensionContext.extensionSDK.lookerHostData.extensionId.split("::")[1];
+    let _context = await getContextData();
     let contextData = {}
     try {
       let app = await getApplication(extensionId, sdk)
@@ -712,6 +783,7 @@ export const Main2 = () => {
         //setNavList(appList);
       }
       contextData['navList'] = applications
+      contextData['fieldsByTag'] = _context['fieldsByTag']
       console.log("context", contextData)
       updateContextData(contextData)
     } catch (ex) {
