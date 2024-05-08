@@ -11,7 +11,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
     const sdk = extensionContext.core40SDK;
 
     const downloadTypes = [
-        {label:'Excel (.xslx)','type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', value:'xlsx'},
+        {label:'Excel (.xlsx)','type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', value:'xlsx'},
         {label:'Comma-separated values (.csv)','type':'text/csv', value:'csv'},
         {label:'Text (.txt)','type':'text/plain', value:'txt'},
         {label:'Image (.jpg)','type':'image/jpg', value:'jpg'},
@@ -73,7 +73,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
         setIsLoading(false)
     }
 
-    const handlePrint = async () => { 
+    const handlePrint = async () => {
         let {hostUrl, hostType, extensionId} = extensionContext.extensionSDK.lookerHostData;
         let _hostType = hostType == "spartan"?"spartan":"extensions";
         let url = `${hostUrl}/${_hostType}/${extensionId}/print?qid=${queryId}&type=${type.value}`
@@ -130,7 +130,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
                     </Form.Group>
                     {isError &&
                         <Alert severity='error'>Error downloading file</Alert>
-                    }                    
+                    }
                 </Popover.Body>
             </Popover>
         </Overlay>
