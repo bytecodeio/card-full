@@ -64,16 +64,9 @@ const Filters = ({
     return _filtered
   }
 
-  const sortData= (data) => {
-    if (data) {
-      return data.sort((a,b) => {
-       var x = a.label_short.toLowerCase();
-       var y = b.label_short.toLowerCase();
-           return x < y ? -1 : x > y ? 1 : 0;
-       });
-    }
-    return null
-   }
+ 
+
+  console.log(filters, "filters")
 
   return (
     <>
@@ -85,11 +78,11 @@ const Filters = ({
       </div>
       :''
     }
-      <FiltersComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} filters={filters} sortData={sortData} formatValues={formatValues} selectedFilters={selectedFilters} handleFilterSelection={handleFilterSelection}/>
+      <FiltersComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} filters={filters}  formatValues={formatValues} selectedFilters={selectedFilters} handleFilterSelection={handleFilterSelection}/>
       <Modal show={expandMenu} onHide={() => setExpandMenu(false)}>
         <Modal.Header className="modal-selection-header" closeButton>Filters</Modal.Header>
         <Modal.Body>
-          <FiltersComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} filters={filters} sortData={sortData} formatValues={formatValues} selectedFilters={selectedFilters} handleFilterSelection={handleFilterSelection}/>
+          <FiltersComponent setExpandMenu={setExpandMenu} expandMenu={expandMenu} filters={filters} formatValues={formatValues} selectedFilters={selectedFilters} handleFilterSelection={handleFilterSelection}/>
         </Modal.Body>
         <Modal.Footer></Modal.Footer>
       </Modal>
@@ -104,7 +97,7 @@ const FiltersComponent = ({setExpandMenu, expandMenu,filters, sortData, formatVa
   return (
     <div  className={expandMenu? "wrapFilters expanded": "wrapFilters"}>
       <i class="fal fa-times closeOptions" onClick={() => setExpandMenu(false)} ></i>
-        {sortData(filters)?.options?.map((filterOption) => (
+        {filters?.options?.map((filterOption) => (
           formatValues(filterOption.field.name,filterOption.values)?.length > 0?
           <div className="one filter-selector" key={filterOption.name}>
             <p variant="h6">{filterOption.field.label_short}</p>

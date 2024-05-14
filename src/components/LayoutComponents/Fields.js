@@ -52,6 +52,7 @@ const Fields = ({
   }
 
   const sortData= (data) => {
+    console.log(data)
     if (data) {
       return data.sort((a,b) => {
        var x = a.label_short.toLowerCase();
@@ -61,6 +62,9 @@ const Fields = ({
     }
     return null
    }
+
+
+   console.log(fields, "fields")
 
 
   return (
