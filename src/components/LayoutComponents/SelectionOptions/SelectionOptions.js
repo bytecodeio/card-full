@@ -17,10 +17,11 @@ import { ContractExpiration } from '../ContractExpiration';
 
 
 //SelectionOptions is the side panel that includes filters and field selections
-export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVisUpdate,setIsFilterChanged,visList,setVisList, selectedFilters, setSelectedFilters, fieldGroups, savedFilters,removeSavedFilter,upsertSavedFilter,attributes,selectedInnerTab,updateButtonClicked,setUpdateButtonClicked, layoutProps, showMenu, setShowMenu, setUpdatedFilters,tabFilters}) => {
+export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, handleTabVisUpdate,setIsFilterChanged,visList,setVisList, selectedFilters, setSelectedFilters, fieldGroups, savedFilters,removeSavedFilter,upsertSavedFilter,attributes,selectedInnerTab,updateButtonClicked,setUpdateButtonClicked, layoutProps, showMenu, setShowMenu, updatedFilters, setUpdatedFilters,tabFilters, formatFilters}) => {
     const [show, setShow] = useState(false)
     const handleClose = () => setShow(false);
     const wrapperRef = useRef(null);
+    const tabVisIndex = visList.findIndex(({visId}) => visId === "tabbedVis1")
 
     const handleClearAll = () => {
         setShow(true);
@@ -53,6 +54,9 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
           are done you can choose the "Submit Values" button to update the data.
         </Tooltip>
       );
+
+      console.log("FIELDS", fields)
+      console.log("FIELDS", visList)
 
     return(
         <>
@@ -418,14 +422,14 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                                 <Accordion.Header>Fields</Accordion.Header>
                                                 <Accordion.Body>
                                                     <Fields
-                                                        fieldOptions={fields.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[0].dashboard_id]]?.title; })
-                                                            ? fields.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[0].dashboard_id]]?.title; }).fields
+                                                        fieldOptions={fields.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title; })
+                                                            ? fields.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title; }).fields
                                                             : fields.find(f => { return f.sub_tab == ""; })?.fields}
                                                         setTabList={setVisList}
                                                         tabList={visList.filter(
                                                             ({ visId }) => visId === "tabbedVis1"
                                                         )}
-                                                        currentInnerTab={selectedInnerTab[visList[0].dashboard_id]}
+                                                        currentInnerTab={selectedInnerTab[visList[tabVisIndex].dashboard_id]}
                                                         updateBtn={updateButtonClicked}
                                                         setUpdateBtn={setUpdateButtonClicked} />
                                                 </Accordion.Body>
@@ -436,12 +440,12 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                     )}
 
                                     {/* Filters */}                                    
-                                    {filters.find(({ type }) => type === "filter" || type === "quick filter")?.options?.length == 0 && layoutProps['filters'] &&
+                                    {filters.find(({ type }) => type === "filter" || type === "quick filter")?.fields?.length == 0 && layoutProps['filters'] &&
                                         <LoadingAccordion title={"Filters"} /> 
                                     }
                                     {layoutProps['filters'] ?
 
-                                        filters.find(({ type }) => type === "filter" || type === "quick filter")?.options?.length > 0 ?
+                                        filters.find(({ type }) => type === "filter" || type === "quick filter")?.fields?.length > 0 ?
                                             <Col xs={12} md={12}>
                                                 <Accordion.Item eventKey="5">
                                                     <Accordion.Header>Filters</Accordion.Header>
@@ -462,23 +466,22 @@ export const SelectionOptions = ({filters, isFilterLoading, fields, handleTabVis
                                                         ) : (
                                                             ""
                                                         )}
-                                                        {isFilterLoading?
-                                                        <div style={{'position':'relative', 'marginTop':'50px'}}>
-                                                            <LoadingComponent />
-                                                        </div>
-                                                            
-                                                            :
                                                            <Filters
+                                                           formatFilters={formatFilters}
+                                                            updatedFilters={updatedFilters}
                                                             //isLoading={isFetchingFilterSuggestions}
+                                                            allFilters={filters}
                                                             filters={filters.find(
                                                                 ({ type }) => type === "filter"
                                                             )}
+                                                            setFilters={setFilters}
                                                             setSelectedFilters={setSelectedFilters}
                                                             selectedFilters={selectedFilters}
                                                             updateBtn={updateButtonClicked}
                                                             setUpdateBtn={setUpdateButtonClicked}
-                                                            setIsFilterChanged={setIsFilterChanged} /> 
-                                                        }
+                                                            setIsFilterChanged={setIsFilterChanged}
+                                                            isFilterLoading={isFilterLoading} /> 
+                                                        
                                                         
                                                     </Accordion.Body>
                                                 </Accordion.Item>

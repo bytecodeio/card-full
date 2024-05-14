@@ -14,8 +14,8 @@ export const PropertyContainer = ({properties,propertiesLoading}) => {
     }
     return(
         <>
-            {properties?.find(({ group }) => group === "property") && Object.values(properties?.find(({group}) => group === "property")?.value)?.length > 0 ? (
-                
+            {properties?.find(({ group }) => group === "property") && properties?.find(({ group }) => group === "property")?.value ?
+                Object.values(properties?.find(({group}) => group === "property")?.value)?.length > 0 ? (
                 <p>
                     <b>
                         {
@@ -35,7 +35,7 @@ export const PropertyContainer = ({properties,propertiesLoading}) => {
                 </p>
             ) : (
                 ""
-            )}
+            ):''}
         </>
     )
 }

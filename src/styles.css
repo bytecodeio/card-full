@@ -6082,6 +6082,38 @@ cursor: pointer;
 min-height: 330px; */
 }
 
+.message-overlay {
+  display: flex;
+  height: 50%;
+  justify-content: center;
+  align-items: center;
+}
+
+.transposed-table {
+  border-radius: 15px;
+  border: 1px solid #e9e4e4;
+  height: 100%;
+  margin-top: 10px;
+  padding: 20px;
+}
+
+.transposed {
+  text-align: right;
+  padding: 5px;
+}
+
+.transposed.transposed-label {
+  font-weight: 700;
+}
+
+.rebate-filter-input {
+  padding-bottom: 10px;
+}
+
+.rebate-group > button {
+  text-transform: capitalize;
+}
+
 .embed-action-section {
   position: relative;
   width: 100%;

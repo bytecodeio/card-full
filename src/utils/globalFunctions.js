@@ -9,6 +9,13 @@ export const sortDateFilterList = (data) => {
            return x < y ? -1 : x > y ? 1 : 0;
        });
    }
+export const sortFilters = (data) => {
+return data?.sort((a,b) => {
+    var x = a?.field?.label_short?.toLowerCase();
+    var y = b?.field?.label_short?.toLowerCase();
+        return x < y ? -1 : x > y ? 1 : 0;
+    });
+}
 
 export const groupBy = (xs,key) => {
     return xs.reduce(function(rv,x) {

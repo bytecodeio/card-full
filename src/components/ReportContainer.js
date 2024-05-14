@@ -24,6 +24,8 @@ import { LoadingComponent } from "./LoadingComponent";
 import { OneTabVisualizationWithVizAbove } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove";
 import { OneTabVisualizationWithVizAbove2 } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove2";
 import { DashboardVisualizations221 } from "./VisualizationLayouts/DashboardVisualizations221";
+import { RebateEstimator } from "./VisualizationLayouts/RebateEstimator";
+import { RebateEstimatorTopRow } from "./LayoutComponents/RebateEstimatorRow/RebateEstimatorTopRow";
 
 export const TabContext = React.createContext({})
 
@@ -69,7 +71,7 @@ export const ReportContainer = ({
 
     const params = useParams();
 
-    const {filters,
+    const {filters, setFilters,
       parameters,
       updateAppProperties,
       isFetchingLookmlFields,
@@ -155,7 +157,7 @@ export const ReportContainer = ({
               };
 
               let vis = {};
-              let { client_id, slug, vis_config, fields, model, view, pivots, total } = t["result_maker"]["query"];
+              let { client_id, slug, vis_config, fields, model, view, pivots, total, limit, dynamic_fields } = t["result_maker"]["query"];
               console.log("vis config", t)
               console.log("client id", client_id)
               vis = {
@@ -170,7 +172,7 @@ export const ReportContainer = ({
                 dashboard_id: id,
                 error:false,
                 query_values : {
-                  vis_config, fields, model, view, pivots,total
+                  vis_config, fields, model, view, pivots,total, limit, dynamic_fields
                 },
                 isLoading:false,
                 visUrl:"",
@@ -192,6 +194,15 @@ export const ReportContainer = ({
       }
 
       const loadDefaults = async (_visList) => {
+        if (tabFilters.length > 0) {
+          let _selectedTabFilters = {...selectedTabFilters}
+          await tabFilters.map(filters => {
+            if (filters.fields.default_filter_value) {
+              _selectedTabFilters[filters['fields']['name']] = filters['fields']['default_filter_value']
+            }
+          })
+          setSelectedTabFilters(_selectedTabFilters)
+        }
         handleTabVisUpdate(_visList);
       };
 
@@ -223,9 +234,10 @@ export const ReportContainer = ({
       };
 
       const queryValidator = async (query) => {
+        let limit = query['limit']
         query['limit'] = 1;
         let res = await sdk.ok(sdk.create_query(query, 'id,slug'));
-        query['limit'] = 5000;
+        query['limit'] = limit;
         let {client_id} = await sdk.ok(sdk.create_query(query,'client_id'))
         res['client_id'] = client_id
         return res
@@ -328,7 +340,7 @@ export const ReportContainer = ({
         let newVisList = [];
         for (let vis of _visList) {
           if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
-            const { vis_config, model, view, pivots,total } = vis['query_values'];
+            const { vis_config, model, view, pivots,total, limit } = vis['query_values'];
             let index = _visList.indexOf(vis)
 
             let _fields = [];
@@ -347,7 +359,7 @@ export const ReportContainer = ({
               vis_config,
               pivots,
               total,
-              limit:5000
+              limit:limit
             }
             let _queryVal = {..._query}
 
@@ -470,7 +482,7 @@ export const ReportContainer = ({
           <LoadingComponent />
         ) : (
           <>
-            <SelectionOptions filters={filters} tabFilters={tabFilters}
+            <SelectionOptions filters={filters} setFilters={setFilters} tabFilters={tabFilters}
                 fields={fields} handleTabVisUpdate={handleTabVisUpdate}
                 visList={visList}setVisList={setVisList}
                 selectedFilters={selectedFilters} setSelectedFilters={setSelectedFilters}
@@ -481,8 +493,10 @@ export const ReportContainer = ({
                 setIsFilterChanged={setIsFilterChanged}
                 layoutProps={layoutProps}
                 showMenu={showMenu} setShowMenu={setShowMenu}
+                updatedFilters={updatedFilters}
                 setUpdatedFilters={setUpdatedFilters}
                 isFilterLoading={isFilterLoading}
+                formatFilters={formatFilters}
             />
             <Row className="fullW">
               <Col md={12} lg={12}>
@@ -505,6 +519,7 @@ export const ReportContainer = ({
                   />
               </Col>
             </Row>
+            
 
             <CurrentSelectionRow  properties={properties} propertiesLoading={propertiesLoading}
              filters={filters}
@@ -563,6 +578,23 @@ export const ReportContainer = ({
                     setVisList={setVisList}
                     visList={visList}
                     handleSingleVisUpdate={handleSingleVisUpdate}/>
+                :''}
+
+              {layoutProps.layout === "Rebate Estimator"?
+                <RebateEstimator
+                    setSelectedFields={setSelectedFields}
+                    selectedInnerTab={selectedInnerTab}
+                    setSelectedInnerTab={setSelectedInnerTab}
+                    setVisList={setVisList}
+                    visList={visList}
+                    handleSingleVisUpdate={handleSingleVisUpdate}
+                    updatedFilters={updatedFilters}
+                    formatFilters={formatFilters}
+                    tabFilters={tabFilters}
+                    selectedTabFilters={selectedTabFilters}
+                    setSelectedTabFilters={setSelectedTabFilters}
+                    handleTabVisUpdate={handleTabVisUpdate}
+                    />
                 :''}
               {layoutProps.layout === "FullLookMLDashboard"?
                 <FullLookMLDashboard

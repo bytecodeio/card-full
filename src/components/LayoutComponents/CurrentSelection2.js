@@ -202,9 +202,9 @@ export const CurrentSelection2 = ({
                   : "mb-0 blue"
               }
             >
-              {selection.label.replace(/\s*\(.*?\)\s*/g, "")}
+              {selection?.label?.replace(/\s*\(.*?\)\s*/g, "")}
             </p>
-            {selection.removable ? (
+            {selection?.removable ? (
               <i
                 onClick={() => removeFilter(selection)}
                 class="fal fa-times blue"
@@ -231,7 +231,7 @@ export const CurrentSelection2 = ({
             <div className={"theOptions"} key={selection.label}>
               {/*<p className="mb-0">{currentSelection[selection]}</p>*/}
               <p className="mb-0 blue">
-                {selection.label.replace(/\s*\(.*?\)\s*/g, "")}
+                {selection?.label?.replace(/\s*\(.*?\)\s*/g, "")}
               </p>
 
               <i
