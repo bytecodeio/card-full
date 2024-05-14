@@ -87,6 +87,18 @@ const LayoutProperties =     {
             'saved filters':true,
             'layout':'OneTabVisualizationWithVizAbove2'
         },
+        'Rebate Estimator':{
+            'date range':false,
+            'date filter':false,
+            'description':false,
+            'filters':false,
+            'account group':false,
+            'account filter':true,
+            'fields':false,
+            'current selection':true,
+            'saved filters':true,
+            'layout':'Rebate Estimator'
+        },
     }
 
 //LayoutSelector uses the templates and the context data to dynamically create the specific layout for the tab

@@ -198,9 +198,8 @@ export const getLandingPageApplications = async (sdk) => {
             .ok(
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `SELECT a.*, v.* FROM ${scratch_schema}.cms_application a
+                sql: `SELECT a.* FROM ${scratch_schema}.cms_application a
                 LEFT JOIN ${scratch_schema}.cms_tab t ON t.application_id = a.id
-                LEFT JOIN ${scratch_schema}.cms_tab_visualization v ON v.tab_id = t.id AND v.sort_order = 1
                 WHERE t.sort_order = 1 AND a.show_in_nav=true
                 ORDER BY a.sort_order;`,
             })

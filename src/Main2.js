@@ -21,6 +21,7 @@ import {
 import { LayoutSelector } from "./LayoutSelector.js";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
 import context from "react-bootstrap/esm/AccordionContext.js";
+import { sortFilters } from "./utils/globalFunctions.js";
 
 //Create context for child components to use states
 export const ApplicationContext = React.createContext({})
@@ -50,7 +51,7 @@ export const Main2 = () => {
   const [fieldGroups, setFieldGroups] = useState([])
 
   const [initialLoad, setInitialLoad] = useState(true);
-  const [isFilterLoading, setIsFilterLoading] = useState(true);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
   //here
   const [selectedFilters, setSelectedFilters] = useState({});
   const [updatedFilters, setUpdatedFilters] = useState({});
@@ -69,12 +70,14 @@ export const Main2 = () => {
 
   const history = useHistory();
 
+  let app
+
   const handleChangeKeyword = (e) => {
     setKeyword(e.target.value);
   };
 
   
-  const priorityOrder = ['date range', 'date filter','default_date_filter', 'default_filter', 'quick filter', 'account filter', 'account group', 'contract filter', 'filters'];
+  const priorityOrder = ['date range', 'date filter','default date filter','default_filter', 'quick filter', 'filter','account filter', 'account group', 'contract filter'];
 
   const sortPriority = (tags) => {
     return tags.sort((a,b) => {
@@ -85,14 +88,30 @@ export const Main2 = () => {
   }
 
   
-  useEffect(() => {
-    //getOptionValues(filters,applicationInfo)
-    getOptionValues
-  },[initialLoad === false])
+  // useEffect(() => {
+  //   //getOptionValues(filters,applicationInfo)
+  //   getOptionValues
+  // },[initialLoad === false])
 
-  // Group each field with their respective tags
-  useEffect(() => {
-    function groupFieldsByTags(fields) {
+      //Get the dimensions, measures and parameters from the LookML
+      const fetchLookMlFields = async (model, explore) => {
+        const response = await sdk.ok(
+          sdk.lookml_model_explore(model, explore, "fields")
+        );
+        const {
+          fields: { dimensions, filters, measures, parameters },
+        } = response;
+  
+        const lookmlFields = [
+          ...dimensions,
+          ...filters,
+          ...measures,
+          ...parameters,
+        ];
+        return groupFieldsByTags(lookmlFields);
+      };    
+      
+      function groupFieldsByTags(fields) {
       const fieldsByTag = {};
       fields.forEach((field) => {
         if (field.tags != "") {
@@ -113,6 +132,10 @@ export const Main2 = () => {
       console.log("fields", fieldsByTag)
       return fieldsByTag;
     }
+
+  // Group each field with their respective tags
+  useEffect(() => {
+
 
     // Creating the tab state along with tab specific tags
     const initializeTabs = async (tabs, tabTags, fieldsByTag, application) => {
@@ -232,6 +255,7 @@ export const Main2 = () => {
       let _defaultSelected = {}
       setInitialLoad(false)
       let sortedTags = sortPriority(applicationTags)
+      
       let _defTags = sortedTags.filter(({type}) => type === "default_filter" || type === "default date filter");
       //_defTags = [].concat(_defTags.map(d => {return d}))
       console.log("tag",_defTags)
@@ -239,11 +263,12 @@ export const Main2 = () => {
       //let _defaultFilterFields = fieldsByTag[_defTags?.tag_name]
       let _defaultFilterFields = [];
       _defTags.map(tag => {
-        let fields = fieldsByTag[tag?.tag_name]
+        let fields = sortFilters(fieldsByTag[tag?.tag_name])
         fields?.map(f => _defaultFilterFields.push(f))
       })
       console.log("tag", _defaultFilterFields)
-      for await (let f of sortedTags.filter(({ tag_group }) => tag_group == "filters")) {
+      console.log("tag sorted",sortedTags)
+      for await (let f of sortedTags.filter(({ tag_group, type }) => tag_group == "filters" && !['default date filter','default_filter'].includes(type))) {
         let _type = f.type;
         let _tag = f.tag_name;
         let _fields = fieldsByTag[_tag];
@@ -255,16 +280,30 @@ export const Main2 = () => {
           }          
           console.log("date range", _options)
         }
-        let _defFilterType = await _defaultFilterFields?.filter((df) => {
-          return _fields?.includes(df)
+        let _defFilterType =[]
+        if (_fields) {
+          await _defaultFilterFields?.map(async (df) => {
+            let match = await _fields.some(({name}) => name == df.name)
+            console.log("Testing", df)
+            console.log("Testing", _fields)
+            console.log("Testing", match)
+            //if (match.length > 0) {return true} else {return false}
+            //return match
+            if (match) {
+              _defFilterType.push(df)
+            }
+            //return match        
+          }
+          );
+          console.log("TESTING Type",_defFilterType)
         }
-        );
-        console.log("default filter type",_defFilterType)
+
         if (_defFilterType?.length > 0) {
           _defaultSelected[_type] = {};
           await _defFilterType.map((f) => {
             if (f["default_filter_value"] != null) {
               console.log("default fields",f);
+              console.log("default fields",_type);
               if (_type === "default date filter") {
                 _defaultSelected['date filter'][f["name"]] = [f["default_filter_value"]];
               } else {
@@ -377,24 +416,6 @@ export const Main2 = () => {
       }
     };
 
-    //Get the dimensions, measures and parameters from the LookML
-    const fetchLookMlFields = async (model, explore) => {
-      const response = await sdk.ok(
-        sdk.lookml_model_explore(model, explore, "fields")
-      );
-      const {
-        fields: { dimensions, filters, measures, parameters },
-      } = response;
-
-      const lookmlFields = [
-        ...dimensions,
-        ...filters,
-        ...measures,
-        ...parameters,
-      ];
-      return groupFieldsByTags(lookmlFields);
-    };
-
     let intervalId
 
     const startTimer = (_user) => {
@@ -445,6 +466,7 @@ export const Main2 = () => {
             }
           }
         }
+        app = application
         setApplicationInfo(application);
         console.log("fields by Tag", fieldsByTag);
         let updatedFields = false
@@ -463,14 +485,15 @@ export const Main2 = () => {
         initializeTabs(tabs, tab_tags, fieldsByTag, application);
         initializeAppTags(application_tags, fieldsByTag, application, userInfo);
 
-        if (!updatedFields) {
-          let _fieldsByTag = await fetchLookMlFields(
-            application.model,
-            application.explore
-          );
-          contextData['fieldsByTag'] = _fieldsByTag
-          updateContextData(contextData)
-        }
+        // if (!updatedFields) {
+        //   let _fieldsByTag = await fetchLookMlFields(
+        //     application.model,
+        //     application.explore
+        //   );
+        //   console.log('update context with fields', _fieldsByTag)
+        //   contextData['fieldsByTag'] = _fieldsByTag
+        //   updateContextData(contextData)
+        // }
 
       }
       }
@@ -547,36 +570,36 @@ export const Main2 = () => {
   const getOptionValues = async (_filters, application) => {
     console.log("Option Values", _filters)
     //let _filters = [];
-    let filterArr = [..._filters];
-    for (let f of sortPriority(filterArr)) {
+    let filterArr = sortPriority([..._filters]);
+    for (let f of filterArr) {
+      let index = filterArr.indexOf(f)
       let _options = [];
       if (f.option_type === "fields") {
         _options = f.fields;
       }
-      if (f.option_type === "values") {
-        //updateFilterOptions(f)
-        // _options = await Promise.all(f.fields.map(async (field) => {
-        //   console.log("total filters values field", field);
-        //   let values = await getFilterValues(field,{},application);
-        //   console.log("Total filters values", values)
-        //   return {field:field, values:values}
-        // }))
-        setIsFilterLoading(true)
-        for await(let field of f.fields) {
-          
-          console.log("total filters values field", field);
-          let values = await getFilterValues(field, {}, application);
-          console.log("Total filters values", values)
-          _options.push({ field: field, values: values });
-        }
-        setIsFilterLoading(false)
+      if (f.option_type === "values") {              
+        //setIsFilterLoading(true)
+          for await(let field of f.fields) {
+            let values = []
+            if (f.type !== "filter") {            
+              values = await getFilterValues(field, {}, application);              
+            }
+            _options.push({ field: field, values: values });
+            setFilters(filters => filters.map((f,i) => {
+              if (i === index) {
+                f['options'] = _options;
+                return f;
+              } else return f}))
+          }
+        //setIsFilterLoading(false)
+        
       }
       if (f.option_type === "single_dimension_value") {
         if (f.fields?.length > 0) {
           console.log(f.fields[0])
           console.log('single dimension', f)
           //Removed for Account Groups
-          if (f.type !== "account group") {              
+          if (!(f.type == "account group")) {              
             let value = await getFilterValues(f.fields[0], {}, application);
             _options = { field: f.fields[0], values: value };
           }
@@ -594,10 +617,10 @@ export const Main2 = () => {
         }
       }
 
-      //if (f.option_type != "values") {
+      if (f.option_type != "values") {
         f["options"] = _options;
         setFilters(prev => [...prev,f])
-      //}
+      }
 
       //_filters.push(f);
     }
@@ -667,6 +690,10 @@ export const Main2 = () => {
   //Get the extension context data
   const getContextData = () => {
     return extensionContext.extensionSDK.getContextData();
+  };
+
+  const getRefreshedContextData = () => {
+    return extensionContext.extensionSDK.refreshContextData();
   };
 
   //Load the saved filters into the app based on user id
@@ -748,7 +775,7 @@ export const Main2 = () => {
 
   const handleDataRefresh = async () => {
     let extensionId = extensionContext.extensionSDK.lookerHostData.extensionId.split("::")[1];
-    let _context = await getContextData();
+    //let _context = await getContextData()
     let contextData = {}
     try {
       let app = await getApplication(extensionId, sdk)
@@ -783,7 +810,11 @@ export const Main2 = () => {
         //setNavList(appList);
       }
       contextData['navList'] = applications
-      contextData['fieldsByTag'] = _context['fieldsByTag']
+      console.log("context app", app)
+      contextData['fieldsByTag'] = await fetchLookMlFields(
+        app[0].model,
+        app[0].explore
+      );
       console.log("context", contextData)
       updateContextData(contextData)
     } catch (ex) {
@@ -800,6 +831,7 @@ export const Main2 = () => {
         <ApplicationContext.Provider
           value={{application:applicationInfo,
             filters:filters,
+            setFilters,
             parameters:parameters,
             updateAppProperties:updateAppProperties,
             isFetchingLookmlFields:isFetchingLookmlFields,
@@ -817,7 +849,8 @@ export const Main2 = () => {
             removeSavedFilter:removeSavedFilter,
             upsertSavedFilter:upsertSavedFilter,
             propertiesLoading:propertiesLoading,
-            isFilterLoading
+            isFilterLoading,
+            getValues
             }}>
           <TopNav navList={navigationList}/>
           <div className={showMenu ? "largePadding" : "slideOver largePadding"}>
