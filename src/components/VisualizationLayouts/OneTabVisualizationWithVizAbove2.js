@@ -49,12 +49,30 @@ export const OneTabVisualizationWithVizAbove2 = ({visList,setSelectedFields,setS
             </Row>
 
             <Row className="mt-3 mb-3">
-              <Col md={12} className="embed-responsive embed-responsive-16by9 vis-grid">
+              <Col md={6} className="embed-responsive embed-responsive-16by9 vis-grid">
                 {visList.filter(({ visId }) => visId === "vis3").length >
                 0 ? (
                   <div className='vis-container'>
                     <EmbedSection
                         vis={visList.filter(({ visId }) => visId === "vis3")}
+                        visList={visList}
+                        setVisList={setVisList}
+                        setSelectedFields={setSelectedFields}
+                        selectedInnerTab={selectedInnerTab}
+                        setSelectedInnerTab={setSelectedInnerTab}
+                        handleSingleVisUpdate={handleSingleVisUpdate}
+                    />
+                  </div>
+                ) : (
+                  ""
+                )}
+              </Col>
+              <Col md={6} className="embed-responsive embed-responsive-16by9 vis-grid">
+                {visList.filter(({ visId }) => visId === "vis4").length >
+                0 ? (
+                  <div className='vis-container'>
+                    <EmbedSection
+                        vis={visList.filter(({ visId }) => visId === "vis4")}
                         visList={visList}
                         setVisList={setVisList}
                         setSelectedFields={setSelectedFields}

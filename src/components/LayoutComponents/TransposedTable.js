@@ -4,20 +4,25 @@ import { useContext } from 'react'
 import { useEffect, useState } from 'react'
 import {Col,Row} from 'react-bootstrap'
 
-export const TransposedTable = ({formatFilters, updatedFilters, vis}) => {
+export const TransposedTable = ({formatFilters, updatedFilters, vis, selectedTabFilters, reloadData, setReloadData, setData}) => {
     const [tableValues, setTableValues] = useState([])
     const {core40SDK:sdk} = useContext(ExtensionContext)
     useEffect(() => {   
         const getValues = async() => {
-            if (vis) {
+            if (vis && reloadData) {
+                setTableValues([])
                 let {query_values} = vis;
-                query_values['filters'] = formatFilters({...updatedFilters});
-                query_values['limit'] = 1
+
+                let _filters = formatFilters({...updatedFilters});
+                _filters = {..._filters, ...selectedTabFilters}
+                query_values['filters'] = _filters;
                 console.log("REBATE QUERY VALUES", query_values)
-                let data = await sdk.ok(sdk.run_inline_query({result_format:'json',body:query_values}))
+                let data = await sdk.ok(sdk.run_inline_query({result_format:'json',body:query_values, apply_formatting:true}))
+                console.log("Rebate data", data)
                 if (data.length > 0) {
                     let _data = []
-                    let row = data[0];
+                    let row = data.find(({show_in_viz}) => show_in_viz === "Yes");
+                    setData(row);
                     let {series_labels, column_order} = query_values['vis_config']
                     await column_order?.map(col => {
                         let label = series_labels[col];
@@ -28,10 +33,11 @@ export const TransposedTable = ({formatFilters, updatedFilters, vis}) => {
                 }
                 console.log("VIS", data)
             }
+            setReloadData(false)
         }     
 
         getValues()
-    },[updatedFilters])
+    },[updatedFilters, reloadData])
     return(
         <div className='transposed-table'>
             {tableValues.map(col => (

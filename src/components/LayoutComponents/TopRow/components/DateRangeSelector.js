@@ -68,7 +68,7 @@ export const DateRangeSelector = ({
               <LocalizationProvider dateAdapter={AdapterMoment}>
                 <DatePicker 
                   minDate={minDateFn()}
-                  maxDate={moment()}
+                  maxDate={moment().endOf("month")}
                   value={moment(splitSelectedDateRange()[0])}
                   onChange={(e) => onDateSelection(e, "start")}
                 />
@@ -86,7 +86,7 @@ export const DateRangeSelector = ({
               <LocalizationProvider dateAdapter={AdapterMoment}>
                 <DatePicker 
                   minDate={minDateFn()}
-                  maxDate={moment()}
+                  maxDate={moment().endOf("month")}
                   value={moment(splitSelectedDateRange()[1])}
                   onChange={(e) => onDateSelection(e, "end")}
                 />

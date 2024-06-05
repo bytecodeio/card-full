@@ -197,9 +197,11 @@ export const Main2 = () => {
             let _fields = fieldsByTag[_tag];
             let _subTab = f.sub_tab_name
             let _options = "";
+            let _default = f.att1;
             if (f.option == "single_dimension_value") {
               _options = await getValues(_fields[0],{},application)
-            }            
+            }
+            console.log("tab filters Main2", f)            
             if (_fields?.length > 0) {
               _tabFilters.push({
                 tab: _tab,
@@ -208,9 +210,11 @@ export const Main2 = () => {
                 fields: _fields[0],
                 group: _group,
                 options: _options,
+                default_value: _default
               });
             }
           }
+          console.log("tab filters Main2", _tabFilters)
           setTabFilters(_tabFilters);
 
 
@@ -338,14 +342,16 @@ export const Main2 = () => {
           let ret = Object.keys(_defaultSelected).some(key => {
             return _defaultSelected[key].hasOwnProperty([df['name']])
           })
-          console.log("default filter", ret)
+          console.log("default filter test", ret)
           if (!ret) {
-            _nonStatedFilterFields.push(df)           
+            _nonStatedFilterFields.push(df)
+            console.log("default filter test", df)           
             if (df['default_filter_value'] != null) {
                 if (!_defaultSelected.hasOwnProperty('default')) {
                   _defaultSelected['default'] = {}
                 }
-                _defaultSelected['default'][df['name'] = df['default_filter_value']]
+                _defaultSelected['default'][df['name']] = df['default_filter_value']
+                console.log("default filter test", _defaultSelected)
             }
           }
       })
@@ -433,6 +439,7 @@ export const Main2 = () => {
         let now = moment();
         let duration = moment.duration(now.diff(created));
         let minutes = duration.asMinutes();
+        console.log("Kill minutes", minutes)
        return _user.id == query.user.id && (query.source=="api4" || query.source=="private_embed") && minutes >= 3;
       })
 
@@ -599,10 +606,19 @@ export const Main2 = () => {
           console.log(f.fields[0])
           console.log('single dimension', f)
           //Removed for Account Groups
-          if (!(f.type == "account group")) {              
-            let value = await getFilterValues(f.fields[0], {}, application);
+          let _filterVal = {}
+          if (f.type == "account group") {  
+            console.log("Account group filter", _filters)
+            let _dateFilters = _filters?.find(({type}) => type ==="date filter")
+            let _field = _dateFilters?.fields?.find(({default_filter_value}) => default_filter_value === "Yes")
+            _filterVal[_field['name']] = _field['default_filter_value']
+            console.log("Account group filter", _filterVal)
+          }        
+
+            let value = await getFilterValues(f.fields[0], _filterVal, application);
+            console.log("account filter values", value)
             _options = { field: f.fields[0], values: value };
-          }
+          //}
         }
       }
       if (f.option_type === "date range") {
@@ -629,6 +645,15 @@ export const Main2 = () => {
 
   //Adding a default to the date range
   const getDefaultDateRange = () => {
+    if (extensionContext.extensionSDK.lookerHostData.extensionId.includes("rebate-estimator")) {
+      let prevMonth = moment().subtract(5, "month");
+      let startOfMonth = prevMonth
+        .startOf("month")
+        .format("YYYY-MM-DD")
+        .toString();
+      let endOfMonth = moment().endOf("month").format("YYYY-MM-DD").toString();
+      return `${startOfMonth} to ${endOfMonth}`
+    }
     let prevMonth = moment().subtract(1, "month");
     let startOfMonth = prevMonth
       .startOf("month")
@@ -667,6 +692,7 @@ export const Main2 = () => {
           return [];
         });
     } catch {
+      console.log('GetValues catch')
       return [];
     }
   };

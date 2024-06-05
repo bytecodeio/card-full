@@ -194,14 +194,14 @@ const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setO
                         label="Save as Global Filter"
                         />
                         </Form.Group> */}
-                        <FormControlLabel control={<Checkbox />}
+                        {/* <FormControlLabel control={<Checkbox />}
                             name="saved"
                             onChange={() => handleUpdateCheckbox(checkbox)}
                             checked={checkbox}
                             type="checkbox"
                             id='saved-filter-check'
                             label="Save as Global Filter">                                
-                        </FormControlLabel>
+                        </FormControlLabel> */}
                       </div>
                     </div>
 
@@ -290,14 +290,14 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
                       label="Save as Global Filter"
                       />
                       </Form.Group> */}
-                        <FormControlLabel control={<Checkbox />}
+                        {/* <FormControlLabel control={<Checkbox />}
                             name="saved"
                             onChange={() => handleUpdateCheckbox(checkbox)}
                             checked={checkbox}
                             type="checkbox"
                             id='saved-filter-check'
                             label="Save as Global Filter">                                
-                        </FormControlLabel>
+                        </FormControlLabel> */}
                     </div>
 
         

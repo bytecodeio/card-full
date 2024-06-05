@@ -108,7 +108,7 @@ export default Filters;
 const FiltersComponent = ({allFilters, setFilters, setExpandMenu, expandMenu,filters,formatValues,selectedFilters,updatedFilters,handleFilterSelection, isFilterLoading, formatFilters}) => {
   useEffect(() => {
     let index = allFilters.indexOf(filters);
-    let _changed = allFilters[index].options.map(o => {
+    let _changed = allFilters[index]?.options?.map(o => {
       o['values'] = []
       return o
     })
@@ -184,7 +184,7 @@ const AutoCompleteFilter = ({allFilters, filters, setFilters, filterOption, sele
 
   return(
     <div className="one filter-selector" key={filterOption.name}>
-    <p variant="h6">{filterOption.field.label_short}</p>            
+    <p variant="h6">{filterOption.field?.label_short}</p>            
         <Autocomplete name={filterOption.name} className="filter-input"
           open={open}
           onOpen={() => setOpen(true)}

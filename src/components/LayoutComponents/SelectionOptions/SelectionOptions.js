@@ -8,6 +8,7 @@ import {FieldButtonGroup} from '../../FieldButtonGroup'
 import AccountFilter from '../AccountFilter';
 import AccountGroup from '../AccountGroup';
 import ShortReasons from '../ShortReasons';
+import SingleDimensionTabFilter from '../SingleDimensionTabFilter';
 import { TopProducts } from '../TopProducts';
 import { LoadingAccordion } from './LoadingAccordion';
 import SingleDimensionFilter from '../SingleDimensionFilter';
@@ -155,7 +156,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                     {!Array.isArray(
                                         filters.find(({ type }) => type === "account group")
                                             ?.options.values
-                                    ) && layoutProps['account group'] &&
+                                    ) && layoutProps['account group'] && filters.find(({ type }) => type === "account group")?.fields.length > 0 &&
                                         <LoadingAccordion title={"Account Group"} />
                                     }
                                     {Array.isArray(
@@ -188,7 +189,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                     {!Array.isArray(
                                         filters.find(({ type }) => type === "account filter")
                                             ?.options.values
-                                    ) && layoutProps['account filter'] &&
+                                    ) && layoutProps['account filter'] && filters.find(({ type }) => type === "account filter")?.fields.length > 0 &&
                                         <LoadingAccordion title={"Account Filter"} />
                                     }
                                     {Array.isArray(
@@ -263,7 +264,24 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
 
 
                                     {/* Category Filter */}
-                                    {!Array.isArray(
+                                    {tabFilters?.filter(({type}) => type=="category filter").length > 0 &&  visList.length > 0 ? (
+                                    <Col xs={12} md={12}>
+                                        <Accordion.Item eventKey="10">
+                                            <Accordion.Header>Category</Accordion.Header>
+                                            <Accordion.Body>
+                                                <SingleDimensionTabFilter
+                                                    type={"category"}
+                                                    fieldOptions={tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title  && f['type'] =='category filter'})
+                                                    ? tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title && f['type'] =='category filter' })
+                                                    : tabFilters.find(f => { return f.sub_tab == "" && f['type'] =='category filter'; })}
+                                                    setSelectedFilters={setSelectedFilters}
+                                                    selectedFilters={selectedFilters}
+                                                    />
+                                            </Accordion.Body>
+                                        </Accordion.Item>
+                                    </Col>)
+                                    :''} 
+                                    {/* {!Array.isArray(
                                         filters.find(({ type }) => type === "category filter")
                                             ?.options.values
                                     ) && filters.find(({ type }) => type === "category filter")
@@ -293,42 +311,28 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                         </Col>
                                     ) : (
                                         ""
-                                    )}
+                                    )} */}
  
  
- 
+                                    
                                     {/* Stores Filter */}
-                                    {!Array.isArray(
-                                        filters.find(({ type }) => type === "stores filter")
-                                            ?.options.values
-                                    ) && filters.find(({ type }) => type === "stores filter")
-                                    ?.fields.length > 0 &&
-                                        <LoadingAccordion title={"Stores"} />
-                                    }
-                                    {Array.isArray(
-                                        filters.find(({ type }) => type === "stores filter")
-                                            ?.options.values
-                                    ) ? (
-                                        <Col xs={12} md={12}>
+                                    {tabFilters?.filter(({type}) => type=="stores filter").length > 0 &&  visList.length > 0 ? (
+                                    <Col xs={12} md={12}>
                                         <Accordion.Item eventKey="11">
-                                        <Accordion.Header>
-                                                    Stores
-                                        </Accordion.Header>
-                                        <Accordion.Body>
-                                                <SingleDimensionFilter
-                                                        type={"stores"}
-                                                        label={"Stores"}
-                                                        fieldOptions={filters.find(
-                                                            ({ type }) => type === "stores filter"
-                                                        )}
-                                                        selectedFilters={selectedFilters}
-                                                        setSelectedFilters={setSelectedFilters} />
+                                            <Accordion.Header>Stores</Accordion.Header>
+                                            <Accordion.Body>
+                                                <SingleDimensionTabFilter
+                                                    type={"stores"}
+                                                    fieldOptions={tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title && f['type'] =='stores filter'; })
+                                                    ? tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title && f['type'] =='stores filter'; })
+                                                    : tabFilters.find(f => { return f.sub_tab == "" && f['type'] =='stores filter'; })}
+                                                    setSelectedFilters={setSelectedFilters}
+                                                    selectedFilters={selectedFilters}
+                                                    />
                                             </Accordion.Body>
-                                            </Accordion.Item>
-                                            </Col>
-                                    ) : (
-                                        ""
-                                    )}
+                                        </Accordion.Item>
+                                    </Col>)
+                                    :''} 
 
 
                                     {/* Department Name Filter */}
@@ -531,8 +535,8 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             <Accordion.Header>Short Reasons</Accordion.Header>
                                             <Accordion.Body>
                                                 <ShortReasons
-                                                    fieldOptions={tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[0].dashboard_id]]?.title; })
-                                                    ? tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[0].dashboard_id]]?.title; })
+                                                    fieldOptions={tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title; })
+                                                    ? tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex].dashboard_id]]?.title; })
                                                     : tabFilters.find(f => { return f.sub_tab == ""; })}
                                                     setSelectedFilters={setSelectedFilters}
                                                     selectedFilters={selectedFilters}
@@ -549,8 +553,8 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             <Accordion.Header>Top Products</Accordion.Header>
                                             <Accordion.Body>
                                                 <TopProducts
-                                                    filterOption={tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[0].dashboard_id]]?.title; })
-                                                    ? tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[0].dashboard_id]]?.title; })
+                                                    filterOption={tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex]?.dashboard_id]]?.title; })
+                                                    ? tabFilters.find(f => { return f.sub_tab === visList.filter(({ visId }) => visId === "tabbedVis1")[selectedInnerTab[visList[tabVisIndex]?.dashboard_id]]?.title; })
                                                     : tabFilters.find(f => { return f.sub_tab == ""; })}
                                                     setSelectedFilters={setSelectedFilters}
                                                     selectedFilters={selectedFilters}
