@@ -25,6 +25,7 @@ import { OneTabVisualizationWithVizAbove } from "./VisualizationLayouts/OneTabVi
 import { OneTabVisualizationWithVizAbove2 } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove2";
 import { DashboardVisualizations221 } from "./VisualizationLayouts/DashboardVisualizations221";
 import { RebateEstimator } from "./VisualizationLayouts/RebateEstimator";
+import { StackedVisualization } from "./VisualizationLayouts/StackedVisualization";
 import { RebateEstimatorTopRow } from "./LayoutComponents/RebateEstimatorRow/RebateEstimatorTopRow";
 
 export const TabContext = React.createContext({})
@@ -66,6 +67,8 @@ export const ReportContainer = ({
     const [isFetchingDefaultDashboard, setIsFetchingDefaultDashboard] = useState(true);
 
     const [isLoading, setIsLoading] = useState({})
+  
+    const [isLoadingInitialVis, setIsLoadingInitialVis] = useState(true)
 
     const [previousFilters, setPreviousFilters] = useState({})
 
@@ -95,31 +98,30 @@ export const ReportContainer = ({
     useEffect(() => {
     const initialize = async () => {
         if (params.path == tabKey) {
-        if (!isMounted && !initialLoad) {
-            try {
-            fetchDefaultFieldsAndFilters();
-            setIsMounted(true);
-            } catch (e) {
-            console.error("Error fetching default dashboard", e);
-            setIsMounted(true);
-            }
-        } else {
-            //handleTabVisUpdate();
-        }
+          if (!isMounted && !initialLoad) {
+              try {
+              fetchDefaultFieldsAndFilters();
+              setIsMounted(true);
+              } catch (e) {
+              console.error("Error fetching default dashboard", e);
+              setIsMounted(true);
+              }
+          } else {
+              //handleTabVisUpdate({}, selectedFilters, "", true);
+          }
         }
     }
     initialize()
     }, [currentNavTab,initialLoad]);
 
-    useEffect(() => {
-      handleTabVisUpdate({...visList})
-      setIsFilterChanged(false)
-    },[isFilterChanged==true])
+    // useEffect(() => {
+    //   handleTabVisUpdate({...visList}, {...selectedFilters}, '', true)
+    //   setIsFilterChanged(false)
+    // },[isFilterChanged==true])
 
 
     //Getting the tiles of each dashboard
       const fetchDefaultFieldsAndFilters = async () => {
-
         let _visList = []
         let index = 0
         let _defaultSelectedInnerTabs = {}
@@ -157,7 +159,7 @@ export const ReportContainer = ({
               };
 
               let vis = {};
-              let { client_id, slug, vis_config, fields, model, view, pivots, total, limit, dynamic_fields } = t["result_maker"]["query"];
+              let { client_id, slug, vis_config, fields, model, view, pivots, total, limit, dynamic_fields, sorts } = t["result_maker"]["query"];
               console.log("vis config", t)
               console.log("client id", client_id)
               vis = {
@@ -172,7 +174,7 @@ export const ReportContainer = ({
                 dashboard_id: id,
                 error:false,
                 query_values : {
-                  vis_config, fields, model, view, pivots,total, limit, dynamic_fields
+                  vis_config, fields, model, view, pivots,total, limit, dynamic_fields, sorts
                 },
                 isLoading:false,
                 visUrl:"",
@@ -193,9 +195,12 @@ export const ReportContainer = ({
         loadDefaults(_visList);
       }
 
+      const [isPageLoading, setIsPageLoading] = useState(true);
+
       const loadDefaults = async (_visList) => {
         if (tabFilters.length > 0) {
           let _selectedTabFilters = {...selectedTabFilters}
+          console.log("Rebate tab filters", tabFilters)
           await tabFilters.map(filters => {
             if (filters.fields.default_filter_value) {
               _selectedTabFilters[filters['fields']['name']] = filters['fields']['default_filter_value']
@@ -203,11 +208,13 @@ export const ReportContainer = ({
           })
           setSelectedTabFilters(_selectedTabFilters)
         }
-        handleTabVisUpdate(_visList);
+        console.log("DEBUGGING DEFAULTS")
+        if (layoutProps.layout !== "Rebate Estimator") {          
+          handleTabVisUpdate(_visList,{...selectedFilters},'', true);
+        }
       };
 
       // Page loading state
-      const [isPageLoading, setIsPageLoading] = useState(true);
       useEffect(() => {
         if (!isFetchingDefaultDashboard && !isFetchingLookmlFields) {
           setIsPageLoading(false);
@@ -261,7 +268,7 @@ export const ReportContainer = ({
         }
         if (Object.keys(payload['filters'])?.length > 0) {
           for await (let [key,value] of Object.entries(payload['filters'])) {
-            urlString+= `&f[${key}]=${value}`
+            urlString+= `&f[${key}]=${encodeURIComponent(value)}`
           }
         }
         if (payload['limit']) {
@@ -274,6 +281,12 @@ export const ReportContainer = ({
         if (payload['total']) {
           urlString += `&total=${payload['total'].toString()}`
         }
+        if (payload['sorts']) {
+          urlString += `&sorts=${payload['sorts'].toString()}`
+        }
+        if (payload['dynamic_fields']) {
+          urlString += `&dynamic_fields=${payload['dynamic_fields'].toString()}`
+        }
 
         if (payload['vis_config']) {
           urlString += `&vis=${encodeURIComponent(JSON.stringify(payload['vis_config']))}`
@@ -285,12 +298,15 @@ export const ReportContainer = ({
       const handleTabVisUpdate = async (
         _visList = [],
         filterList = { ...selectedFilters },
-        type=""
+        type="",
+        loadInitialVis=false
       ) => {
         if (!Array.isArray(_visList)) {
           _visList = [...visList];
         }
         let _updatedFilters = {...updatedFilters};
+
+        console.log("Comparison dates", tabFilters)
 
         let _filteredFilters = {}
         for await(let key of Object.keys(filterList)){
@@ -314,8 +330,10 @@ export const ReportContainer = ({
         console.log("filtered filters", JSON.parse(JSON.stringify(_filteredFilters)))
         console.log("SAME, NO FILTERS", previousFilters)
         console.log("SAME, NO FILTERS", selectedInnerTab)
+        console.log("DEBUGGING DEFAULTS ONLY FIELDS", loadInitialVis)
         let onlyFields = false;
-        if (JSON.stringify(previousFilters) == JSON.stringify(_filteredFilters)) {
+        if (JSON.stringify(previousFilters) == JSON.stringify(_filteredFilters) && !loadInitialVis) {
+          console.log("DEBUGGING DEFAULTS ONLY FIELDS")
           onlyFields = true
         }
         console.log("Selected tab filters", selectedTabFilters)
@@ -337,29 +355,79 @@ export const ReportContainer = ({
         updateAppProperties(_filters);
         _filters = {..._filters, ...selectedTabFilters}
 
+        if (tabFilters?.find(({type}) => type ==="comparison filter compare") && tabFilters?.find(({type}) => type ==="comparison filter review")) {
+          console.log("comparison date filters", _filters)
+          let dateRangeName =  filters?.find(({type}) =>  type==='date range')
+          let dateFilterName =  filters?.find(({type}) =>  type==='date filter')
+          console.log("comparison date filters", dateRangeName)
+          console.log("comparison date filters", dateFilterName)
+          dateRangeName?.fields.map(field => delete _filters[field['name']])
+          dateFilterName?.fields.map(field => delete _filters[field['name']])
+        }
+        console.log("tab filters", tabFilters)
+        if (tabFilters?.find(({type}) => type=="default date filter")) {
+          console.log("default date filters", _filters)
+          let _default_date = tabFilters?.find(({type}) => type=="default date filter");
+          console.log("default date filters", _default_date)
+          let dateRangeName =  filters?.find(({type}) =>  type==='date range')
+          let dateFilterName =  filters?.find(({type}) =>  type==='date filter')
+          dateRangeName?.fields.map(field => delete _filters[field['name']])
+          dateFilterName?.fields.map(field => delete _filters[field['name']])
+          //_filters[_default_date['fields']['name']] = _default_date.default_value
+        }
+
+        console.log("CHECK FILTERS", _filters)
+        console.log("DEBUGGING DEFAULTS", _visList)
+
         let newVisList = [];
         for (let vis of _visList) {
+          console.log("DEBUGGING DEFAULTS IF ELSE", (onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0)
           if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
-            const { vis_config, model, view, pivots,total, limit } = vis['query_values'];
+            const { vis_config, model, view, pivots,total, limit, dynamic_fields, sorts } = vis['query_values'];
             let index = _visList.indexOf(vis)
+            console.log("DEBUGGING DEFAULTS", vis)
+            console.log("DEBUGGING DEFAULTS", _filters)
+            let _addTabFilters = {}
+            if (layoutProps.layout === "Rebate Estimator") {
+              let _tabFilters = tabFilters?.filter(({type}) => type === "default tab filter") 
+              await _tabFilters?.map(filter => {
+                if (filter.sub_tab.trim() == "") {
+                  console.log("Rebate FILTER VALS blank subtab")
+                  let name = filter['fields']['name']
+                  _addTabFilters[name] = filter.default_value
+                } else if (filter.sub_tab === vis.title) {
+                  console.log("Rebate FILTER VALS sub tab match")
+                  let name = filter['fields']['name']
+                  _addTabFilters[name] = filter.default_value
+                }
+              })  
+              console.log("Rebate FILTER VALS", _addTabFilters)      
+            }
+
 
             let _fields = [];
 
             console.log("pivots", pivots)
 
             _fields = vis["selected_fields"];
+            let _dynamic_fields = ""
+            //if (layoutProps.layout == "Rebate Estimator") {
+              _dynamic_fields = dynamic_fields
+            //}
 
             let _query = {
               model: model,
               view: view,
               fields: _fields,
               filters: vis["localSelectedFilters"]
-                ? { ..._filters, ...vis["localSelectedFilters"] }
-                : _filters,
+                ? { ..._filters, ...vis["localSelectedFilters"], ..._addTabFilters }
+                : {..._filters, ..._addTabFilters},
               vis_config,
               pivots,
               total,
-              limit:limit
+              dynamic_fields: _dynamic_fields,
+              limit:limit,
+              sorts
             }
             let _queryVal = {..._query}
 
@@ -528,7 +596,7 @@ export const ReportContainer = ({
              formatFilters={formatFilters}  faClass={faClass}
              layoutProps={layoutProps}/>
 
-            <TabContext.Provider value={{isLoading, setIsLoading}}>
+            <TabContext.Provider value={{isLoading, setIsLoading, isLoadingInitialVis}}>
               {layoutProps.layout === "OneTabVisualization"?
                 <OneTabVisualization
                     setSelectedFields={setSelectedFields}
@@ -595,6 +663,16 @@ export const ReportContainer = ({
                     setSelectedTabFilters={setSelectedTabFilters}
                     handleTabVisUpdate={handleTabVisUpdate}
                     />
+                :''}
+
+              {layoutProps.layout === "StackedVisualization"?
+                <StackedVisualization
+                    setSelectedFields={setSelectedFields}
+                    selectedInnerTab={selectedInnerTab}
+                    setSelectedInnerTab={setSelectedInnerTab}
+                    setVisList={setVisList}
+                    visList={visList}
+                    handleSingleVisUpdate={handleSingleVisUpdate}/>
                 :''}
               {layoutProps.layout === "FullLookMLDashboard"?
                 <FullLookMLDashboard

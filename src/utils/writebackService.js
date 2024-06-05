@@ -92,11 +92,15 @@ export const getSavedFilterService = async (app,user,sdk) => {
     const asyncFunction = async (app,user,sdk) => {
         const slugResponse = await sdk
             .ok(
+            // sdk.create_sql_query({
+            //     connection_name: connection,
+            //     sql: `SELECT * FROM ${scratch_schema}.cms_bookmarks where global = true AND application_id = ${app} AND deleted=false AND filter_string != ''
+            //         UNION ALL
+            //         SELECT * FROM ${scratch_schema}.cms_bookmarks where user_id = ${user} AND global = false AND application_id = ${app} AND deleted=false AND filter_string != ''`,
+            // })
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `SELECT * FROM ${scratch_schema}.cms_bookmarks where global = true AND application_id = ${app} AND deleted=false AND filter_string != ''
-                    UNION ALL
-                    SELECT * FROM ${scratch_schema}.cms_bookmarks where user_id = ${user} AND global = false AND application_id = ${app} AND deleted=false AND filter_string != ''`,
+                sql: `SELECT * FROM ${scratch_schema}.cms_bookmarks where user_id = ${user} AND global = false AND application_id = ${app} AND deleted=false AND filter_string != ''`,
             })
             )
         const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));
@@ -201,7 +205,7 @@ export const getLandingPageApplications = async (sdk) => {
                 sql: `SELECT a.* FROM ${scratch_schema}.cms_application a
                 LEFT JOIN ${scratch_schema}.cms_tab t ON t.application_id = a.id
                 WHERE t.sort_order = 1 AND a.show_in_nav=true
-                ORDER BY a.sort_order;`,
+                ORDER BY sort_order;`,
             })
             )
         const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));

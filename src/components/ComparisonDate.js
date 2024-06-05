@@ -10,12 +10,14 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
     const [reviewField, setReviewField] = useState({})
     const [compareField, setCompareField] = useState({})
     const [open, setOpen] = useState(false)
+    const [showSelection, setShowSelection] = useState(false)
 
     useEffect(() => {
         let _review = tabFilters.find(({type}) => type === "comparison filter review")
         setReviewField(_review)
         let _compare = tabFilters.find(({type}) => type === "comparison filter compare")
         setCompareField(_compare)
+        updateDates(_review,_compare)        
     },[])
 
     const handleOpenModal = () => {
@@ -41,6 +43,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
 
     useEffect(() => {
         if (selectedFilters && Object.keys(reviewField).length > 0 && Object.keys(compareField).length > 0) {
+            console.log("comparison date updateDates")
            updateDates(reviewField,compareField) 
         }        
     },[selectedFilters['date range']])
@@ -64,8 +67,14 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
         return(
             Object.keys(selectedTabFilters).length>0?
             <div className='comparison-date-button'>
-                <p>Date comparison: </p>
-                    {showLabel(selectedTabFilters)}
+                {showSelection?
+                <>
+                    <p>Date comparison: </p>
+                    <div>
+                        {showLabel(selectedTabFilters)}
+                    </div>
+                </>
+                :''}
             </div>
             :''
         )
@@ -99,7 +108,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
         <CompareSelectedDates selectedTabFilters={selectedTabFilters}/>
         <div>
             <Button
-                onClick={handleTabVisUpdate}
+                onClick={() => {setShowSelection(true),handleTabVisUpdate}}
                 className="btn">Update Dates
             </Button>
         </div>

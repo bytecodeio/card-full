@@ -63,10 +63,6 @@ const Fields = ({
     return null
    }
 
-
-   console.log(fields, "fields")
-
-
   return (
     <>
     {showActionBtns?

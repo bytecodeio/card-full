@@ -59,12 +59,14 @@ const EmbedTable = ({ queryId, vis }) => {
 
   useEffect(() => {
     const checkQuery = async () => {
+      console.log("vis results", vis.query_id + ' ' + vis.title);
       let _message = {...message}
       _message['status'] = 'ok'
       setMessage(_message)
       console.log("query id embed",vis.query_id)
       if (vis.query_id !== "" && vis.query_id !== undefined) {
-        let results = await sdk.run_query({query_id:vis['query_id'], result_format:'json', cache:true})
+        //let results = await sdk.run_query({query_id:vis['query_id'], result_format:'json'})
+        let results = await sdk.run_query({query_id:vis['query_id'], result_format:'json'},{timeout:'3000'})
         console.log("vis results",results)
         if (results.value.length == 0) {
           setMessage({status:'no results'})
@@ -102,7 +104,7 @@ const EmbedTable = ({ queryId, vis }) => {
         console.log("url count", urlCount)
         // LookerEmbedSDK.init(hostUrl);
         let exploreUrl = ""
-        if (urlCount > 5000) {
+        if (urlCount > 5000 || vis.visUrl === "") {
           exploreUrl = `${hostUrl}/embed/query/${application.model}/${application.explore}?qid=${vis.query}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
         } else {
           exploreUrl = `${hostUrl}/embed/query/${application.model}/${application.explore}?${vis.visUrl}&sdk=2&embed_domain=${dev?'http://localhost:8080':hostUrl}&sandboxed_host=true`
@@ -136,7 +138,7 @@ const EmbedTable = ({ queryId, vis }) => {
         :
       ''}
       {/* <div class="hide-left-border"></div> */}
-      {queryId ? <Explore ref={embedCtrRef}/>: <Spinner />}
+      {!vis.isLoading ? <Explore ref={embedCtrRef}/>: <div style={{height:'100%'}}></div>}
     </>
   );
 };

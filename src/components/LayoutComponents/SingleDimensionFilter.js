@@ -61,8 +61,14 @@ const SingleDimensionFilter = ({
       return Object.values(opt)[0];
     });
     let _filteredVals = allVals?.filter(val => val?.toUpperCase().includes(search?.toUpperCase()) || search.trim() == "")
-    //setSelectedOptions(allVals);
+    console.log("DEBUG FILTERS", _filteredVals)
+    console.log("DEBUG FILTERS", filters)
+    if (!filters.hasOwnProperty(type)) {
+      filters[type] = {}
+    }
     filters[type][field] = _filteredVals;
+    
+    console.log("DEBUG FILTERS", filters);
     setSelectedFilters(filters);
   };
 

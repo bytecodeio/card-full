@@ -2,8 +2,10 @@ import React, {Fragment, useEffect, useState} from 'react'
 import { getLandingPageApplications, updatePageViews } from '../../utils/writebackService'
 import { useContext } from 'react'
 import { ExtensionContext } from '@looker/extension-sdk-react'
-import { ButtonGroup, Button, InputGroup, Form, Container, Tooltip, OverlayTrigger, Row, Col } from 'react-bootstrap';
+import { Tooltip } from '@mui/material'
+import { ButtonGroup, Button, InputGroup, Form, Container,  OverlayTrigger, Row, Col } from 'react-bootstrap';
 import ToTopButton from "../../components/ToTopButton.js";
+import { Lock } from '@styled-icons/material-outlined';
 
 export const LandingPage = ( {description} ) => {
     const extensionContext = useContext(ExtensionContext)
@@ -22,16 +24,46 @@ export const LandingPage = ( {description} ) => {
         let _context = await getContextData()
         console.log("context",_context)
         let _apps = syncContextData()
+        let _allowedReports = await getAllowedReports()        
+        console.log("allowed reports", _allowedReports)
         if (_context?.length > 0) {
+            if (_context[0].hasOwnProperty('name_attribute')) {
+                
+                _context = _context.map((row) => {
+                        row.unlocked =_allowedReports.some(report => report.includes(row.name_attribute))
+                        return row                    
+                    }
+                )
+                // _context = _context.map((row) => {
+                //     row.unlocked = true
+                //     return row                    
+                // }
+                //)
+                console.log(_context)
+            } 
             _apps = await orderApps(_context)
             setApps(_context)
-            setAllApps(_context)
+            setAllApps(_context)      
+
         }
     }
 
     useEffect(() => {
         getApps();
     },[])
+
+    const getAllowedReports = async () => {
+        let _allowedReports = await extensionContext.extensionSDK.userAttributeGetItem("allowed_reports")
+        if (_allowedReports) {
+            let _array = _allowedReports.replace(/'/g, "").split(",");
+            console.log("allowed_reports array", _array)
+            if (!_array.includes('PurchasesReview')) {
+                _array.push('PurchasesReview')
+            }
+            return _array;
+        }
+        return ['PurchasesReview']
+    }
 
     const syncContextData = async () => {
         let _apps = [];
@@ -66,15 +98,15 @@ export const LandingPage = ( {description} ) => {
 
     //Click event to add a view to the app in the database and open a new tab in the browser to the url below
     const handleClick = async (app) => {
-    let host = extensionContext.extensionSDK.lookerHostData;
-    let project = extensionContext.extensionSDK.lookerHostData.extensionId
-    let type = host.hostType == "spartan"? "spartan":"extensions"
-    let url = `${host.hostUrl}/${type}/${project.split("::")[0]}::${app['route']}`
-    
-    extensionContext.extensionSDK.openBrowserWindow(url)
-
-        //await updatePageViews(sdk,app.id)
-        //getApps()
+        console.log(app)
+        if (app.unlocked) {
+            let host = extensionContext.extensionSDK.lookerHostData;
+            let project = extensionContext.extensionSDK.lookerHostData.extensionId
+            let type = host.hostType == "spartan"? "spartan":"extensions"
+            let url = `${host.hostUrl}/embed/${type}/${project.split("::")[0]}::${app['route']}`
+            
+            extensionContext.extensionSDK.openBrowserWindow(url)
+        }
     }
 
     const handleButtonGroupClick = (v) => {
@@ -164,33 +196,69 @@ export const LandingPage = ( {description} ) => {
         <Container>
           <Row>
         <div className='landing-page-container'>
-            {apps?.map(a =>
+            {apps.length > 0?
+            apps?.map(a =>
             selectedButton == "grid"?
-            <OverlayTrigger key={a.name}
-              placement="right"
-              overlay=<Tooltip id="squares"><p style={{fontSize:"12px"}}>{a.tooltip_description}</p></Tooltip>
-              className="tooltipHover"
+            <Tooltip key={a.name}
+            placement='right'
+              title={
+                <React.Fragment>
+                    <p className='landing-page-hover'>
+                        {a.tooltip_description}
+                    </p>
+                </React.Fragment>
+                }
+              followCursor
             >
                 <a className='landing-page-content' onClick={() => handleClick(a)}>
                     <div className='landing-page-item'>
-                        {a.thumbnail_base64 != null?
-                        <img className='looker-thumbnail' src={a.thumbnail_base64} onError={(e) => {e.target.onError=null}} />
-                        :<div className='looker-thumbnail not-available'>Preview Not Available</div>
+                        <>
+                        {!a.unlocked &&
+                            <div className='locked-content'>
+                                <Lock />
+                            </div>
+                            
                         }
+                        
+                        {a.thumbnail_base64 != null?                        
+                        <img className='looker-thumbnail' src={a.thumbnail_base64} onError={(e) => {e.target.onError=null}} />
+                        :<div className='looker-thumbnail not-available'>Preview Not Available</div>                       
+                        } 
+                        </>
                         <div className='landing-page-item-detail'>
                             {a.name}
                             <p className='rank' dangerouslySetInnerHTML={{__html: a.label}} />
                         </div>
                     </div>
                 </a>
-              </OverlayTrigger>
+              </Tooltip>
                 :
-                <a key={a.name} className={`landing-page-row ${apps.indexOf(a) % 2? 'even':'odd'}`} onClick={() => handleClick(a)}>
-                    <div>
-                        <h6>{a.name}</h6>
-                    </div>
-                </a>
-            )}
+                <Tooltip key={a.name}
+                    placement='right'
+                    title={
+                    <React.Fragment>
+                        <p className='landing-page-hover'>
+                            {a.tooltip_description}
+                        </p>
+                    </React.Fragment>
+                    }
+                    followCursor
+                    >
+                    <a key={a.name} className={`landing-page-row ${apps.indexOf(a) % 2? 'even':'odd'}`} onClick={() => handleClick(a)}>
+                        <div>
+                            <h6>{a.name}</h6>
+                        </div>
+                        {!a.unlocked &&
+                            <div className='locked-context-table'>
+                                <Lock />
+                            </div>
+                        }
+                    </a>
+                </Tooltip>
+            )
+            :
+            <div>No Reports found</div>
+        }
         </div>
         </Row>
         </Container>

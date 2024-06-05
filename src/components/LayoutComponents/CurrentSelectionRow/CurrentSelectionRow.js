@@ -19,11 +19,13 @@ export const CurrentSelectionRow = ({properties,filters,selectedFilters,setSelec
       };
 
   useEffect(() => {
-    console.log("height",selectionRef.current.clientHeight)
-    setSelectionHeight(selectionRef.current.clientHeight)
-    let _updated = document.querySelectorAll('.tab-pane.active .theSelected .theOptions');
-    let _selected = document.querySelectorAll('.tab-pane.active.show .theSelected .dateChoice');
-    setListLength(_updated.length + _selected.length);
+    if (layoutProps['current selection']) {
+      console.log("height",selectionRef.current.clientHeight)
+      setSelectionHeight(selectionRef.current.clientHeight)
+      let _updated = document.querySelectorAll('.tab-pane.active .theSelected .theOptions');
+      let _selected = document.querySelectorAll('.tab-pane.active.show .theSelected .dateChoice');
+      setListLength(_updated.length + _selected.length);
+    }
   },[selectionRef?.current?.clientHeight])
 
                   // //jquery will be removed and changed, leave for now

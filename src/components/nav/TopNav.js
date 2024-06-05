@@ -5,38 +5,57 @@ import { getApplicationTabs, getApplications } from "../../utils/writebackServic
 import { ExtensionContext } from "@looker/extension-sdk-react";
 import { groupBy } from "../../utils/globalFunctions";
 import { useState } from "react";
+import { Lock } from "@styled-icons/material-outlined";
 
 function TopNav({navList}) {
   const extensionContext = useContext(ExtensionContext);
   const sdk = extensionContext.core40SDK;
   const [show5, setShow5] = React.useState();
+  const [filteredNav, setFilteredNav] = useState([])
 
   //const [navList, setNavList] = useState([])
 
   const wrapperRef = React.useRef(null);
 
   React.useEffect(() => {
-    // const initialize = async () => {
-    //   let applications = await getApplications(sdk)
-    //   setNavList(applications)
-    //   if (applications.length > 0) {
-    //     let appList = []
-    //     for await (let apps of applications) {
-    //       let tabs = await getApplicationTabs(apps['id'], sdk)
-    //       apps['tabs'] = tabs
-    //       appList.push(apps)
-    //     }
-        
-    //     setNavList(appList);
-    //   }
-    // }    
-    // initialize()
+     const initialize = async () => {
+      let _allowedReports = await getAllowedReports()
+      let _context = [...navList];
+      console.log("NavList", _context)     
+      console.log("allowed reports", _allowedReports)
+      if (_context?.length > 0) {
+          if (_context[0].hasOwnProperty('name_attribute')) {              
+              _context = _context.map((row) => {
+                    console.log('ROW', row)
+                      row.unlocked =_allowedReports.some(report => report.includes(row.name_attribute))
+                      return row                    
+                  }
+              )
+          } 
+          console.log("Navlist", _context)
+          setFilteredNav(_context)    
+      } 
+    }   
+     initialize()
     document.addEventListener("click", handleClickOutside, false);
     return () => {
       document.removeEventListener("click", handleClickOutside, false);
     };
 
-  }, []);
+  }, [navList]);
+
+  const getAllowedReports = async () => {
+    let _allowedReports = await extensionContext.extensionSDK.userAttributeGetItem("allowed_reports")
+    if (_allowedReports) {
+        let _array = _allowedReports.replace(/'/g, "").split(",");
+        console.log("allowed_reports array", _array)
+        if (!_array.includes('PurchasesReview')) {
+            _array.push('PurchasesReview')
+        }
+        return _array;
+    }
+    return ['PurchasesReview']
+}
 
   const handleClickOutside = (event) => {
     if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -48,7 +67,7 @@ function TopNav({navList}) {
     let host = extensionContext.extensionSDK.lookerHostData;
     let project = extensionContext.extensionSDK.lookerHostData.extensionId
     let type = host.hostType == "spartan"? "spartan":"extensions"
-    let url = `${host.hostUrl}/${type}/${project.split("::")[0]}::${app['route']}/${tab['route']}`
+    let url = `${host.hostUrl}/embed/${type}/${project.split("::")[0]}::${app['route']}/${tab['route']}`
     
     extensionContext.extensionSDK.openBrowserWindow(url)
   }
@@ -88,15 +107,29 @@ function TopNav({navList}) {
           </div>
           <div className="modal-body">
             <Accordion defaultActiveKey={0} className="square">
-            {navList?.map(n => (
-              <Accordion.Item eventKey={n['sort_order']}>
-                <Accordion.Header>{n['name']}</Accordion.Header>
-                <Accordion.Body>
-                  {n['tabs']?.map(tab => (
-                    <a className="blue" onClick={() => handleClick(n,tab)}>{tab['title']}</a>
-                  ))}
-                </Accordion.Body>
-              </Accordion.Item>
+            {filteredNav?.map(n => (
+              <>
+                {n.unlocked?
+                <Accordion.Item eventKey={n['sort_order']}>
+                  <Accordion.Header>{n['name']}</Accordion.Header>
+                  <Accordion.Body>
+                    {n['tabs']?.map(tab => (
+                      <a className="blue" onClick={() => handleClick(n,tab)}>{tab['title']}</a>
+                    ))}
+                  </Accordion.Body>
+                </Accordion.Item>              
+                :
+                <div className="accordion-item">
+                  <h2 className="accordion-header d-flex">
+                    <button className={`accordion-button collapsed locked`}>{n['name']}</button>
+                    <Lock id="lock"/>
+                  </h2>
+                </div>
+                  
+                }
+              
+              </>
+
             ))}
             </Accordion>
               {/* <Accordion.Item eventKey="1">

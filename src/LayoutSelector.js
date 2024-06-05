@@ -95,9 +95,46 @@ const LayoutProperties =     {
             'account group':false,
             'account filter':true,
             'fields':false,
-            'current selection':true,
+            'current selection':false,
             'saved filters':true,
             'layout':'Rebate Estimator'
+        },        
+        'Template9':{
+            'date range':true,
+            'date filter':true,
+            'description':true,
+            'filters':false,
+            'account group':true,
+            'account filter':true,
+            'fields':false,
+            'current selection':true,
+            'saved filters':true,
+            'layout':'StackedVisualization'
+        },
+               
+        'Template10':{
+            'date range':true,
+            'date filter':true,
+            'description':true,
+            'filters':true,
+            'account group':true,
+            'account filter':true,
+            'fields':false,
+            'current selection':true,
+            'saved filters':true,
+            'layout':'StackedVisualization'
+        },
+        'Template11':{
+            'date range':true,
+            'date filter':true,
+            'description':true,
+            'filters':true,
+            'account group':false,
+            'account filter':false,
+            'fields':true,
+            'current selection':true,
+            'saved filters':true,
+            'layout':'OneTabVisualization'
         },
     }
 

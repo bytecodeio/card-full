@@ -1,7 +1,7 @@
 import { indexOf } from "lodash";
 import React, { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { OutlinedInput, InputAdornment } from "@mui/material";
+import { Checkbox, FormControlLabel, Input, InputAdornment, OutlinedInput, Tooltip } from "@mui/material";
 
 const type = "account group";
 
@@ -131,7 +131,7 @@ const AccountGroup = ({
             Select All
           </span>
 
-          <span className="allOptions clear second" onClick={clearAllAccounts}>
+          <span className="allOptions clear second" id="account-group" onClick={clearAllAccounts}>
             Clear All Acct Grps
           </span>
 
@@ -164,21 +164,18 @@ const AccountGroup = ({
         {Array.isArray(fieldOptions["options"]["values"])
           ? fieldOptions["options"]["values"]?.map((fieldOption) => {
               let [key, value] = Object.entries(fieldOption)[0];
-              if (value?.toUpperCase().includes(search?.toUpperCase()) || search.trim() == ""){
+              if (value?.toUpperCase().includes(search?.toUpperCase()) || search.trim() == "" && (value != "" && value != null)){
                 return(               
                 <div className="one" key={value}>
-                  <Form.Group>
-                    <Form.Check
-                      type="checkbox"
-                      className=""
+                    <FormControlLabel control={<Checkbox />}
+                      className="check-selector"
                       label={value}
                       checked={isActive(key, value)}
-                      name="accountgroups"
+                      name="accountGroups"
                       // id={fieldOption}
                       value={value}
-                      onClick={() => handleFieldSelection(value)}
+                      onChange={() => handleFieldSelection(value)}
                     />
-                  </Form.Group>
                 </div>)  
               }
             })
