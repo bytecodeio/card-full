@@ -108,7 +108,7 @@ export const ComparisonDate = ({tabFilters,selectedTabFilters,setSelectedTabFilt
         <CompareSelectedDates selectedTabFilters={selectedTabFilters}/>
         <div>
             <Button
-                onClick={() => {setShowSelection(true),handleTabVisUpdate}}
+                onClick={() => {setShowSelection(true),handleTabVisUpdate({}, selectedFilters, 'date')}}
                 className="btn">Update Dates
             </Button>
         </div>
