@@ -167,11 +167,11 @@ const AccountFilter = ({
             })
           : ""}
       </div> */}
-      <AccountFilterComponent isActive={isActive} expandMenu={expandMenu} setExpandMenu={setExpandMenu} search={search} handleSearch={handleSearch} handleSearchClear={handleSearchClear} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection}/>
+      <AccountFilterComponent selectedFilters={selectedFilters} field={field} isActive={isActive} expandMenu={expandMenu} setExpandMenu={setExpandMenu} search={search} handleSearch={handleSearch} handleSearchClear={handleSearchClear} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection}/>
       <Modal show={expandMenu} onHide={() => setExpandMenu(false)}>
         <Modal.Header className="modal-selection-header" closeButton>Account Filter</Modal.Header>
         <Modal.Body>
-          <AccountFilterComponent isActive={isActive} expandMenu={expandMenu} setExpandMenu={setExpandMenu} search={search} handleSearch={handleSearch} handleSearchClear={handleSearchClear} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection}/>
+          <AccountFilterComponent selectedFilters={selectedFilters} field={field} isActive={isActive} expandMenu={expandMenu} setExpandMenu={setExpandMenu} search={search} handleSearch={handleSearch} handleSearchClear={handleSearchClear} fieldOptions={fieldOptions} handleFieldSelection={handleFieldSelection}/>
         </Modal.Body>
         <Modal.Footer></Modal.Footer>
       </Modal>
@@ -181,7 +181,7 @@ const AccountFilter = ({
 
 export default AccountFilter;
 
-export const AccountFilterComponent = ({isActive,setExpandMenu,expandMenu, search, handleSearch, handleSearchClear, fieldOptions, handleFieldSelection}) => {
+export const AccountFilterComponent = ({isActive,setExpandMenu,expandMenu, search, handleSearch, handleSearchClear, fieldOptions, handleFieldSelection, selectedFilters, field}) => {
   return (        
   <>
     <div className="filter-input-container">
@@ -194,8 +194,14 @@ export const AccountFilterComponent = ({isActive,setExpandMenu,expandMenu, searc
                 </a>              
               </InputAdornment>
               :''
-            }/> 
+            }/>         
+            {selectedFilters && selectedFilters[type] && selectedFilters[type][field]?
+            Object.values(selectedFilters[type][field]).length > 50 && 
+              <div className="account-note">Selecting over 50 accounts may slow load times</div>
+              :''
+            }
         </div>
+
       <div
         className={expandMenu?"wrapFilters expanded":"wrapFilters"}
       >

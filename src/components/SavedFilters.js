@@ -22,6 +22,15 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
     const [savedFiltersObj, setSavedFiltersObj] = useState([])
     const [openMessage, setOpenMessage] = useState(false)
 
+    const isJson = (str) => {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false
+        }
+        return true
+    } 
+
     useEffect(() => {
         const init = async() => {
           let _user = await sdk.me();
@@ -33,14 +42,16 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
 
     useEffect(() => {
         console.log("saved filters", savedFilters)
-        if (savedFiltersObj?.length !== savedFilters.length ) {            
+        if (savedFilters) {            
             setSavedFiltersObj([...savedFilters])
         }
     },[savedFilters])
 
     const handleSavedFilterClick = async (filter) => {
-        setSelectedFilters(filter['filter_string'])
-        handleVisUpdate({}, filter['filter_string'])
+        if (isJson(filter['filter_string'])) {                
+            setSelectedFilters(JSON.parse(filter['filter_string']))
+            handleVisUpdate({}, JSON.parse(filter['filter_string']))
+        }
     }
 
     const openModal = (id) => {
@@ -77,7 +88,9 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
            <>
             {savedFiltersObj?.map(s => {
                     return (
+                        
                     <div >
+                        {s.user_id == user.id &&
                             <p className="pb-1 saved-filter-item">
                                 <div onClick={() => handleSavedFilterClick(s)}>
                                    {s.title} 
@@ -106,13 +119,13 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
                                     :''}
                                 </div>
                             </p>
-
+                        }
                     </div>
                     )
                     })}
                     <Overlay target={target.current} show={openEdit} placement="right">
                         <div>
-                            <UpdateSavedFilterPanel openEdit={openEdit} setOpenEdit={setOpenEdit} upsertSavedFilter={upsertSavedFilter} selectedFilter={selectedFilter} setIsLoading={setIsLoading} savedFiltersObj={savedFiltersObj} setSavedFiltersObj={setSavedFiltersObj}/>
+                            <UpdateSavedFilterPanel openEdit={openEdit} setOpenEdit={setOpenEdit} upsertSavedFilter={upsertSavedFilter} selectedFilter={selectedFilter} setIsLoading={setIsLoading} savedFiltersObj={savedFiltersObj} setSavedFiltersObj={setSavedFiltersObj} selectedFilters={selectedFilters}/>
                         </div>
                     </Overlay>
                     </>
@@ -224,7 +237,8 @@ const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setO
     )
 })
 
-const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertSavedFilter,selectedFilter,setIsLoading,savedFiltersObj,setSavedFiltersObj}) => {
+const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertSavedFilter,selectedFilter,setIsLoading,savedFiltersObj,setSavedFiltersObj, selectedFilters}) => {
+    const [showModal, setShowModal] = useState(false)
     const [title, setTitle] = useState("");
     const [checkbox, setCheckbox] = useState(false)
     const [id, setId] = useState("")
@@ -264,12 +278,13 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
         console.log(_savedFilters[index]);
         setSavedFiltersObj(_savedFilters)
         setIsLoading(true)
-        upsertSavedFilter('update', {'id':id, 'title':title, 'global':checkbox})
+        upsertSavedFilter('update', {'id':id, 'title':title, 'global':checkbox, 'filter_string':selectedFilters})
         setIsLoading(false)
         setOpenMessage(true)
     }
 
     return (
+        <>
         <Popover className="saved-filter-popover">
             <Popover.Header>Update Saved Filter</Popover.Header>
             <Popover.Body>
@@ -300,22 +315,21 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
                         </FormControlLabel> */}
                     </div>
 
-        
                     </div>
 
                     <div>
 
                     </div>
-                    <Form.Text>
+                    {/* <Form.Text>
                         <div className="saved-filter-update-tooltip">
                             {selectedFilter.tooltip?.map(t => (
                                 <p>{t}</p>
                             ))}
                         </div>
-                    </Form.Text>
+                    </Form.Text> */}
 
                     <div className="saved-filter-action-bar">
-                        <Button disabled={title.trim() == ""?"disabled":''} onClick={handleSaveClick}>Update</Button>
+                        <Button disabled={title.trim() == ""?"disabled":''} onClick={() => setShowModal(true)}>Update</Button>
                         <Button className="btn-clear" onClick={handleCancelClick}>Cancel</Button>
                     </div>
                 </div>
@@ -328,5 +342,14 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
 
             </Popover.Body>
         </Popover>
+        <Modal className="clearAllModal" show={showModal} onHide={() => setShowModal(false)}>
+            <Modal.Header closeButton></Modal.Header>
+            <Modal.Body><p>Saving your current selections will over-write the existing saved filter.</p><br /><p>Do you want to save these changes?</p></Modal.Body>
+            <Modal.Footer>
+                <Button onClick={() => {handleSaveClick(), setShowModal(false)}}>Update</Button>
+                <Button className="btn-clear" onClick={() => setShowModal(false)}>Cancel</Button>
+            </Modal.Footer>
+        </Modal>
+        </>
     )
 })

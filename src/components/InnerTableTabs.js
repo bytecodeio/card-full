@@ -28,7 +28,7 @@ const InnerTableTabs = ({
     console.log(event)
     console.log(selectedInnerTab)
     let _tab = tabs[event]
-    selectedInnerTab[_tab.dashboard_id] = event
+    selectedInnerTab[_tab.dashboard_id] = parseInt(event)
     setSelectedInnerTab(selectedInnerTab);
     setSelectedFields(tabs[event]["selected_fields"]);
   };
