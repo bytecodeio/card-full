@@ -22,6 +22,7 @@ import { LayoutSelector } from "./LayoutSelector.js";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
 import context from "react-bootstrap/esm/AccordionContext.js";
 import { sortFilters } from "./utils/globalFunctions.js";
+import { getSavedFiltersAPIService, insertSavedFiltersAPIService, removeSavedFiltersAPIService, updateSavedFiltersAPIService } from "./utils/apiMethods.js";
 
 //Create context for child components to use states
 export const ApplicationContext = React.createContext({})
@@ -31,6 +32,7 @@ export const ApplicationContext = React.createContext({})
 export const Main2 = () => {
   const extensionContext = useContext(ExtensionContext);
   const sdk = extensionContext.core40SDK;
+
 
   const hostUrl = extensionContext.extensionSDK.lookerHostData.hostUrl;
   LookerEmbedSDK.init(hostUrl);
@@ -63,6 +65,7 @@ export const Main2 = () => {
 
   const [propertiesLoading, setPropertiesLoading] = useState(false);
   const [navigationList, setNavigationList] = useState([])
+  const [configurationData, setConfigurationData] = useState({})
 
   const params = useParams();
 
@@ -70,13 +73,11 @@ export const Main2 = () => {
 
   const history = useHistory();
 
-  let app
-
   const handleChangeKeyword = (e) => {
     setKeyword(e.target.value);
   };
 
-  
+   
   const priorityOrder = ['date range', 'date filter','default date filter','default_filter', 'quick filter', 'filter','account filter', 'account group', 'contract filter'];
 
   const sortPriority = (tags) => {
@@ -132,6 +133,18 @@ export const Main2 = () => {
       console.log("fields", fieldsByTag)
       return fieldsByTag;
     }
+  useEffect(() => {
+    const update = async () => {
+      if (savedFilters.length > 0) {
+        let _config = await getRefreshedContextData()
+        _config['saved_filters'] = [...savedFilters]
+        console.log("saved filter save", _config)
+        setConfigurationData(prev => _config)
+        updateContextData(_config)
+      }
+    }
+    update()
+  },[savedFilters])
 
   // Group each field with their respective tags
   useEffect(() => {
@@ -460,8 +473,16 @@ export const Main2 = () => {
       startTimer(userInfo)
       updateContext()
       let contextData = getContextData();
+      setConfigurationData(contextData)
       if (contextData) {
-        let { application, application_tags, tabs, tab_tags, navList, fieldsByTag } = contextData;
+        let { application, application_tags, tabs, tab_tags, navList, saved_filters } = contextData;
+        let fieldsByTag = await fetchLookMlFields(
+          application.model,
+          application.explore
+        );
+        if (saved_filters) {
+          setSavedFilters(saved_filters)
+        }
         if (navList) {
           setNavigationList(navList)
         }
@@ -473,20 +494,21 @@ export const Main2 = () => {
             }
           }
         }
-        app = application
+        
         setApplicationInfo(application);
         console.log("fields by Tag", fieldsByTag);
         let updatedFields = false
-        if (!fieldsByTag) {
-          let _fieldsByTag = await fetchLookMlFields(
-            application.model,
-            application.explore
-          );
-          updatedFields = true
-          contextData['fieldsByTag'] = _fieldsByTag
-          updateContextData(contextData)
-          fieldsByTag = _fieldsByTag
-        }
+        // if (!fieldsByTag) {
+        //   let _fieldsByTag = await fetchLookMlFields(
+        //     application.model,
+        //     application.explore
+        //   );
+        //   updatedFields = true
+        //   contextData['fieldsByTag'] = _fieldsByTag
+        //   contextData['saved_filters'] = [...savedFilters]
+        //   updateContextData(contextData)
+        //   fieldsByTag = _fieldsByTag
+        // }
      
         setIsFetchingLookmlFields(false);
         initializeTabs(tabs, tab_tags, fieldsByTag, application);
@@ -537,7 +559,7 @@ export const Main2 = () => {
               view:field['suggest_explore'],
               fields: [field['suggest_dimension']],
               filters: filters,
-              limit: 500,
+              limit: -1,
             }
           )
         )
@@ -546,7 +568,7 @@ export const Main2 = () => {
           return [];
         });
       if (id) {
-        let query_task = await sdk.ok(sdk.create_query_task({body:{result_format:'json', query_id:id}}))
+        let query_task = await sdk.ok(sdk.create_query_task({body:{result_format:'json', query_id:id},limit:-1}))
         let loading = false;
         let options = []
         try {
@@ -563,6 +585,7 @@ export const Main2 = () => {
             }
             await waiting(5000);
           } 
+          console.log("verify filter values", options)
           return options
         } catch {
           return []
@@ -718,8 +741,8 @@ export const Main2 = () => {
     return extensionContext.extensionSDK.getContextData();
   };
 
-  const getRefreshedContextData = () => {
-    return extensionContext.extensionSDK.refreshContextData();
+  const getRefreshedContextData = async () => {
+    return await extensionContext.extensionSDK.refreshContextData();
   };
 
   //Load the saved filters into the app based on user id
@@ -728,9 +751,12 @@ export const Main2 = () => {
     userInfo = user,
     _filters = filters
   ) => {
-    let res = await getSavedFilterService(app.id, userInfo.id, sdk);
-    const _newFilters = await parseSavedFilters(res, _filters);
-    setSavedFilters(_newFilters);
+    
+    let _savedFilters = await getSavedFiltersAPIService(extensionContext.extensionSDK.lookerHostData.hostUrl, extensionContext, userInfo.id,app.id)
+    //console.log("admin SDK", tokens)
+    //let res = await getSavedFilterService(app.id, userInfo.id, sdk);
+    //const _newFilters = await parseSavedFilters(res, _filters);
+    setSavedFilters(_savedFilters);
   };
 
   //Make sure the filter fields are available to show for the saved filters to use
@@ -770,39 +796,74 @@ export const Main2 = () => {
 
   //Remove saved filters
   const removeSavedFilter = async (id) => {
-    await removeSavedFilterService(id, sdk).then((r) => getSavedFilters());
+    let _savedFilters = [...savedFilters];
+    let _row = _savedFilters.find((filter) => filter.id === id);
+    let index = _savedFilters.indexOf(_row);
+    _savedFilters.splice(index,1);
+    setSavedFilters(_savedFilters)
+    await removeSavedFiltersAPIService(extensionContext.extensionSDK.lookerHostData.hostUrl,extensionContext,id).then((r) => getSavedFilters());
     return true
   };
 
   //Create or update a saved filter
   const upsertSavedFilter = async (type, obj) => {
+    let _savedFilters = [...savedFilters]
     if (type == "update") {
-      await updateSavedFilterService(obj.id, obj.title, obj.global, sdk).then(
+      let _row = _savedFilters.find(({id}) => obj.id === id);
+      _row.title = obj.title;
+      _row.global = obj.global;
+      _row.filter_string = obj.filter_string;
+      setSavedFilters(_savedFilters)
+      await updateSavedFiltersAPIService(extensionContext.extensionSDK.lookerHostData.hostUrl, extensionContext,obj.id, obj.title, obj.global, JSON.stringify(obj.filter_string)).then(
         (r) => getSavedFilters()
       );
       return true
     } else if (type == "insert") {
-      await insertSavedFilterService(
-        obj.id,
+      let _row = {
+        id: obj.id,
+        user_id: user.id,
+        filter_string: JSON.stringify(updatedFilters),
+        title: obj.title,
+        global: obj.global,
+      }
+      _savedFilters.push(_row)
+      setSavedFilters(_savedFilters)
+
+      await insertSavedFiltersAPIService(
+        extensionContext.extensionSDK.lookerHostData.hostUrl,
+        extensionContext,
         user.id,
         applicationInfo.id,
-        JSON.stringify(updatedFilters),
-        obj.title,
+        obj.id,
         obj.global,
-        sdk
+        JSON.stringify(updatedFilters),
+        obj.title
       ).then((r) => getSavedFilters());
+      
+      // await insertSavedFilterService(
+      //   obj.id,
+      //   user.id,
+      //   applicationInfo.id,
+      //   JSON.stringify(updatedFilters),
+      //   obj.title,
+      //   obj.global,
+      //   sdk
+      // ).then((r) => getSavedFilters());
       return true
     }
   };
 
-  const updateContextData = (data) => {
+  const updateContextData = async (data) => {
+    console.log("updating context data", data)
     extensionContext.extensionSDK.saveContextData(data)
   }
 
   const handleDataRefresh = async () => {
     let extensionId = extensionContext.extensionSDK.lookerHostData.extensionId.split("::")[1];
-    //let _context = await getContextData()
-    let contextData = {}
+    let contextData = await getRefreshedContextData()
+    console.log("UPDATED CONTEXT", contextData)
+    //let contextData = {...configurationData}
+    //let contextData = {}
     try {
       let app = await getApplication(extensionId, sdk)
       if (app.length > 0) {
@@ -837,10 +898,14 @@ export const Main2 = () => {
       }
       contextData['navList'] = applications
       console.log("context app", app)
-      contextData['fieldsByTag'] = await fetchLookMlFields(
-        app[0].model,
-        app[0].explore
-      );
+      // let _fieldsByTag = await fetchLookMlFields(
+      //   app[0].model,
+      //   app[0].explore
+      // );
+      //console.log("context data fieldsbyTag", _fieldsByTag)
+      let _updatedContext = await getRefreshedContextData();
+      contextData['fieldsByTag'] = null
+      contextData['saved_filters'] = _updatedContext['saved_filters'];
       console.log("context", contextData)
       updateContextData(contextData)
     } catch (ex) {
@@ -876,7 +941,7 @@ export const Main2 = () => {
             upsertSavedFilter:upsertSavedFilter,
             propertiesLoading:propertiesLoading,
             isFilterLoading,
-            getValues
+            getValues:getFilterValues
             }}>
           <TopNav navList={navigationList}/>
           <div className={showMenu ? "largePadding" : "slideOver largePadding"}>

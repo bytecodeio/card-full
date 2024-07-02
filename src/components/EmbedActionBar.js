@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { LoadingComponent } from './LoadingComponent';
 import { Alert } from '@mui/material';
 
-export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setActive, handleClick, faClass, toggle, setToggle, setFaClass, queryId, title, vizType}) => {
+export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setActive, handleClick, faClass, toggle, setToggle, setFaClass, queryId, title, vizType, query}) => {
     const extensionContext = useContext(ExtensionContext);
     const sdk = extensionContext.core40SDK;
 
@@ -66,8 +66,11 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
                 }
             } while (renderLoaded==false)
         } else {
-            const {id} = await sdk.ok(sdk.query_for_slug(queryId));
-            res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:5000}));
+            console.log("Query ID",queryId);
+            let _limit = -1;
+            const {id, has_table_calculations} = await sdk.ok(sdk.query_for_slug(queryId));
+            if (has_table_calculations) _limit=100000;
+            res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:_limit}));
         }
         downloadFile(res,_type)
         setIsLoading(false)
@@ -114,6 +117,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
                     <i class="fal fa-times export-item" onClick={() => setOpenDownload(false)} ></i>
                 </Popover.Header>
                 <Popover.Body>
+                    {query.query_values.has_table_calculations && <i style={{fontSize:'11px', paddingBottom:'5px'}}>**This file will be limited to 100,000 rows</i>}
                     <Form.Group style={{position:'relative'}}>
                         {isLoading?<LoadingComponent style={{opacity:'60%'}}/>:''}
                         <div className='vis-download-container'>

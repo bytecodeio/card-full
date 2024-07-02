@@ -160,7 +160,13 @@ const AccountGroup = ({
             </InputAdornment>
             :''
           }
-        />
+          
+        />          
+        {selectedFilters && selectedFilters[type] && selectedFilters[type][field]?
+          Object.values(selectedFilters[type][field]).length > 50 && 
+            <div className="account-note">Selecting over 50 accounts may slow load times</div>   
+            :''
+          }
         {Array.isArray(fieldOptions["options"]["values"])
           ? fieldOptions["options"]["values"]?.map((fieldOption) => {
               let [key, value] = Object.entries(fieldOption)[0];

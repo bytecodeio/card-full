@@ -27,6 +27,7 @@ import { DashboardVisualizations221 } from "./VisualizationLayouts/DashboardVisu
 import { RebateEstimator } from "./VisualizationLayouts/RebateEstimator";
 import { StackedVisualization } from "./VisualizationLayouts/StackedVisualization";
 import { RebateEstimatorTopRow } from "./LayoutComponents/RebateEstimatorRow/RebateEstimatorTopRow";
+import { MessageOverlay } from "./LayoutComponents/EmbedMessages/MessageOverlay";
 
 export const TabContext = React.createContext({})
 
@@ -107,7 +108,7 @@ export const ReportContainer = ({
               setIsMounted(true);
               }
           } else {
-              //handleTabVisUpdate({}, selectedFilters, "", true);
+              handleTabVisUpdate({}, selectedFilters, "", true);
           }
         }
     }
@@ -159,7 +160,7 @@ export const ReportContainer = ({
               };
 
               let vis = {};
-              let { client_id, slug, vis_config, fields, model, view, pivots, total, limit, dynamic_fields, sorts } = t["result_maker"]["query"];
+              let { client_id, slug, vis_config, fields, model, view, pivots, total, limit, dynamic_fields, sorts, has_table_calculations } = t["result_maker"]["query"];
               console.log("vis config", t)
               console.log("client id", client_id)
               vis = {
@@ -174,7 +175,7 @@ export const ReportContainer = ({
                 dashboard_id: id,
                 error:false,
                 query_values : {
-                  vis_config, fields, model, view, pivots,total, limit, dynamic_fields, sorts
+                  vis_config, fields, model, view, pivots,total, limit, dynamic_fields, sorts, has_table_calculations
                 },
                 isLoading:false,
                 visUrl:"",
@@ -294,6 +295,11 @@ export const ReportContainer = ({
         return urlString
       }
 
+      useEffect(() => {
+        console.log("SAME, NO FILTERS previous update", previousFilters)
+      },[previousFilters])
+      let _previousFilter = {}
+
       // Handle run button click for visualizations on the page
       const handleTabVisUpdate = async (
         _visList = [],
@@ -305,6 +311,8 @@ export const ReportContainer = ({
           _visList = [...visList];
         }
         let _updatedFilters = {...updatedFilters};
+        let _previousFilter = _updatedFilters
+        console.log("SAME, NO FILTERS previous", _previousFilter)
 
         console.log("Comparison dates", tabFilters)
 
@@ -328,20 +336,21 @@ export const ReportContainer = ({
         }
 
         console.log("filtered filters", JSON.parse(JSON.stringify(_filteredFilters)))
-        console.log("SAME, NO FILTERS", previousFilters)
-        console.log("SAME, NO FILTERS", selectedInnerTab)
-        console.log("DEBUGGING DEFAULTS ONLY FIELDS", loadInitialVis)
+        console.log("SAME, NO FILTERS previous", _previousFilter)
+        console.log("SAME, NO FILTERS filtered", _filteredFilters)
+        console.log("SAME, NO FILTERS load", loadInitialVis)
+        console.log("SAME, NO FILTERS", JSON.stringify(_previousFilter) === JSON.stringify(_filteredFilters) && !loadInitialVis)
         let onlyFields = false;
-        if (JSON.stringify(previousFilters) == JSON.stringify(_filteredFilters) && !loadInitialVis) {
+        if (JSON.stringify(_previousFilter) === JSON.stringify(_filteredFilters) && !loadInitialVis) {
           console.log("DEBUGGING DEFAULTS ONLY FIELDS")
           onlyFields = true
         }
-        console.log("Selected tab filters", selectedTabFilters)
+        console.log("selected inner tab", onlyFields)
+        console.log("Selected inner tab", selectedInnerTab)
+        console.log("selected inner tab", visList)
         let _filters = {};
         _visList = _visList.map((vis) => {
-          console.log(vis, "SAME, NO FILTERS")
-          if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
-            console.log("SAME, NO FILTERS",selectedInnerTab)
+          if ((onlyFields && vis.index == selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
             vis.isLoading=true;
           }
           return vis
@@ -363,6 +372,7 @@ export const ReportContainer = ({
           console.log("comparison date filters", dateFilterName)
           dateRangeName?.fields.map(field => delete _filters[field['name']])
           dateFilterName?.fields.map(field => delete _filters[field['name']])
+          _filters['intersecting_rows_1'] = 'Yes'
         }
         console.log("tab filters", tabFilters)
         if (tabFilters?.find(({type}) => type=="default date filter")) {
@@ -375,7 +385,7 @@ export const ReportContainer = ({
           dateFilterName?.fields.map(field => delete _filters[field['name']])
           //_filters[_default_date['fields']['name']] = _default_date.default_value
         }
-
+        
         console.log("CHECK FILTERS", _filters)
         console.log("DEBUGGING DEFAULTS", _visList)
 
@@ -442,9 +452,9 @@ export const ReportContainer = ({
             _visList[index] = vis;
             setVisList(_visList)
           }
-
+          
+          setPreviousFilters({..._filteredFilters})
         }
-        setPreviousFilters({..._filteredFilters})
         //setVisList(newVisList);
         //
       };
@@ -596,6 +606,9 @@ export const ReportContainer = ({
              formatFilters={formatFilters}  faClass={faClass}
              layoutProps={layoutProps}/>
 
+            {
+              ((application?.account_required == "true" && Object.values(updatedFilters['account filter']).length > 0) || application?.account_required != "true")?
+
             <TabContext.Provider value={{isLoading, setIsLoading, isLoadingInitialVis}}>
               {layoutProps.layout === "OneTabVisualization"?
                 <OneTabVisualization
@@ -681,7 +694,8 @@ export const ReportContainer = ({
                 :''}
             </TabContext.Provider>
             
-
+              :
+              <MessageOverlay string={"Please select Account(s) to show data"} />}
 
           </>
         )}
