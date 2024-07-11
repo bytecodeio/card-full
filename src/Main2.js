@@ -12,15 +12,10 @@ import "bootstrap/dist/js/bootstrap.min.js";
 import { Link, useRouteMatch, useHistory } from "react-router-dom";
 import { useParams } from "react-router-dom/cjs/react-router-dom.js";
 import {
-  getSavedFilterService,
-  removeSavedFilterService,
-  insertSavedFilterService,
-  updateSavedFilterService,
-  getApplication, getApplicationTags, getApplicationTabs, getTabVisualizations, getTabTags, getTabAttributes, getApplications
+  getApplication, getApplicationTags, getApplicationTabs, getTabVisualizations, getTabTags, getTabAttributes, getApplications, getApplicationsNoThumbnails
 } from "./utils/writebackService.js";
 import { LayoutSelector } from "./LayoutSelector.js";
 import { LookerEmbedSDK } from "@looker/embed-sdk";
-import context from "react-bootstrap/esm/AccordionContext.js";
 import { sortFilters } from "./utils/globalFunctions.js";
 import { getSavedFiltersAPIService, insertSavedFiltersAPIService, removeSavedFiltersAPIService, updateSavedFiltersAPIService } from "./utils/apiMethods.js";
 
@@ -61,11 +56,12 @@ export const Main2 = () => {
   const [tabs, setTabs] = useState([]);
   const [applicationInfo, setApplicationInfo] = useState({});
   const [savedFilters, setSavedFilters] = useState([]);
-  const [isDefaultFilters, setIsDefaultFilters] = useState();
 
   const [propertiesLoading, setPropertiesLoading] = useState(false);
   const [navigationList, setNavigationList] = useState([])
   const [configurationData, setConfigurationData] = useState({})
+
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const params = useParams();
 
@@ -87,12 +83,6 @@ export const Main2 = () => {
       return index1 == -1?1:index2== -1? -1 :index1 - index2;
     })
   }
-
-  
-  // useEffect(() => {
-  //   //getOptionValues(filters,applicationInfo)
-  //   getOptionValues
-  // },[initialLoad === false])
 
       //Get the dimensions, measures and parameters from the LookML
       const fetchLookMlFields = async (model, explore) => {
@@ -130,21 +120,10 @@ export const Main2 = () => {
             });
         }
       });
+      fields = null
       console.log("fields", fieldsByTag)
       return fieldsByTag;
     }
-  useEffect(() => {
-    const update = async () => {
-      if (savedFilters.length > 0) {
-        let _config = await getRefreshedContextData()
-        _config['saved_filters'] = [...savedFilters]
-        console.log("saved filter save", _config)
-        setConfigurationData(prev => _config)
-        updateContextData(_config)
-      }
-    }
-    update()
-  },[savedFilters])
 
   // Group each field with their respective tags
   useEffect(() => {
@@ -446,22 +425,25 @@ export const Main2 = () => {
   
     const killQuery = async (_user) => {
       console.log("KILL", _user)
-      let _runningQueries = await sdk.ok(sdk.all_running_queries());
-      let _currentQueries = _runningQueries.filter(query => {
-        let created = moment(query.created_at)   
-        let now = moment();
-        let duration = moment.duration(now.diff(created));
-        let minutes = duration.asMinutes();
-        console.log("Kill minutes", minutes)
-       return _user.id == query.user.id && (query.source=="api4" || query.source=="private_embed") && minutes >= 3;
-      })
-
-      console.log("kill",_currentQueries)
-      if (_currentQueries?.length > 0) {
-        _currentQueries?.map(query => {
-          sdk.ok(sdk.kill_query(query.query_task_id));
+      if (!isDownloading) {
+        let _runningQueries = await sdk.ok(sdk.all_running_queries());
+        let _currentQueries = _runningQueries.filter(query => {
+          let created = moment(query.created_at)   
+          let now = moment();
+          let duration = moment.duration(now.diff(created));
+          let minutes = duration.asMinutes();
+          console.log("Kill minutes", minutes)
+        return _user.id == query.user.id && (query.source=="api4" || query.source=="private_embed") && minutes >= 3;
         })
+
+        console.log("kill",_currentQueries)
+        if (_currentQueries?.length > 0) {
+          _currentQueries?.map(query => {
+            sdk.ok(sdk.kill_query(query.query_task_id));
+          })
+        }
       }
+
     }
 
     //Initial process to load the context data to get the application information that was in the database
@@ -885,7 +867,7 @@ export const Main2 = () => {
         contextData['tabs'] = _tabs;
       }
 
-      let applications = await getApplications(sdk)
+      let applications = await getApplicationsNoThumbnails(sdk)
       //setNavList(applications)
       if (applications.length > 0) {
         let appList = []
@@ -905,7 +887,7 @@ export const Main2 = () => {
       //console.log("context data fieldsbyTag", _fieldsByTag)
       let _updatedContext = await getRefreshedContextData();
       contextData['fieldsByTag'] = null
-      contextData['saved_filters'] = _updatedContext['saved_filters'];
+      contextData['saved_filters'] = null;
       console.log("context", contextData)
       updateContextData(contextData)
     } catch (ex) {
@@ -941,12 +923,13 @@ export const Main2 = () => {
             upsertSavedFilter:upsertSavedFilter,
             propertiesLoading:propertiesLoading,
             isFilterLoading,
-            getValues:getFilterValues
+            getValues:getFilterValues,
+            isDownloading,setIsDownloading
             }}>
           <TopNav navList={navigationList}/>
           <div className={showMenu ? "largePadding" : "slideOver largePadding"}>
             <div id="nav2">
-              <Tab.Container mountOnEnter
+              <Tab.Container mountOnEnter unmountOnExit
                 defaultActiveKey={currentNavTab}
                 onSelect={(k) => setCurrentNavTab(k)}>
                 <Nav className="inner nav nav-tabs nav-fill">

@@ -5,10 +5,12 @@ import { ExtensionContext } from '@looker/extension-sdk-react';
 import { useEffect } from 'react';
 import { LoadingComponent } from './LoadingComponent';
 import { Alert } from '@mui/material';
+import { ApplicationContext } from '../Main2';
 
 export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setActive, handleClick, faClass, toggle, setToggle, setFaClass, queryId, title, vizType, query}) => {
     const extensionContext = useContext(ExtensionContext);
     const sdk = extensionContext.core40SDK;
+    const {setIsDownloading} =  useContext(ApplicationContext)
 
     const downloadTypes = [
         {label:'Excel (.xlsx)','type':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', value:'xlsx'},
@@ -47,6 +49,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
     const handleDownload = async () => {
         setIsError(false);
         setIsLoading(true)
+        setIsDownloading(true)
         let _type = {...type}
         let res;
         if (_type.value == 'jpg' || _type.value == 'png') {
@@ -74,6 +77,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
         }
         downloadFile(res,_type)
         setIsLoading(false)
+        setIsDownloading(false)
     }
 
     const handlePrint = async () => {

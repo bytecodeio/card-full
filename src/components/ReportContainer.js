@@ -389,7 +389,6 @@ export const ReportContainer = ({
         console.log("CHECK FILTERS", _filters)
         console.log("DEBUGGING DEFAULTS", _visList)
 
-        let newVisList = [];
         for (let vis of _visList) {
           console.log("DEBUGGING DEFAULTS IF ELSE", (onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0)
           if ((onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0) {
@@ -452,16 +451,14 @@ export const ReportContainer = ({
             _visList[index] = vis;
             setVisList(_visList)
           }
-          
+
           setPreviousFilters({..._filteredFilters})
-        }
+        }          
+        _visList=[]
+        _filters={}
         //setVisList(newVisList);
         //
       };
-
-      useEffect(() => {
-        console.log("Is Loading", isLoading)
-      },[isLoading])
 
       //Handles update for a single viz with something like a parameter
       const handleSingleVisUpdate = async (_index) => {

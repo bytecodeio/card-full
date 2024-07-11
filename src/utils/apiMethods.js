@@ -8,10 +8,14 @@ const getToken = async (hostUrl,extensionContext) => {
     let res = await extensionContext.extensionSDK.fetchProxy(`${hostUrl}:19999/api/4.0/login?client_id=${_clientId}&client_secret=${_clientSecret}`, {
         method:'POST'
     });
-    console.log("GET TOKEN", res)
+    console.log("GET TOKEN", res)    
+    _clientId = null
+    _clientSecret = null
     if (res['ok']) {
         return res['body']
     }
+
+
     return ''
 }
 
@@ -45,10 +49,10 @@ export const getSavedFiltersAPIService = async (hostUrl, extensionContext, user,
                 }
             }
         )
+        res = null
         console.log("GET TOKEN", data)
         return data['body']
     }
-    console.log("GET TOKEN", res)
 }
 
 export const insertSavedFiltersAPIService = async (hostUrl, extensionContext, user, app,id,global,filters,title) => {
@@ -81,6 +85,7 @@ export const insertSavedFiltersAPIService = async (hostUrl, extensionContext, us
                 }
             }
         )
+        res = null
         console.log("GET TOKEN", data)
         return data['body']
     }
@@ -117,6 +122,7 @@ export const removeSavedFiltersAPIService = async (hostUrl, extensionContext, id
                 }
             }
         )
+        res = null
         console.log("GET TOKEN", data)
         return data['body']
     }
@@ -153,6 +159,7 @@ export const updateSavedFiltersAPIService = async (hostUrl, extensionContext, id
                 }
             }
         )
+        res=null
         console.log("GET TOKEN", data)
         return data['body']
     }

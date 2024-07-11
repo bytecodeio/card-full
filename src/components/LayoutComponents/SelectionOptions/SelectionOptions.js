@@ -581,7 +581,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Col>
-                                    } 
+                                    }
                                 </Row>
                             </Col>
                         </Row>
