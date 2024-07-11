@@ -20,7 +20,7 @@ export const App = hot(() => {
     
   }
   return (
-    <ExtensionProvider chattyTimeout={10000000}>
+    <ExtensionProvider chattyTimeout={100000000}>
       <Switch>
         {/*Route for Print page for exporting a visualization*/}
         <Route exact path='/print'>

@@ -6,7 +6,7 @@ export const getApplication = async (path,sdk) => {
             .ok(
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `SELECT * from ${scratch_schema}.cms_application where route = '${path}'`,
+                sql: `SELECT id, name, explore, model, account_required, route, tooltip_description from ${scratch_schema}.cms_application where route = '${path}'`,
             })
             )
         const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));
@@ -22,9 +22,9 @@ export const getApplicationTags = async (id,sdk) => {
             .ok(
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `SELECT * from ${scratch_schema}.cms_application_tag a where a.application_id = ${id}
+                sql: `SELECT tag_group,tag_name,type,option_type,misc from ${scratch_schema}.cms_application_tag a where a.application_id = ${id}
                 UNION ALL
-                SELECT * FROM ${scratch_schema}.cms_application_tag g where g.application_id = 0 and type NOT IN (select type from ${scratch_schema}.cms_application_tag where application_id = ${id})`,
+                SELECT tag_group,tag_name,type,option_type,misc FROM ${scratch_schema}.cms_application_tag g where g.application_id = 0 and type NOT IN (select type from ${scratch_schema}.cms_application_tag where application_id = ${id})`,
             })
             )
         const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));
@@ -41,7 +41,7 @@ export const getApplicationTabs = async (id,sdk) => {
             .ok(
             sdk.create_sql_query({
                 connection_name: connection,
-                sql: `select t.*, template.layout_name
+                sql: `select t.id, t.route, t.sort_order, t.title, template.layout_name
                 from ${scratch_schema}.cms_tab t
                 INNER JOIN ${scratch_schema}.cms_template template on template.id = t.template_id where t.application_id = ${id}
                 ORDER BY t.sort_order ASC`,
@@ -168,6 +168,25 @@ export const getApplications = async (sdk) => {
                     WHERE show_in_nav = true
                     UNION ALL
                     SELECT * FROM ${scratch_schema}.cms_application where show_in_nav=false and is_qbr = true
+                    ORDER BY name;`,
+            })
+            )
+        const response = await sdk.ok(sdk.run_sql_query(slugResponse.slug, "inline_json"));
+        
+        return response
+    }
+    return asyncFunction(sdk);
+}
+export const getApplicationsNoThumbnails = async (sdk) => {
+    const asyncFunction = async (sdk) => {
+        const slugResponse = await sdk
+            .ok(
+            sdk.create_sql_query({
+                connection_name: connection,
+                sql: `select id, model,name,name_attribute,route,sort_order from ${scratch_schema}.cms_application 
+                    WHERE show_in_nav = true
+                    UNION ALL
+                    SELECT id, model,name,name_attribute,route,sort_order FROM ${scratch_schema}.cms_application where show_in_nav=false and is_qbr = true
                     ORDER BY name;`,
             })
             )

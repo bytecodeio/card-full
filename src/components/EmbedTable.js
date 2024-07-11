@@ -93,7 +93,7 @@ const EmbedTable = ({ queryId, vis }) => {
 
 
   const embedCtrRef = useCallback(
-    (el) => {
+    (el) => { 
       const hostUrl = extensionSDK.lookerHostData.hostUrl;
       if (el && hostUrl && queryId) {
         el.innerHTML = "";
@@ -112,14 +112,15 @@ const EmbedTable = ({ queryId, vis }) => {
         LookerEmbedSDK.createExploreWithUrl(exploreUrl)
           .appendTo(el) 
           //.on('explore:run:start', (e) => handleRunComplete(e)) 
-          .on('explore:run:complete', (e) => handleRunComplete(e)) 
-          //.on('explore:ready', (e) => handleRunComplete(e)) 
+          //.on('explore:run:complete', (e) => handleRunComplete(e)) 
+          .on('explore:ready', (e) => handleRunComplete(e)) 
           //.on('explore:state:changed', (e) => handleRunComplete(e))              
           .build()
           .connect() 
           .catch((error) => {
             console.error("Connection error", error);
           });
+        exploreUrl = null
       }
     },
     [vis.visUrl]

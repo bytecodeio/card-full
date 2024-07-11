@@ -51,7 +51,7 @@ const InnerTableTabs = ({
     <Container fluid className="padding-0">
       <Container fluid className={showMenu3 ? "padding-0 innerTab highIndex" : "padding-0 innerTab"}>
 
-        <Tabs
+        <Tabs mountOnEnter unmountOnExit
           className="inner"
           fill
           activeKey={selectedInnerTab?selectedInnerTab[tabs[0].dashboard_id]:0}
