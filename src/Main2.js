@@ -362,7 +362,7 @@ export const Main2 = () => {
       console.log("filters",_filters)
       setFilters(_filters);
 
-      getSavedFilters(application, user, _filters);
+      //getSavedFilters(application, user, _filters);
       console.log("defaultSelected", _defaultSelected)
       setSelectedFilters(_defaultSelected);
 

@@ -200,6 +200,11 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             <Accordion.Item eventKey="2">
                                                 <Accordion.Header>
                                                     Account Filter
+                                                    <div className='accounts-selected'>{Object.keys(selectedFilters['account filter']).length > 0?`(${Object.values(selectedFilters['account filter'][Object.keys(selectedFilters['account filter'])[0]]).length} of ${filters.find(
+                                                            ({ type }) => type === "account filter"
+                                                        )?.options?.values?.length})`:`(0 of ${filters.find(
+                                                            ({ type }) => type === "account filter"
+                                                        )?.options?.values?.length})`}</div>
                                                 </Accordion.Header>
                                                 <Accordion.Body>
                                                     {/* <div className="position-relative mb-3">
@@ -566,7 +571,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
 
 
                                     {/* Bookmarks */}
-                                    {layoutProps['saved filters'] &&
+                                    {/* {layoutProps['saved filters'] &&
                                     <Col xs={12} md={12}>
                                         <Accordion.Item eventKey="8">
                                             <Accordion.Header>Saved Filters</Accordion.Header>
@@ -581,7 +586,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Col>
-                                    }
+                                    } */}
                                 </Row>
                             </Col>
                         </Row>

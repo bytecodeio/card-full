@@ -186,6 +186,7 @@ const AutoCompleteFilter = ({allFilters, filters, setFilters, filterOption, sele
     <div className="one filter-selector" key={filterOption.name}>
     <p variant="h6">{filterOption.field?.label_short}</p>            
         <Autocomplete name={filterOption.name} className="filter-input"
+          disableCloseOnSelect
           open={open}
           onOpen={() => setOpen(true)}
           onClose={() => setOpen(false)}
