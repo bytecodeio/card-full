@@ -5348,6 +5348,11 @@ text-align: center;
 
 }
 
+.accounts-selected {
+  /* font-size: 12px; */
+  margin-left: 5px;
+}
+
 .filter-input > input {
   padding: 10px !important;
   background-color: white;
