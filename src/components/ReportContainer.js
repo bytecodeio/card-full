@@ -232,9 +232,11 @@ export const ReportContainer = ({
               for (const [key, value] of Object.entries(filters[key])) {
                 obj[key] = value.toString();
               }
+              
+              if (Object.values(obj) != '') {
                 filters[key] = obj
                 filter = {...filter, ...filters[key]}
-
+              }
             }
           }
         });
