@@ -186,7 +186,8 @@ const ComparisonModal = ({tabFilters,selectedTabFilters,setSelectedTabFilters, s
         }
         if (type == "end") {
           let splitDate = splitSelectedDateRange(fieldType);
-          splitDate[1] = moment(e).add(1, 'days').format('YYYY/MM/DD');
+          splitDate[1] = moment(e).format('YYYY/MM/DD');
+          //splitDate[1] = moment(e).add(1, 'days').format('YYYY/MM/DD');
           filters[_field['fields']['name']] = splitDate.join(" to ")
           setSelectedTabFilters(filters);
         }
