@@ -29,7 +29,7 @@ export const CurrentSelection2 = ({ filters, selectedFilters, setSelectedFilters
               let first = obj.label.split(" to ")[0]
               let format1 = moment(first).format('MM-DD-YYYY').toString();
               const last = obj.label.split(" to ")[1]
-              let format2 = moment(last).format('MM-DD-YYYY').toString();
+              let format2 = moment(last).add(1, 'days').format('YYYY/MM/DD').toString();
 
 
             }

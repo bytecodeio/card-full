@@ -49,7 +49,8 @@ export const ContractExpiration = ({filterOption, selectedFilters, setSelectedFi
         }
         if (type == "end") {
           let splitDate = splitSelectedDateRange();
-          splitDate[1] = e.format('YYYY-MM-DD');
+          //splitDate[1] = e.format('YYYY-MM-DD');
+          splitDate[1] = moment(e).add(1, 'days').format('YYYY/MM/DD');
           setDateRange(splitDate.join(" to "))
           if (isChecked) {
             filters[contract_type] = {}

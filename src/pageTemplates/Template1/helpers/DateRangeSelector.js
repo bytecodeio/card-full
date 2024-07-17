@@ -22,7 +22,8 @@ export const DateRangeSelector = ({
     }
     if (type == "end") {
       let splitDate = splitSelectedDateRange();
-      splitDate[1] = e.target.value;
+      //splitDate[1] = e.target.value;
+      splitDate[1] = moment(e.target.value).add(1, 'days');
       setSelectedDateRange(splitDate.join(" to "));
     }
     setSelectedDateFilter("");

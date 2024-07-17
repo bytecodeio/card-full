@@ -98,7 +98,8 @@ export const DateRangeSelector = ({
     }
     if (type == "end") {
       let splitDate = splitSelectedDateRange();
-      splitDate[1] = e.target.value;
+      //splitDate[1] = e.target.value;
+      splitDate[1] = moment(e.target.value).add(1, 'days');
       filters[date_range_type][dateRangeField['name']] = splitDate.join(" to ")
       setSelectedFilters(filters);
     }
