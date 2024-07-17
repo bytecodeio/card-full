@@ -28,6 +28,7 @@ import { RebateEstimator } from "./VisualizationLayouts/RebateEstimator";
 import { StackedVisualization } from "./VisualizationLayouts/StackedVisualization";
 import { RebateEstimatorTopRow } from "./LayoutComponents/RebateEstimatorRow/RebateEstimatorTopRow";
 import { MessageOverlay } from "./LayoutComponents/EmbedMessages/MessageOverlay";
+import moment from "moment";
 
 export const TabContext = React.createContext({})
 
@@ -225,21 +226,31 @@ export const ReportContainer = ({
       //Formatting the filters for a Looker Query
       const formatFilters = (filters,type) => {
         let filter = {};
-        Object.keys(filters).map((key) => {
-          if (Object.keys(filters[key]).length > 0) {
-            if (!(key == "date range" &&Object.keys(filters["date filter"]).length > 0)) {
-              let obj = {}
-              for (const [key, value] of Object.entries(filters[key])) {
-                obj[key] = value.toString();
-              }
-              
+        Object.keys(filters).map((keyProp) => {
+          if (Object.keys(filters[keyProp]).length > 0) {
+            if (!(keyProp == "date range" &&Object.keys(filters["date filter"]).length > 0)) {
+              let obj = {}                            
+              for (const [key, value] of Object.entries(filters[keyProp])) {
+                console.log("format filter key", keyProp)
+                if (keyProp == "date range" || keyProp == "contract expiration filter") {
+                  if (value != "") {
+                    let _split = value.split(" to ");
+                    _split[1] = moment(_split[1]).add(1,'day').format('YYYY-MM-DD');
+                    let _newValue = _split.join(" to ")
+                    obj[key] = _newValue.toString()
+                  }
+                } else {                    
+                  obj[key] = value.toString();
+                }
+              }              
               if (Object.values(obj) != '') {
-                filters[key] = obj
-                filter = {...filter, ...filters[key]}
+                filters[keyProp] = obj
+                filter = {...filter, ...filters[keyProp]}
               }
             }
           }
         });
+        console.log("format filter key", filter)
         return filter;
       };
 
@@ -364,9 +375,22 @@ export const ReportContainer = ({
         setUpdatedFilters(JSON.parse(JSON.stringify(_filteredFilters)))
         // setUpdatedFilters(JSON.parse(JSON.stringify(filterList)));
         updateAppProperties(_filters);
-        _filters = {..._filters, ...selectedTabFilters}
-
+        let _selectedTabFilters = {...selectedTabFilters}
         if (tabFilters?.find(({type}) => type ==="comparison filter compare") && tabFilters?.find(({type}) => type ==="comparison filter review")) {
+          let _compare = tabFilters?.find(({type}) => type ==="comparison filter compare")
+          let _review = tabFilters?.find(({type}) => type ==="comparison filter review")
+          if (selectedTabFilters[_compare['fields']['name']]) {
+            let _compareVal = _selectedTabFilters[_compare['fields']['name']].split(" to ")
+            _compareVal[1] = moment(_compareVal[1]).add(1,'day').format('YYYY-MM-DD')
+            _selectedTabFilters[_compare['fields']['name']] = _compareVal.join(" to ");
+          }
+
+          if (selectedTabFilters[_review['fields']['name']]) {
+            let _reviewVal = _selectedTabFilters[_review['fields']['name']].split(" to ")
+            _reviewVal[1] = moment(_reviewVal[1]).add(1,'day').format('YYYY-MM-DD')
+            _selectedTabFilters[_review['fields']['name']] = _reviewVal.join(" to ");
+          }
+
           console.log("comparison date filters", _filters)
           let dateRangeName =  filters?.find(({type}) =>  type==='date range')
           let dateFilterName =  filters?.find(({type}) =>  type==='date filter')
@@ -375,6 +399,7 @@ export const ReportContainer = ({
           dateRangeName?.fields.map(field => delete _filters[field['name']])
           dateFilterName?.fields.map(field => delete _filters[field['name']])
           _filters['intersecting_rows_1'] = 'Yes'
+          console.log("comparison date date addition", tabFilters)
         }
         console.log("tab filters", tabFilters)
         if (tabFilters?.find(({type}) => type=="default date filter")) {
@@ -388,6 +413,7 @@ export const ReportContainer = ({
           //_filters[_default_date['fields']['name']] = _default_date.default_value
         }
         
+        _filters = {..._filters, ..._selectedTabFilters}
         console.log("CHECK FILTERS", _filters)
         console.log("DEBUGGING DEFAULTS", _visList)
 
