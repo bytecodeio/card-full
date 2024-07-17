@@ -160,7 +160,11 @@ const AutoCompleteFilter = ({allFilters, filters, setFilters, filterOption, sele
         if (filterOption.field.enumerations) {
           values = filterOption.field.enumerations?.map(e => {return {[filterOption.field['name']]:e.value}})
         } else {
-          let _updatedFilters = formatFilters({...updatedFilters})
+          let _updatedFilters = {...updatedFilters}
+          delete _updatedFilters['date filter']
+          delete _updatedFilters['date range']
+          console.log("UPDATED FORMAT FILTERS", _updatedFilters)
+          _updatedFilters = formatFilters(_updatedFilters)
           console.log("UPDATED FORMAT FILTERS", _updatedFilters)
           values = await getValues(filterOption.field, _updatedFilters, application)
         }
