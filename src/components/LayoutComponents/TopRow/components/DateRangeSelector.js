@@ -37,7 +37,8 @@ export const DateRangeSelector = ({
     }
     if (type == "end") {
       let splitDate = splitSelectedDateRange();
-      splitDate[1] = e.format('YYYY-MM-DD');
+      //splitDate[1] = e.format('YYYY-MM-DD');
+      splitDate[1] = moment(e).add(1, 'days').format('YYYY/MM/DD');
       filters[date_range_type][dateRangeField['name']] = splitDate.join(" to ")
       setSelectedFilters(filters);
     }
