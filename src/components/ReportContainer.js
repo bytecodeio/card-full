@@ -90,7 +90,7 @@ export const ReportContainer = ({
       savedFilters,
       removeSavedFilter,
       upsertSavedFilter,
-      showMenu, setShowMenu, propertiesLoading,application,isFilterLoading} = useContext(ApplicationContext)
+      showMenu, setShowMenu, propertiesLoading,application,isFilterLoading, updatedFields} = useContext(ApplicationContext)
 
       useEffect(() => {
         console.log("Total filters",filters)
@@ -242,11 +242,18 @@ export const ReportContainer = ({
                 } else {                    
                   obj[key] = value.toString();
                 }
-              }              
-              if (Object.values(obj) != '') {
+              }  
+              
+              if (Object.entries(obj).map(([key,value]) => {
+                if (value == '') {
+                  delete obj[key]
+                }
+              }))   
+              console.log("FORMAT FILTER REPORTCONTAINER", obj)         
+              //if (Object.values(obj) != '') {
                 filters[keyProp] = obj
                 filter = {...filter, ...filters[keyProp]}
-              }
+              //}
             }
           }
         });
@@ -416,6 +423,10 @@ export const ReportContainer = ({
         _filters = {..._filters, ..._selectedTabFilters}
         console.log("CHECK FILTERS", _filters)
         console.log("DEBUGGING DEFAULTS", _visList)
+        console.log("FIELD CHANGES", updatedFields)  
+        if (updatedFields[currentNavTab]) {
+          _visList = await updateVislistForFieldsAndFilters(_visList, {...updatedFields[currentNavTab]});
+        }
 
         for (let vis of _visList) {
           console.log("DEBUGGING DEFAULTS IF ELSE", (onlyFields && vis.index === selectedInnerTab[vis.dashboard_id]) || onlyFields == false || Object.keys(selectedTabFilters).length > 0)
@@ -560,6 +571,43 @@ export const ReportContainer = ({
         }
       };
 
+    const updateFieldsAndFilters = async (_updatedFields, _updatedFilters) => {
+      console.log("FIELD CHANGES", _updatedFields)
+      let _fieldsWithinTabs = {..._updatedFields[currentNavTab]};
+      console.log("FIELD CHANGES", currentNavTab)
+      console.log("FIELD CHANGES", _fieldsWithinTabs)
+      let _visList = [...visList]
+      let _list = []
+      _list = await updateVislistForFieldsAndFilters(_visList, _fieldsWithinTabs)
+      console.log("FIELD CHANGES", _list)
+      handleTabVisUpdate(_list, _updatedFilters)
+    }
+
+    const updateVislistForFieldsAndFilters = async(_visList, _fieldsWithinTabs) => {
+      return await _visList.map(v => {
+        let _fieldChanges = _fieldsWithinTabs[v.title];
+        if (_fieldChanges && _fieldChanges.length > 0) {           
+          _fieldChanges.map(changes => {
+            console.log("FIELD CHANGES CHANGES", changes) 
+            if (changes.type == "add") {
+                if (!v.selected_fields.includes(changes.field)) {
+                  v.selected_fields.push(changes.field)
+                  console.log("FIELD CHANGES", changes)  
+                }
+            } else if (changes.type == "remove") {
+              if (v.selected_fields.includes(changes.field)) {
+                let index = v.selected_fields.indexOf(changes.field)
+                v.selected_fields.splice(index,1)
+                console.log("FIELD CHANGES", changes)  
+              }
+            }
+          })      
+          console.log("FIELD CHANGES", _fieldChanges)          
+        }
+        return v
+      })
+    }
+
 
 
     console.log("description", application)
@@ -600,6 +648,8 @@ export const ReportContainer = ({
                 setUpdatedFilters={setUpdatedFilters}
                 isFilterLoading={isFilterLoading}
                 formatFilters={formatFilters}
+                currentTab={currentNavTab}
+                updateFieldsAndFilters={updateFieldsAndFilters}
             />
             <Row className="fullW">
               <Col md={12} lg={12}>

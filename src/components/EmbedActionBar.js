@@ -73,7 +73,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
             let _limit = -1;
             const {id, has_table_calculations} = await sdk.ok(sdk.query_for_slug(queryId));
             if (has_table_calculations) _limit=100000;
-            res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:_limit}));
+            res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:_limit, apply_vis:true, apply_formatting:true}));
         }
         downloadFile(res,_type)
         setIsLoading(false)
