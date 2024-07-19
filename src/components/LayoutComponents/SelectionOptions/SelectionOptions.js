@@ -552,7 +552,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                     :''} 
 
                                     {/* Top Products */}
-                                    {tabFilters?.find(({type}) => type=="top products") &&  visList.length > 0 ? (
+                                    {/*tabFilters?.find(({type}) => type=="top products") &&  visList.length > 0 ? (
                                     <Col xs={12} md={12}>
                                         <Accordion.Item eventKey="7">
                                             <Accordion.Header>Top Products</Accordion.Header>
@@ -567,7 +567,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Col>)
-                                    :''}   
+                                    :''*/}   
 
 
                                     {/* Bookmarks */}
