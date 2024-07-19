@@ -28,11 +28,16 @@ export const Main2 = () => {
   const extensionContext = useContext(ExtensionContext);
   const sdk = extensionContext.core40SDK;
 
+  const params = useParams();
+
+  const route = useRouteMatch();
+
+  const history = useHistory();
 
   const hostUrl = extensionContext.extensionSDK.lookerHostData.hostUrl;
   LookerEmbedSDK.init(hostUrl);
 
-  const [currentNavTab, setCurrentNavTab] = useState("dashboard");
+  const [currentNavTab, setCurrentNavTab] = useState(params.path);
 
   const [isFetchingLookmlFields, setIsFetchingLookmlFields] = useState(true);
 
@@ -63,11 +68,9 @@ export const Main2 = () => {
 
   const [isDownloading, setIsDownloading] = useState(false)
 
-  const params = useParams();
+  const [updatedFields, setUpdatedFields] = useState({})
 
-  const route = useRouteMatch();
 
-  const history = useHistory();
 
   const handleChangeKeyword = (e) => {
     setKeyword(e.target.value);
@@ -362,7 +365,7 @@ export const Main2 = () => {
       console.log("filters",_filters)
       setFilters(_filters);
 
-      //getSavedFilters(application, user, _filters);
+      getSavedFilters(application, user, _filters);
       console.log("defaultSelected", _defaultSelected)
       setSelectedFilters(_defaultSelected);
 
@@ -473,6 +476,7 @@ export const Main2 = () => {
             setTabs(tabs);
             if (!params.path) {
               history.push(tabs[0].route);
+              setCurrentNavTab(tabs[0].route)
             }
           }
         }
@@ -790,13 +794,14 @@ export const Main2 = () => {
   //Create or update a saved filter
   const upsertSavedFilter = async (type, obj) => {
     let _savedFilters = [...savedFilters]
+    let _filterString = {'filters':updatedFilters, 'fields':updatedFields}
     if (type == "update") {
       let _row = _savedFilters.find(({id}) => obj.id === id);
       _row.title = obj.title;
       _row.global = obj.global;
       _row.filter_string = obj.filter_string;
       setSavedFilters(_savedFilters)
-      await updateSavedFiltersAPIService(extensionContext.extensionSDK.lookerHostData.hostUrl, extensionContext,obj.id, obj.title, obj.global, JSON.stringify(obj.filter_string)).then(
+      await updateSavedFiltersAPIService(extensionContext.extensionSDK.lookerHostData.hostUrl, extensionContext,obj.id, obj.title, obj.global, JSON.stringify(_filterString)).then(
         (r) => getSavedFilters()
       );
       return true
@@ -804,7 +809,7 @@ export const Main2 = () => {
       let _row = {
         id: obj.id,
         user_id: user.id,
-        filter_string: JSON.stringify(updatedFilters),
+        filter_string: JSON.stringify(_filterString),
         title: obj.title,
         global: obj.global,
       }
@@ -818,7 +823,7 @@ export const Main2 = () => {
         applicationInfo.id,
         obj.id,
         obj.global,
-        JSON.stringify(updatedFilters),
+        JSON.stringify(_filterString),
         obj.title
       ).then((r) => getSavedFilters());
       
@@ -896,6 +901,30 @@ export const Main2 = () => {
 
   }
 
+  const handleFieldUpdates = (tab, subTab, field, type) => {
+    let _updatedFields = {...updatedFields}
+    _updatedFields[tab]?_updatedFields[tab]:_updatedFields[tab] = {}
+    console.log("FIELDS UPDATES", _updatedFields[tab])
+    _updatedFields[tab][subTab]?_updatedFields[tab][subTab]:_updatedFields[tab][subTab] = []
+    let isMatch = _updatedFields[tab][subTab].find(_field => _field.field === field)
+    console.log("FIELDS UPDATES IS MATCH", field)
+    console.log("FIELDS UPDATES IS MATCH", isMatch)
+    if (isMatch) {
+      let index = _updatedFields[tab][subTab].indexOf(isMatch)
+      _updatedFields[tab][subTab].splice(index,1)
+    } else {
+      _updatedFields[tab][subTab].push({
+        'field':field,
+        'type':type
+      })
+    }
+    setUpdatedFields(_updatedFields)
+  }
+
+  useEffect(() => {
+    console.log("FIELDS UPDATES", updatedFields)
+  },[updatedFields])
+
   return (
     <>
     <div className="mainHeight">
@@ -925,6 +954,7 @@ export const Main2 = () => {
             isFilterLoading,
             getValues:getFilterValues,
             isDownloading,setIsDownloading
+            ,updatedFields, setUpdatedFields, handleFieldUpdates
             }}>
           <TopNav navList={navigationList}/>
           <div className={showMenu ? "largePadding" : "slideOver largePadding"}>

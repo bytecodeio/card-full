@@ -18,7 +18,7 @@ import { ContractExpiration } from '../ContractExpiration';
 
 
 //SelectionOptions is the side panel that includes filters and field selections
-export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, handleTabVisUpdate,setIsFilterChanged,visList,setVisList, selectedFilters, setSelectedFilters, fieldGroups, savedFilters,removeSavedFilter,upsertSavedFilter,attributes,selectedInnerTab,updateButtonClicked,setUpdateButtonClicked, layoutProps, showMenu, setShowMenu, updatedFilters, setUpdatedFilters,tabFilters, formatFilters}) => {
+export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, handleTabVisUpdate,setIsFilterChanged,visList,setVisList, selectedFilters, setSelectedFilters, fieldGroups, savedFilters,removeSavedFilter,upsertSavedFilter,attributes,selectedInnerTab,updateButtonClicked,setUpdateButtonClicked, layoutProps, showMenu, setShowMenu, updatedFilters, setUpdatedFilters,tabFilters, formatFilters, currentTab, updateFieldsAndFilters}) => {
     const [show, setShow] = useState(false)
     const handleClose = () => setShow(false);
     const wrapperRef = useRef(null);
@@ -440,7 +440,9 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                                         )}
                                                         currentInnerTab={selectedInnerTab[visList[tabVisIndex].dashboard_id]}
                                                         updateBtn={updateButtonClicked}
-                                                        setUpdateBtn={setUpdateButtonClicked} />
+                                                        setUpdateBtn={setUpdateButtonClicked} 
+                                                        currentTab={currentTab}
+                                                        />
                                                 </Accordion.Body>
                                             </Accordion.Item>
                                         </Col>
@@ -571,7 +573,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
 
 
                                     {/* Bookmarks */}
-                                    {/* {layoutProps['saved filters'] &&
+                                    {layoutProps['saved filters'] &&
                                     <Col xs={12} md={12}>
                                         <Accordion.Item eventKey="8">
                                             <Accordion.Header>Saved Filters</Accordion.Header>
@@ -582,11 +584,13 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                                     setSelectedFilters={setSelectedFilters}
                                                     handleVisUpdate={handleTabVisUpdate}
                                                     removeSavedFilter={removeSavedFilter}
-                                                    upsertSavedFilter={upsertSavedFilter} />
+                                                    upsertSavedFilter={upsertSavedFilter} 
+                                                    updateFieldsAndFilters={updateFieldsAndFilters}
+                                                    />
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Col>
-                                    } */}
+                                    }
                                 </Row>
                             </Col>
                         </Row>

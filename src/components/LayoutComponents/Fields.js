@@ -1,7 +1,9 @@
 import { Checkbox, FormControlLabel } from "@mui/material";
 import React, { useState } from "react";
+import { useContext } from "react";
 import { useEffect } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { ApplicationContext } from "../../Main2";
 
 const Fields = ({
   fieldOptions,
@@ -10,25 +12,30 @@ const Fields = ({
   currentInnerTab,
   updateBtn,
   setUpdateBtn,
-  showActionBtns = true
+  showActionBtns = true,
+  currentTab
 
 }) => {
+  const {updatedFields, setUpdatedFields, handleFieldUpdates} = useContext(ApplicationContext)
   const [expandMenu, setExpandMenu] = useState(false);
 
   useEffect(() => {
     console.log("fields options", fieldOptions)
   },[fieldOptions])
 
-  function handleFieldSelection(fieldName) {
-    
+  function handleFieldSelection(fieldName) {    
     // setUpdateBtn(false);
     let tabs = [...tabList];
-    let currentTab = tabs[currentInnerTab];
-    if (currentTab["selected_fields"].includes(fieldName)) {
-      let index = currentTab["selected_fields"].indexOf(fieldName);
-      currentTab["selected_fields"].splice(index, 1);
+    let _currentTab = tabs[currentInnerTab];
+    console.log("FIELD UPDATES", currentTab)
+    console.log("FIELD UPDATES", _currentTab)
+    if (_currentTab["selected_fields"].includes(fieldName)) {
+      let index = _currentTab["selected_fields"].indexOf(fieldName);
+      _currentTab["selected_fields"].splice(index, 1);
+      handleFieldUpdates(currentTab, _currentTab.title, fieldName, 'remove')
     } else {
-      currentTab["selected_fields"].push(fieldName);
+      _currentTab["selected_fields"].push(fieldName);
+      handleFieldUpdates(currentTab, _currentTab.title, fieldName, 'add')
     }
     setTabList(tabs);
   }

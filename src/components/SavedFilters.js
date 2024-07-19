@@ -6,9 +6,11 @@ import { LoadingComponent } from "./LoadingComponent";
 import { v4 as uuidv4 } from 'uuid';
 import {Close} from '@styled-icons/material-outlined'
 import { Alert, Checkbox, FormControlLabel, Snackbar } from "@mui/material";
+import { ApplicationContext } from "../Main2";
 
-export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters, selectedFilters, removeSavedFilter, upsertSavedFilter}) => {
+export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters, selectedFilters, removeSavedFilter, upsertSavedFilter, updateFieldsAndFilters}) => {
     const extensionContext = useContext(ExtensionContext)
+    const {setUpdatedFields} = useContext(ApplicationContext)
     const sdk = extensionContext.core40SDK;
 
     const target = useRef(null);
@@ -48,9 +50,18 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
     },[savedFilters])
 
     const handleSavedFilterClick = async (filter) => {
-        if (isJson(filter['filter_string'])) {                
-            setSelectedFilters(JSON.parse(filter['filter_string']))
-            handleVisUpdate({}, JSON.parse(filter['filter_string']))
+        if (isJson(filter['filter_string'])) {
+            let _parsedString = JSON.parse(filter['filter_string']);
+            console.log("FIELD CHANGES", _parsedString)
+            if (_parsedString['filters']) {
+                setUpdatedFields(_parsedString['fields'])
+                setSelectedFilters(_parsedString['filters'])
+                updateFieldsAndFilters(_parsedString['fields'],_parsedString['filters'])
+            } else {
+                setSelectedFilters(_parsedString)
+                handleVisUpdate({}, _parsedString)
+            }      
+
         }
     }
 
