@@ -459,7 +459,7 @@ export const ReportContainer = ({
 
             _fields = vis["selected_fields"];
             let _dynamic_fields = ""
-            if (layoutProps.layout == "Rebate Estimator") {
+            if (layoutProps.layout == "Rebate Estimator" || layoutProps.layout == "OneTabVisualizationWithVizAbove") {
               _dynamic_fields = dynamic_fields
             }
 
