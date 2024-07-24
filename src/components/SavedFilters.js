@@ -162,8 +162,16 @@ export const SavedFilters = ({savedFilters, handleVisUpdate, setSelectedFilters,
 const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setOpen, upsertSavedFilter,setIsLoading, savedFiltersObj, setSavedFiltersObj, user, selectedFilters}) => {
     const [title, setTitle] = useState("");
     const [checkbox, setCheckbox] = useState(false)
+    const [isValid, setIsValid] = useState(true)
 
     const handleUpdateTitle = (e) => {
+        let _match = savedFiltersObj.some(({title}) => title === e.target.value) 
+
+        if (_match) {
+            setIsValid(false)
+        } else {
+            setIsValid(true)
+        }
         setTitle(e.target.value)
     }
 
@@ -231,9 +239,15 @@ const NewSavedFilterPanel = React.forwardRef(({setOpenMessage, openMessage, setO
 
 
                     <Form.Text className="mt-2 mb-2">*Note: Adding a saved filter will save the current account selections and filter selections</Form.Text>
+                    {!isValid &&
+                        <Alert severity="error" variant="filled">The title is already in use. Choose a different title and try again.
+                        <br />
+                        If the issue persists, contact 1-800-ECOMHLP (326-6457).</Alert>
+                    }
+                    
 
                     <div className="saved-filter-action-bar">
-                        <Button disabled={title.trim() == ""?"disabled":''} onClick={handleSaveClick}>Save</Button>
+                        <Button disabled={title.trim() == "" || !isValid ?"disabled":''} onClick={handleSaveClick}>Save</Button>
                         <Button className="btn-clear" onClick={handleCancelClick}>Cancel</Button>
                     </div>
                 </div>
@@ -254,6 +268,7 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
     const [checkbox, setCheckbox] = useState(false)
     const [id, setId] = useState("")
     const [openMessage, setOpenMessage] = useState(false)
+    const [isValid, setIsValid] = useState(true)
 
     useEffect(() => {
          console.log("saved", selectedFilter)
@@ -266,6 +281,13 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
     },[openEdit])
 
     const handleUpdateTitle = (e) => {
+        let _match = savedFiltersObj.some(({title}) => title === e.target.value && selectedFilter.title != e.target.value) 
+
+        if (_match) {
+            setIsValid(false)
+        } else {
+            setIsValid(true)
+        }
         setTitle(e.target.value)
     }
 
@@ -338,9 +360,14 @@ const UpdateSavedFilterPanel = React.forwardRef(({setOpenEdit, openEdit, upsertS
                             ))}
                         </div>
                     </Form.Text> */}
+                    {!isValid &&
+                        <Alert severity="error" variant="filled">The title is already in use. Choose a different title and try again.
+                        <br />
+                        If the issue persists, contact 1-800-ECOMHLP (326-6457).</Alert>
+                    }
 
                     <div className="saved-filter-action-bar">
-                        <Button disabled={title.trim() == ""?"disabled":''} onClick={() => setShowModal(true)}>Update</Button>
+                        <Button disabled={title.trim() == "" || !isValid ?"disabled":''} onClick={() => setShowModal(true)}>Update</Button>
                         <Button className="btn-clear" onClick={handleCancelClick}>Cancel</Button>
                     </div>
                 </div>
