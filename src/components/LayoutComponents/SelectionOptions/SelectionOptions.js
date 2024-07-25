@@ -573,7 +573,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
 
 
                                     {/* Bookmarks */}
-                                    {layoutProps['saved filters'] &&
+                                    {/*layoutProps['saved filters'] &&
                                     <Col xs={12} md={12}>
                                         <Accordion.Item eventKey="8">
                                             <Accordion.Header>Saved Filters</Accordion.Header>
@@ -590,7 +590,7 @@ export const SelectionOptions = ({filters, setFilters, isFilterLoading, fields, 
                                             </Accordion.Body>
                                         </Accordion.Item>
                                     </Col>
-                                    }
+                                    */}
                                 </Row>
                             </Col>
                         </Row>
