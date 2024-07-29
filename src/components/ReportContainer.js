@@ -23,6 +23,7 @@ import { FullLookMLDashboard } from "./VisualizationLayouts/FullLookMLDashboard"
 import { LoadingComponent } from "./LoadingComponent";
 import { OneTabVisualizationWithVizAbove } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove";
 import { OneTabVisualizationWithVizAbove2 } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove2";
+import { OneTabVisualizationWithVizAbove3 } from "./VisualizationLayouts/OneTabVisualizationWithVizAbove3";
 import { DashboardVisualizations221 } from "./VisualizationLayouts/DashboardVisualizations221";
 import { RebateEstimator } from "./VisualizationLayouts/RebateEstimator";
 import { StackedVisualization } from "./VisualizationLayouts/StackedVisualization";
@@ -459,7 +460,7 @@ export const ReportContainer = ({
 
             _fields = vis["selected_fields"];
             let _dynamic_fields = ""
-            if (layoutProps.layout == "Rebate Estimator" || layoutProps.layout == "OneTabVisualizationWithVizAbove") {
+            if (layoutProps.layout == "Rebate Estimator" || layoutProps.layout == "OneTabVisualizationWithVizAbove3") {
               _dynamic_fields = dynamic_fields
             }
 
@@ -762,6 +763,17 @@ export const ReportContainer = ({
                     visList={visList}
                     handleSingleVisUpdate={handleSingleVisUpdate}/>
                 :''}
+
+              {layoutProps.layout === "OneTabVisualizationWithVizAbove3"?
+                <OneTabVisualizationWithVizAbove3
+                    setSelectedFields={setSelectedFields}
+                    selectedInnerTab={selectedInnerTab}
+                    setSelectedInnerTab={setSelectedInnerTab}
+                    setVisList={setVisList}
+                    visList={visList}
+                    handleSingleVisUpdate={handleSingleVisUpdate}/>
+                :''}
+
               {layoutProps.layout === "FullLookMLDashboard"?
                 <FullLookMLDashboard
                     config={config}
