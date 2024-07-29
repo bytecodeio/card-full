@@ -51,6 +51,7 @@ const Fields = ({
     let tabs = [...tabList];
     let currentTab = tabs[currentInnerTab];
     currentTab['selected_fields'] = [...currentTab['default_fields']]
+    setUpdatedFields(currentTab['selected_fields'])
     setTabList(tabs)
   }
 

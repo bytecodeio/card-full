@@ -72,7 +72,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
             console.log("Query ID",queryId);
             let _limit = -1;
             const {id, has_table_calculations} = await sdk.ok(sdk.query_for_slug(queryId));
-            if (has_table_calculations) _limit=100000;
+            if (has_table_calculations) _limit=200000;
             res = await sdk.ok(sdk.run_query({query_id:id, result_format:_type.value, limit:_limit, apply_vis:true, apply_formatting:true}));
         }
         downloadFile(res,_type)
@@ -121,7 +121,7 @@ export const EmbedActionBar = ({ slideIt3, showMenu3, setShowMenu3, active, setA
                     <i class="fal fa-times export-item" onClick={() => setOpenDownload(false)} ></i>
                 </Popover.Header>
                 <Popover.Body>
-                    {query.query_values.has_table_calculations && <i style={{fontSize:'11px', paddingBottom:'5px'}}>**This file will be limited to 100,000 rows</i>}
+                    {query.query_values.has_table_calculations && <i style={{fontSize:'11px', paddingBottom:'5px'}}>**This file will be limited to 200,000 rows due to table calculation</i>}
                     <Form.Group style={{position:'relative'}}>
                         {isLoading?<LoadingComponent style={{opacity:'60%'}}/>:''}
                         <div className='vis-download-container'>
